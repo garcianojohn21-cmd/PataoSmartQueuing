@@ -50,20 +50,25 @@ namespace PataoSmartQueuing.Services
         private async Task CheckAndCloseExpiredQueues()
         {
             using var scope = _scopeFactory.CreateScope();
+
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<NotificationHub>>();
             var emailService = scope.ServiceProvider.GetRequiredService<EmailService>();
 
-            var now = DateTime.Now;
+            // ALWAYS USE UTC FOR POSTGRESQL TIMESTAMPTZ
+            var now = DateTime.UtcNow;
+
+            _logger.LogInformation($"Queue timeout check running. UTC Time: {now:yyyy-MM-dd HH:mm:ss} ({now.Kind})");
 
             // Find active queues whose scheduled end time has passed
             var expiredQueues = await context.Queues
                 .Include(q => q.QueueStudents)
                     .ThenInclude(qs => qs.Student)
-                .Where(q => q.IsActive
-                         && !q.IsDone
-                         && q.ScheduledEndTime.HasValue
-                         && q.ScheduledEndTime.Value <= now)
+                .Where(q =>
+                    q.IsActive &&
+                    !q.IsDone &&
+                    q.ScheduledEndTime.HasValue &&
+                    q.ScheduledEndTime <= now)
                 .ToListAsync();
 
             if (!expiredQueues.Any())
@@ -71,68 +76,90 @@ namespace PataoSmartQueuing.Services
 
             foreach (var queue in expiredQueues)
             {
-                _logger.LogInformation($"Auto-closing expired queue: {queue.QueueName} (ID: {queue.QueueID})");
+                _logger.LogInformation(
+                    $"Auto-closing queue '{queue.QueueName}' (ID: {queue.QueueID})"
+                );
 
-                var affectedStudents = queue.QueueStudents?
-                    .Where(s => s.Status == "Pending" || s.Status == "Serving")
+                var affectedStudents = queue.QueueStudents
+                    .Where(s =>
+                        s.Status == "Pending" ||
+                        s.Status == "Serving")
                     .ToList();
 
-                if (affectedStudents != null && affectedStudents.Any())
+                foreach (var student in affectedStudents)
                 {
-                    foreach (var student in affectedStudents)
-                    {
-                        student.Status = "Unserved";
-                        student.IsUnserved = true;
-                        student.IsServing = false;
+                    student.Status = "Unserved";
+                    student.IsUnserved = true;
+                    student.IsServing = false;
 
-                        // Notify each affected participant by email
-                        try
-                        {
-                            await emailService.SendEmailAsync(
-                                student.Student.Email,
-                                "Queue Ended – Patao NHS Smart Queuing",
-                                $@"<div style='font-family: Arial, sans-serif; padding: 20px;'>
-                                    <h2 style='color: #dc3545;'>Queue Time Ended ⏰</h2>
-                                    <p>Hello <strong>{student.Student.FirstName}</strong>,</p>
-                                    <p>The queue you were in has <strong>automatically ended</strong> because the scheduled time has passed.</p>
-                                    <div style='background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;'>
-                                        <p style='margin: 5px 0;'><strong>Queue:</strong> {queue.QueueName}</p>
-                                        <p style='margin: 5px 0;'><strong>Your Queue Number:</strong> #{student.QueueNumber}</p>
-                                        <p style='margin: 5px 0;'><strong>Ended At:</strong> {now:MMM dd, yyyy hh:mm tt}</p>
-                                        <p style='margin: 5px 0;'><strong>Status:</strong> <span style='color:#dc3545;'>Unserved</span></p>
-                                    </div>
-                                    <p>Please contact the registrar or rejoin a new queue if you still need assistance.</p>
-                                    <hr/>
-                                    <small style='color: #6c757d;'>Patao NHS Smart Queuing System</small>
-                                </div>"
-                            );
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError($"Email error for {student.Student.Email}: {ex.Message}");
-                        }
+                    try
+                    {
+                        await emailService.SendEmailAsync(
+                            student.Student.Email,
+                            "Queue Ended – Patao NHS Smart Queuing",
+                            $@"
+                    <div style='font-family: Arial, sans-serif; padding:20px; max-width:600px; margin:auto;'>
+                        <h2 style='color:#dc3545;'>Queue Time Ended ⏰</h2>
+
+                        <p>Hello <strong>{student.Student.FirstName}</strong>,</p>
+
+                        <p>
+                            The queue you joined has automatically ended because
+                            the scheduled end time has been reached.
+                        </p>
+
+                        <div style='background:#f8f9fa;padding:15px;border-radius:8px;margin:20px 0;'>
+                            <p><strong>Queue:</strong> {queue.QueueName}</p>
+                            <p><strong>Queue Number:</strong> #{student.QueueNumber}</p>
+                            <p><strong>Status:</strong> Unserved</p>
+                            <p><strong>Ended At (UTC):</strong> {now:MMM dd, yyyy hh:mm tt}</p>
+                        </div>
+
+                        <p>
+                            If you still need assistance, please contact the
+                            registrar or join a new queue.
+                        </p>
+
+                        <hr />
+
+                        <small style='color:#6c757d'>
+                            Patao NHS Smart Queuing System
+                        </small>
+                    </div>"
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(
+                            $"Failed sending email to {student.Student.Email}: {ex.Message}"
+                        );
                     }
                 }
 
                 queue.IsDone = true;
                 queue.IsActive = false;
                 queue.Status = "Done";
+
+                // UTC
                 queue.DateCompleted = DateTime.UtcNow;
             }
 
             await context.SaveChangesAsync();
 
-            // Broadcast SignalR refresh to all connected clients
             try
             {
                 await hubContext.Clients.All.SendAsync("RefreshQueue");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"SignalR error in QueueTimeoutService: {ex.Message}");
+                _logger.LogError(
+                    $"SignalR broadcast error: {ex.Message}"
+                );
             }
 
-            _logger.LogInformation($"Auto-closed {expiredQueues.Count} expired queue(s).");
+            _logger.LogInformation(
+                $"Successfully auto-closed {expiredQueues.Count} expired queue(s)."
+            );
         }
     }
 }

@@ -4,6 +4,12 @@ using PataoSmartQueuing.Hubs;
 using PataoSmartQueuing.Models;
 using PataoSmartQueuing.Services;
 
+
+// ADD THIS
+AppContext.SetSwitch(
+    "Npgsql.EnableLegacyTimestampBehavior",
+    true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ===========================
