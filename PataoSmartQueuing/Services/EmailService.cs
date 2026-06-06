@@ -20,12 +20,23 @@ namespace PataoSmartQueuing.Services
         {
             try
             {
-                // Validate email configuration
                 var smtpHost = _config["SmtpSettings:Host"];
                 var smtpPortStr = _config["SmtpSettings:Port"];
                 var smtpUser = _config["SmtpSettings:User"];
                 var smtpPass = _config["SmtpSettings:Password"];
                 var enableSslStr = _config["SmtpSettings:EnableSSL"];
+
+                // LAYER 1: Try env var
+                var fromEmail = _config["SmtpSettings:FromEmail"];
+
+                // LAYER 2: If empty or invalid, hardcode
+                if (string.IsNullOrWhiteSpace(fromEmail) || !fromEmail.Contains("@"))
+                {
+                    fromEmail = "garcianojohn21@gmail.com";
+                }
+
+                _logger.LogInformation($"DEBUG: FromEmail = '{fromEmail}'");
+                _logger.LogInformation($"DEBUG: SmtpUser = '{smtpUser}'");
 
                 if (string.IsNullOrEmpty(smtpHost) || string.IsNullOrEmpty(smtpUser))
                 {
@@ -33,42 +44,38 @@ namespace PataoSmartQueuing.Services
                     throw new InvalidOperationException("SMTP settings missing in configuration");
                 }
 
-                // Parse configuration
                 var smtpPort = int.Parse(smtpPortStr ?? "587");
                 var enableSsl = bool.Parse(enableSslStr ?? "true");
 
-                // Create SMTP client
                 using var smtpClient = new SmtpClient(smtpHost)
                 {
                     Port = smtpPort,
                     Credentials = new NetworkCredential(smtpUser, smtpPass),
                     EnableSsl = enableSsl,
-                    Timeout = 30000 // 30 seconds timeout
+                    Timeout = 30000
                 };
 
-                // Create email message
-                var fromAddress = new MailAddress(smtpUser, "Patao NHS Smart Queuing");
+                // GUARANTEED valid email
+                var fromAddress = new MailAddress(fromEmail, "Patao NHS Smart Queuing");
 
                 using var mailMessage = new MailMessage
                 {
                     From = fromAddress,
                     Subject = subject,
-                    Body = htmlBody, // ✅ Use the HTML body as-is (no double wrapping)
+                    Body = htmlBody,
                     IsBodyHtml = true,
                     Priority = MailPriority.Normal
                 };
 
                 mailMessage.To.Add(toEmail);
 
-                // Send email
-                _logger.LogInformation($"Sending email to {toEmail}: {subject}");
+                _logger.LogInformation($"Sending email to {toEmail} from {fromEmail}");
                 await smtpClient.SendMailAsync(mailMessage);
                 _logger.LogInformation($"✅ Email sent successfully to {toEmail}");
             }
             catch (SmtpException smtpEx)
             {
-                _logger.LogError($"❌ SMTP Error sending email to {toEmail}: {smtpEx.Message}");
-                _logger.LogError($"SMTP Status Code: {smtpEx.StatusCode}");
+                _logger.LogError($"❌ SMTP Error: {smtpEx.Message}");
                 throw new Exception($"Failed to send email: {smtpEx.Message}", smtpEx);
             }
             catch (Exception ex)
