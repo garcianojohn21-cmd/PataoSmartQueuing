@@ -1,0 +1,1269 @@
+﻿@model PataoSmartQueuing.Models.Admin
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Settings";
+}
+
+@Html.AntiForgeryToken()
+
+<style>
+    :root {
+        --navy: #0D1B2A;
+        --navy-mid: #1B2E44;
+        --navy-light: #243A52;
+        --green: #22C55E;
+        --green-dark: #16A34A;
+        --green-light: #4ADE80;
+        --green-pale: #F0FDF4;
+        --green-gradient: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        --navy-gradient: linear-gradient(135deg, #0D1B2A 0%, #1B2E44 100%);
+        --white: #FFFFFF;
+        --border: rgba(34, 197, 94, 0.25);
+        --shadow: 0 8px 32px rgba(13, 27, 42, 0.18);
+        --shadow-sm: 0 2px 8px rgba(13, 27, 42, 0.08);
+        --shadow-green: 0 6px 24px rgba(34, 197, 94, 0.25);
+    }
+
+    /* ── PAGE HEADER ── */
+    .settings-page-header {
+        background: var(--navy-gradient);
+        border-radius: 22px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+        .settings-page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .settings-page-header::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+        }
+
+        .settings-page-header h2 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            margin: 0 0 4px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .settings-page-header h2 i {
+                color: var(--green-light);
+            }
+
+        .settings-page-header p {
+            color: rgba(255,255,255,0.55);
+            font-size: 13px;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            padding-left: 34px;
+        }
+
+    /* ── SHARED CARD SHELL ── */
+    .cq-card {
+        background: var(--white);
+        border-radius: 22px;
+        border: 2px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+    }
+
+        .cq-card:hover {
+            transform: translateY(-2px);
+        }
+
+    .cq-card-header {
+        background: var(--navy-gradient);
+        padding: 20px 28px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .cq-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .cq-card-header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+        }
+
+        .cq-card-header h5 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.4px;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .cq-card-header h5 i {
+                color: var(--green-light);
+            }
+
+        .cq-card-header .header-lock {
+            margin-left: auto;
+            color: rgba(255,255,255,0.4);
+            position: relative;
+            z-index: 1;
+            font-size: 14px;
+        }
+
+    .cq-card-body {
+        padding: 28px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    /* ── DANGER CARD VARIANT ── */
+    .cq-card.danger-variant {
+        border-color: #FCA5A5;
+    }
+
+        .cq-card.danger-variant .cq-card-header {
+            background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+        }
+
+            .cq-card.danger-variant .cq-card-header::after {
+                background: linear-gradient(135deg, #FCA5A5 0%, #F87171 100%);
+            }
+
+            .cq-card.danger-variant .cq-card-header::before {
+                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            }
+
+            .cq-card.danger-variant .cq-card-header h5 i {
+                color: #FCA5A5;
+            }
+
+        .cq-card.danger-variant .cq-card-body {
+            background: linear-gradient(160deg, #fff 60%, #FEF2F2 100%);
+        }
+
+    /* ── SYSTEM SETTINGS VARIANT ── */
+    .cq-card.system-variant .cq-card-header {
+        background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+    }
+
+        .cq-card.system-variant .cq-card-header::after {
+            background: linear-gradient(135deg, #A5B4FC 0%, #818CF8 100%);
+        }
+
+        .cq-card.system-variant .cq-card-header::before {
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .cq-card.system-variant .cq-card-header h5 i {
+            color: #A5B4FC;
+        }
+
+    /* ── LABELS & INPUTS ── */
+    .form-label-cq {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .form-label-cq .req {
+            color: #EF4444;
+        }
+
+    .form-control-cq {
+        border: 2px solid rgba(34,197,94,0.3);
+        border-radius: 12px;
+        padding: 13px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--navy);
+        background: var(--white);
+        transition: all 0.25s;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+        .form-control-cq:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+        }
+
+        .form-control-cq::placeholder {
+            color: #9CA3AF;
+            font-weight: 400;
+        }
+
+        .form-control-cq[readonly],
+        .form-control-cq.is-readonly {
+            background: #F9FAFB;
+            color: #6B7280;
+            cursor: not-allowed;
+            border-color: rgba(34,197,94,0.15);
+        }
+
+    .helper-text {
+        font-size: 12px;
+        color: #6B7280;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .helper-text i {
+            color: var(--green-dark);
+            font-size: 12px;
+        }
+
+    /* ── INPUT GROUP (password toggle / generate) ── */
+    .input-group-cq {
+        display: flex;
+        border: 2px solid rgba(34,197,94,0.3);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.25s;
+    }
+
+        .input-group-cq:focus-within {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+        }
+
+        .input-group-cq input {
+            border: none;
+            padding: 13px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--navy);
+            background: var(--white);
+            flex: 1;
+            outline: none;
+            min-width: 0;
+        }
+
+            .input-group-cq input::placeholder {
+                color: #9CA3AF;
+                font-weight: 400;
+            }
+
+        .input-group-cq .ig-btn {
+            border: none;
+            border-left: 2px solid rgba(34,197,94,0.3);
+            background: var(--white);
+            color: var(--green-dark);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 13px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+            .input-group-cq .ig-btn:hover {
+                background: var(--green-gradient);
+                color: var(--white);
+            }
+
+    /* ── ALERTS (inline) ── */
+    .alert-cq-info {
+        background: #EFF6FF;
+        border: 2px solid #BFDBFE;
+        border-left: 5px solid #3B82F6;
+        color: #1E3A5F;
+        border-radius: 12px;
+        padding: 13px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+        .alert-cq-info i {
+            color: #3B82F6;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+    .danger-warning {
+        background: #FEF2F2;
+        border: 2px solid #FCA5A5;
+        border-left: 5px solid #DC2626;
+        border-radius: 12px;
+        padding: 13px 16px;
+        color: #7F1D1D;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+        .danger-warning i {
+            color: #DC2626;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+    /* ── TOAST ALERTS (fixed top-right) ── */
+    .custom-alert {
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        font-size: 13.5px;
+        font-weight: 600;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideInRight 0.4s ease-out;
+    }
+
+        .custom-alert.alert-success {
+            background: var(--green-pale);
+            border: 2px solid rgba(34,197,94,0.3);
+            border-left: 5px solid var(--green);
+            color: var(--navy);
+        }
+
+        .custom-alert.alert-error {
+            background: #FEE2E2;
+            border: 2px solid #EF4444;
+            border-left: 5px solid #DC2626;
+            color: #7F1D1D;
+        }
+
+        .custom-alert.alert-warning {
+            background: #FFFBEB;
+            border: 2px solid #F59E0B;
+            border-left: 5px solid #D97706;
+            color: #78350F;
+        }
+
+        .custom-alert.alert-info {
+            background: #EFF6FF;
+            border: 2px solid #BFDBFE;
+            border-left: 5px solid #3B82F6;
+            color: #1E3A5F;
+        }
+
+        .custom-alert .btn-close {
+            margin-left: auto;
+            opacity: 0.5;
+        }
+
+            .custom-alert .btn-close:hover {
+                opacity: 1;
+            }
+
+    @@keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    .custom-alert.hiding {
+        animation: slideOutRight 0.4s ease-in;
+    }
+
+    /* ── AVATAR ── */
+    .avatar-circle-xlarge {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: var(--navy-gradient);
+        border: 3px solid var(--green);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 36px;
+        box-shadow: var(--shadow-green);
+    }
+
+    /* ── ROLE BADGE ── */
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .role-superadmin {
+        background: rgba(220,38,38,0.12);
+        color: #DC2626;
+        border: 1px solid rgba(220,38,38,0.3);
+    }
+
+    .role-registrar {
+        background: rgba(59,130,246,0.12);
+        color: #2563EB;
+        border: 1px solid rgba(59,130,246,0.3);
+    }
+
+    .role-advance {
+        background: rgba(245,158,11,0.12);
+        color: #D97706;
+        border: 1px solid rgba(245,158,11,0.3);
+    }
+
+    .role-staff {
+        background: rgba(34,197,94,0.12);
+        color: var(--green-dark);
+        border: 1px solid var(--border);
+    }
+
+    .role-default {
+        background: rgba(107,114,128,0.12);
+        color: #6B7280;
+        border: 1px solid #D1D5DB;
+    }
+
+    /* ── ACCOUNT INFO TABLE ── */
+    .info-table {
+        width: 100%;
+    }
+
+        .info-table tr td {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(34,197,94,0.1);
+            font-size: 13.5px;
+        }
+
+        .info-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .info-table .info-key {
+            color: #6B7280;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 40%;
+        }
+
+        .info-table .info-val {
+            color: var(--navy);
+            font-weight: 600;
+        }
+
+    /* ── STAT TILES ── */
+    .stat-tile {
+        background: var(--white);
+        border: 2px solid var(--border);
+        border-radius: 16px;
+        padding: 18px 12px;
+        text-align: center;
+        transition: all 0.25s;
+    }
+
+        .stat-tile:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-green);
+            border-color: var(--green);
+        }
+
+        .stat-tile .stat-num {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-tile .stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6B7280;
+        }
+
+    /* ── BUTTONS ── */
+    .btn-cq-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 22px;
+        background: var(--green-gradient);
+        color: var(--white);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: var(--shadow-green);
+        text-decoration: none;
+    }
+
+        .btn-cq-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(34,197,94,0.4);
+            color: var(--white);
+        }
+
+    .btn-cq-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 22px;
+        background: var(--white);
+        color: var(--navy-mid);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border: 2px solid #D1D5DB;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s;
+        text-decoration: none;
+    }
+
+        .btn-cq-secondary:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF;
+            color: var(--navy);
+            transform: translateY(-2px);
+        }
+
+    .btn-cq-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 22px;
+        background: transparent;
+        color: var(--green-dark);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border: 2px solid var(--green);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s;
+        text-decoration: none;
+    }
+
+        .btn-cq-outline:hover {
+            background: var(--green-gradient);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-green);
+        }
+
+    .btn-cq-danger {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 22px;
+        background: transparent;
+        color: #DC2626;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border: 2px solid #FCA5A5;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s;
+        text-decoration: none;
+    }
+
+        .btn-cq-danger:hover {
+            background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+            color: var(--white);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220,38,38,0.3);
+        }
+
+    .btn-cq-danger-solid {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 22px;
+        background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+        color: var(--white);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: 0 4px 14px rgba(220,38,38,0.3);
+    }
+
+        .btn-cq-danger-solid:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(220,38,38,0.4);
+        }
+
+    /* ── MODAL ── */
+    .modal-cq .modal-content {
+        border: 2px solid var(--border);
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .modal-cq .modal-header {
+        background: var(--navy-gradient);
+        border: none;
+        padding: 22px 28px;
+        position: relative;
+    }
+
+        .modal-cq .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .modal-cq .modal-header h5 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 16px;
+            margin: 0;
+        }
+
+            .modal-cq .modal-header h5 i {
+                color: var(--green-light);
+            }
+
+    .modal-cq.danger-modal .modal-header {
+        background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    }
+
+        .modal-cq.danger-modal .modal-header::after {
+            background: linear-gradient(135deg, #FCA5A5 0%, #F87171 100%);
+        }
+
+        .modal-cq.danger-modal .modal-header h5 i {
+            color: #FCA5A5;
+        }
+
+    .modal-cq .modal-body {
+        padding: 28px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    .modal-cq.danger-modal .modal-body {
+        background: linear-gradient(160deg, #fff 60%, #FEF2F2 100%);
+    }
+
+    .modal-cq .modal-footer {
+        border: none;
+        padding: 16px 28px 24px;
+        background: var(--green-pale);
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .modal-cq.danger-modal .modal-footer {
+        background: #FEF2F2;
+    }
+
+    /* ── FORM CHECK (danger modal) ── */
+    .form-check-cq .form-check-input {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #FCA5A5;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .form-check-cq .form-check-input:checked {
+            background-color: #DC2626;
+            border-color: #DC2626;
+        }
+
+    .form-check-cq .form-check-label {
+        color: #991B1B;
+        font-weight: 600;
+        font-size: 13px;
+        margin-left: 8px;
+        cursor: pointer;
+    }
+
+    @@media (max-width: 768px) {
+        .settings-page-header {
+            padding: 20px 20px;
+            border-radius: 16px;
+        }
+
+            .settings-page-header h2 {
+                font-size: 17px;
+            }
+
+        .cq-card {
+            border-radius: 16px;
+        }
+
+        .cq-card-header {
+            padding: 16px 20px;
+        }
+
+        .cq-card-body {
+            padding: 20px 18px;
+        }
+
+        .btn-cq-primary, .btn-cq-secondary, .btn-cq-outline, .btn-cq-danger, .btn-cq-danger-solid {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- Toast container -->
+<div id="alertContainer" style="position: fixed; top: 80px; right: 20px; z-index: 9999; max-width: 400px;"></div>
+
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="settings-page-header">
+        <h2><i class="bi bi-gear-fill"></i> Settings</h2>
+        <p>Manage your profile and account settings</p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ── LEFT COLUMN ── -->
+        <div class="col-lg-8">
+
+            <!-- Profile Information -->
+            <div class="cq-card">
+                <div class="cq-card-header">
+                    <h5>
+                        <i class="bi bi-person-circle"></i> Profile Information
+                    </h5>
+                    @if (Context.Session.GetString("AdminRole") != "SuperAdmin")
+                    {
+                        <span class="header-lock" data-bs-toggle="tooltip" title="Profile editing is restricted to SuperAdmin only">
+                            <i class="bi bi-lock-fill"></i>
+                        </span>
+                    }
+                </div>
+                <div class="cq-card-body">
+                    @if (Context.Session.GetString("AdminRole") != "SuperAdmin")
+                    {
+                        <div class="alert-cq-info">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <span><strong>Note:</strong> Profile information can only be modified by SuperAdmin accounts.</span>
+                        </div>
+                    }
+                    <form id="profileForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label-cq">First Name <span class="req">*</span></label>
+                                <input type="text" id="firstName" name="firstName"
+                                       class="form-control-cq @(Context.Session.GetString("AdminRole") != "SuperAdmin" ? "is-readonly" : "")"
+                                       value="@Model.FirstName"
+                                       @(Context.Session.GetString("AdminRole") != "SuperAdmin" ? "readonly" : "")
+                                       required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-cq">Middle Name</label>
+                                <input type="text" id="middleName" name="middleName"
+                                       class="form-control-cq @(Context.Session.GetString("AdminRole") != "SuperAdmin" ? "is-readonly" : "")"
+                                       value="@Model.MiddleName"
+                                       @(Context.Session.GetString("AdminRole") != "SuperAdmin" ? "readonly" : "") />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-cq">Last Name <span class="req">*</span></label>
+                                <input type="text" id="lastName" name="lastName"
+                                       class="form-control-cq @(Context.Session.GetString("AdminRole") != "SuperAdmin" ? "is-readonly" : "")"
+                                       value="@Model.LastName"
+                                       @(Context.Session.GetString("AdminRole") != "SuperAdmin" ? "readonly" : "")
+                                       required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-cq">
+                                    Email
+                                    <i class="bi bi-lock-fill ms-1" style="color:#9CA3AF; font-size:11px;"
+                                       data-bs-toggle="tooltip" title="Email cannot be changed for security reasons"></i>
+                                </label>
+                                <input type="email" id="email" name="email"
+                                       class="form-control-cq is-readonly"
+                                       value="@Model.Email" readonly />
+                                <p class="helper-text"><i class="bi bi-info-circle-fill"></i> Email cannot be changed for security reasons</p>
+                            </div>
+                            @if (Context.Session.GetString("AdminRole") == "SuperAdmin")
+                            {
+                                <div class="col-12 mt-2">
+                                    <button type="submit" class="btn-cq-primary">
+                                        <i class="bi bi-save"></i> Save Changes
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="cq-card">
+                <div class="cq-card-header">
+                    <h5><i class="bi bi-lock-fill"></i> Change Password</h5>
+                </div>
+                <div class="cq-card-body">
+                    <form id="passwordForm">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label-cq">Current Password <span class="req">*</span></label>
+                                <div class="input-group-cq">
+                                    <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password" required />
+                                    <button class="ig-btn toggle-password" type="button" data-target="currentPassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-cq">New Password <span class="req">*</span></label>
+                                <div class="input-group-cq">
+                                    <input type="password" id="newPassword" name="newPassword" placeholder="Min 8 characters" minlength="8" required />
+                                    <button class="ig-btn toggle-password" type="button" data-target="newPassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <p class="helper-text"><i class="bi bi-info-circle-fill"></i> Minimum 8 characters</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-cq">Confirm New Password <span class="req">*</span></label>
+                                <div class="input-group-cq">
+                                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat new password" minlength="8" required />
+                                    <button class="ig-btn toggle-password" type="button" data-target="confirmPassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <button type="submit" class="btn-cq-primary">
+                                    <i class="bi bi-key-fill"></i> Change Password
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- System Settings (SuperAdmin Only) -->
+            @if (Context.Session.GetString("AdminRole") == "SuperAdmin")
+            {
+                <div class="cq-card system-variant">
+                    <div class="cq-card-header">
+                        <h5><i class="bi bi-gear-wide-connected"></i> System Settings</h5>
+                    </div>
+                    <div class="cq-card-body">
+                        <form id="portalTokenForm">
+                            <label class="form-label-cq">Portal Access Token</label>
+                            <div class="input-group-cq mb-2">
+                                <input type="text" id="portalToken" name="portalToken"
+                                       value="@ViewBag.PortalToken" placeholder="Enter portal token" required />
+                                <button class="ig-btn" type="button" onclick="generateRandomToken()">
+                                    <i class="bi bi-arrow-clockwise"></i> Generate
+                                </button>
+                            </div>
+                            <p class="helper-text mb-4"><i class="bi bi-info-circle-fill"></i> This token is required to access the admin login page</p>
+                            <button type="submit" class="btn-cq-primary" style="background: linear-gradient(135deg,#6366F1 0%,#4F46E5 100%); box-shadow: 0 4px 14px rgba(99,102,241,0.3);">
+                                <i class="bi bi-shield-check"></i> Update Token
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            <!-- Danger Zone (SuperAdmin Only) -->
+            @if (Context.Session.GetString("AdminRole") == "SuperAdmin")
+            {
+                <div class="cq-card danger-variant">
+                    <div class="cq-card-header">
+                        <h5><i class="bi bi-exclamation-triangle-fill"></i> Danger Zone</h5>
+                    </div>
+                    <div class="cq-card-body">
+                        <div class="danger-warning">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>Once you delete your account, there is no going back. Please be certain.</span>
+                        </div>
+                        <button class="btn-cq-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            <i class="bi bi-trash-fill"></i> Delete My Account
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- ── RIGHT COLUMN ── -->
+        <div class="col-lg-4">
+
+            <!-- Account Info -->
+            <div class="cq-card">
+                <div class="cq-card-header">
+                    <h5><i class="bi bi-info-circle-fill"></i> Account Info</h5>
+                </div>
+                <div class="cq-card-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-circle-xlarge mx-auto">
+                            @Model.FirstName.Substring(0, 1)@Model.LastName.Substring(0, 1)
+                        </div>
+                        <h5 class="mt-3 mb-1 fw-800" style="color:var(--navy); font-weight:800;">@Model.FirstName @Model.LastName</h5>
+                        <p style="color:#6B7280; font-size:13px; margin-bottom:10px;">@Model.Email</p>
+                        @{
+                            var roleClass = Model.Role switch
+                            {
+                                "SuperAdmin" => "role-superadmin",
+                                "Registrar" => "role-registrar",
+                                "Advance" => "role-advance",
+                                "Staff" => "role-staff",
+                                _ => "role-default"
+                            };
+                        }
+                        <span class="role-badge @roleClass">@Model.Role</span>
+
+                        @if (Model.Role != "SuperAdmin")
+                        {
+                            <p class="mt-3 mb-0" style="color:#6B7280; font-size:12px; font-weight:500;">
+                                <i class="bi bi-info-circle" style="color:var(--green-dark);"></i>
+                                Only SuperAdmin accounts can modify profile information and delete accounts.
+                            </p>
+                        }
+                    </div>
+
+                    <hr style="border-color: var(--border);" />
+
+                    <table class="info-table">
+                        <tr>
+                            <td class="info-key">Admin ID</td>
+                            <td class="info-val">@Model.AdminID</td>
+                        </tr>
+                        <tr>
+                            <td class="info-key">Joined</td>
+                            <td class="info-val">@Model.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        </tr>
+                        <tr>
+                            <td class="info-key">Account Age</td>
+                            <td class="info-val">
+                                @{
+                                    var daysOld = (int)(DateTime.Now - Model.CreatedAt).TotalDays;
+                                }
+                                @daysOld days
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Activity Stats -->
+            <div class="cq-card">
+                <div class="cq-card-header">
+                    <h5><i class="bi bi-graph-up"></i> Your Activity</h5>
+                </div>
+                <div class="cq-card-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <div class="stat-tile">
+                                <div class="stat-num" style="color: var(--navy);">@ViewBag.QueuesCreated</div>
+                                <div class="stat-label">Total Queues</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-tile">
+                                <div class="stat-num" style="color: var(--green-dark);">@ViewBag.ActiveQueues</div>
+                                <div class="stat-label">Active</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="stat-tile">
+                                <div class="stat-num" style="color: #6B7280;">@ViewBag.CompletedQueues</div>
+                                <div class="stat-label">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="@Url.Action("ManageQueues")" class="btn-cq-outline" style="width:100%; justify-content:center;">
+                        <i class="bi bi-list-task"></i> View All Queues
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="cq-card">
+                <div class="cq-card-header">
+                    <h5><i class="bi bi-lightning-fill"></i> Quick Actions</h5>
+                </div>
+                <div class="cq-card-body">
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("CreateQueue")" class="btn-cq-primary" style="justify-content:center;">
+                            <i class="bi bi-plus-circle"></i> Create New Queue
+                        </a>
+                        <a href="@Url.Action("Dashboard")" class="btn-cq-secondary" style="justify-content:center;">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                        <a href="@Url.Action("Logout")" class="btn-cq-danger" style="justify-content:center;">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade modal-cq danger-modal" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Delete Account
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="danger-warning mb-4">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span><strong>Warning:</strong> This action is permanent and cannot be undone!</span>
+                </div>
+
+                <p style="color:#6B7280; font-size:13.5px; text-align:center; margin-bottom:20px;">
+                    Please enter your password to confirm account deletion.
+                </p>
+
+                <form id="deleteAccountForm">
+                    <label class="form-label-cq">Password</label>
+                    <div class="input-group-cq mb-4">
+                        <input type="password" id="deletePassword" name="password" placeholder="Enter your password" required />
+                        <button class="ig-btn toggle-password" type="button" data-target="deletePassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+
+                    <div class="form-check-cq d-flex align-items-center gap-2">
+                        <input class="form-check-input" type="checkbox" id="confirmDelete" required />
+                        <label class="form-check-label" for="confirmDelete">
+                            I understand this will permanently delete my account
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cq-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancel
+                </button>
+                <button type="button" class="btn-cq-danger-solid" id="confirmDeleteBtn" disabled>
+                    <i class="bi bi-trash-fill"></i> Delete Permanently
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            // Tooltips
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+
+            // ── ALERT SYSTEM ──
+            function showAlert(message, type = 'success', duration = 5000) {
+                const alertId = 'alert-' + Date.now();
+                const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill', info: 'bi-info-circle-fill' };
+                const html = `
+                    <div id="${alertId}" class="custom-alert alert-${type} alert-dismissible" role="alert">
+                        <i class="bi ${icons[type] || icons.info} me-1"></i>
+                        <span>${message}</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+                $('#alertContainer').append(html);
+                setTimeout(() => {
+                    const el = $('#' + alertId);
+                    el.addClass('hiding');
+                    setTimeout(() => el.alert('close'), 400);
+                }, duration);
+            }
+
+            // ── PASSWORD TOGGLE ──
+            $(document).on('click', '.toggle-password', function () {
+                const input = $('#' + $(this).data('target'));
+                const icon = $(this).find('i');
+                const isPass = input.attr('type') === 'password';
+                input.attr('type', isPass ? 'text' : 'password');
+                icon.toggleClass('bi-eye', !isPass).toggleClass('bi-eye-slash', isPass);
+            });
+
+            // ── PROFILE UPDATE ──
+            $('#profileForm').submit(function (e) {
+                e.preventDefault();
+                if ('@Context.Session.GetString("AdminRole")' !== 'SuperAdmin') {
+                    showAlert('Only SuperAdmin can modify profile information.', 'warning');
+                    return;
+                }
+                $.ajax({
+                    url: '@Url.Action("UpdateProfile")', type: 'POST',
+                    data: { firstName: $('#firstName').val(), middleName: $('#middleName').val(), lastName: $('#lastName').val(), __RequestVerificationToken: token },
+                    success: r => r.success ? (showAlert(r.message || 'Profile updated!', 'success'), setTimeout(() => location.reload(), 1500)) : showAlert(r.message || 'Failed.', 'error'),
+                    error: (_, __, err) => showAlert('Error: ' + err, 'error')
+                });
+            });
+
+            // ── PASSWORD CHANGE ──
+            $('#passwordForm').submit(function (e) {
+                e.preventDefault();
+                const np = $('#newPassword').val(), cp = $('#confirmPassword').val();
+                if (np !== cp) { showAlert('Passwords do not match!', 'error'); return; }
+                if (np.length < 8) { showAlert('Password must be at least 8 characters!', 'warning'); return; }
+                $.ajax({
+                    url: '@Url.Action("ChangePassword")', type: 'POST',
+                    data: { currentPassword: $('#currentPassword').val(), newPassword: np, confirmPassword: cp, __RequestVerificationToken: token },
+                    success: r => r.success ? (showAlert(r.message || 'Password changed!', 'success'), $('#passwordForm')[0].reset()) : showAlert(r.message || 'Failed.', 'error'),
+                    error: (_, __, err) => showAlert('Error: ' + err, 'error')
+                });
+            });
+
+            // ── PORTAL TOKEN ──
+            $('#portalTokenForm').submit(function (e) {
+                e.preventDefault();
+                const t = $('#portalToken').val();
+                if (!t?.trim()) { showAlert('Token cannot be empty!', 'warning'); return; }
+                $.ajax({
+                    url: '@Url.Action("UpdatePortalToken")', type: 'POST',
+                    data: { newToken: t, __RequestVerificationToken: token },
+                    success: r => r.success ? showAlert(r.message || 'Token updated!', 'success') : showAlert(r.message || 'Failed.', 'error'),
+                    error: (_, __, err) => showAlert('Error: ' + err, 'error')
+                });
+            });
+
+            // ── DELETE: enable button on checkbox ──
+            $('#confirmDelete').change(function () {
+                $('#confirmDeleteBtn').prop('disabled', !this.checked);
+            });
+
+            // ── DELETE ACCOUNT ──
+            $('#confirmDeleteBtn').click(function () {
+                const pw = $('#deletePassword').val();
+                if (!pw) { showAlert('Please enter your password!', 'warning'); return; }
+                if (!confirm('Are you absolutely sure? This cannot be undone!')) return;
+                $.ajax({
+                    url: '@Url.Action("DeleteAccount")', type: 'POST',
+                    data: { password: pw, __RequestVerificationToken: token },
+                    success: r => {
+                        if (r.success) {
+                            showAlert(r.message || 'Account deleted!', 'success');
+                            $('#deleteAccountModal').modal('hide');
+                            setTimeout(() => window.location.href = r.redirectUrl, 2000);
+                        } else {
+                            showAlert(r.message || 'Failed.', 'error');
+                        }
+                    },
+                    error: (_, __, err) => showAlert('Error: ' + err, 'error')
+                });
+            });
+        });
+
+        function generateRandomToken() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let t = '';
+            for (let i = 0; i < 32; i++) t += chars[Math.floor(Math.random() * chars.length)];
+            $('#portalToken').val(t);
+
+            const id = 'alert-' + Date.now();
+            $('#alertContainer').append(`
+                <div id="${id}" class="custom-alert alert-info alert-dismissible" role="alert">
+                    <i class="bi bi-info-circle-fill me-1"></i>
+                    <span>Random token generated successfully!</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`);
+            setTimeout(() => { const el = $('#' + id); el.addClass('hiding'); setTimeout(() => el.alert('close'), 400); }, 3000);
+        }
+    </script>
+}

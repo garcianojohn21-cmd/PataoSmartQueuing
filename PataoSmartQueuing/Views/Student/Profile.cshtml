@@ -1,0 +1,502 @@
+﻿@model PataoSmartQueuing.Models.ViewModels.StudentProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+}
+
+<style>
+    /* Uses layout's existing CSS variables — no conflicts */
+
+    .profile-wrap {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 4px 40px;
+    }
+
+    /* ── CARD ── */
+    .profile-card {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.25s;
+    }
+
+        .profile-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+    /* ── HEADER ── */
+    .profile-header {
+        background: var(--nav-gradient);
+        padding: 24px 28px;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: shimmer 4s infinite;
+        }
+
+    @@keyframes shimmer {
+        0%, 100% {
+            transform: translate(0, 0);
+        }
+
+        50% {
+            transform: translate(-30px, -30px);
+        }
+    }
+
+    .profile-header h3 {
+        position: relative;
+        z-index: 1;
+        color: var(--white);
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .profile-header i {
+        font-size: 24px;
+    }
+
+    /* ── BODY ── */
+    .profile-body {
+        padding: 32px 28px;
+    }
+
+    /* ── AVATAR ── */
+    .avatar-container {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .avatar-image {
+        width: 160px;
+        height: 160px;
+        object-fit: cover;
+        border: 3px solid var(--border-green);
+        border-radius: 50%;
+        box-shadow: 0 6px 20px rgba(34, 197, 94, 0.2);
+        transition: all 0.25s;
+        background: var(--off-white);
+    }
+
+        .avatar-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 28px rgba(34, 197, 94, 0.3);
+            border-color: var(--green);
+        }
+
+    .avatar-badge {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        width: 44px;
+        height: 44px;
+        background: var(--green-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 18px;
+        border: 4px solid var(--white);
+        box-shadow: 0 3px 12px rgba(34, 197, 94, 0.35);
+        animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 3px 12px rgba(34, 197, 94, 0.35);
+        }
+
+        50% {
+            transform: scale(1.1);
+            box-shadow: 0 5px 18px rgba(34, 197, 94, 0.5);
+        }
+    }
+
+    /* ── STUDENT NAME ── */
+    .profile-intro {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .student-name {
+        color: var(--navy);
+        font-weight: 800;
+        font-size: 24px;
+        margin-bottom: 12px;
+        line-height: 1.2;
+    }
+
+    .lrn-badge {
+        background: var(--green-pale);
+        border: 1.5px solid var(--border-green);
+        padding: 8px 16px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        color: var(--green-dark);
+        font-size: 13px;
+        box-shadow: var(--shadow-sm);
+    }
+
+        .lrn-badge i {
+            font-size: 14px;
+        }
+
+    /* ── INFO ITEMS ── */
+    .info-item {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 14px;
+        padding: 16px 18px;
+        margin-bottom: 12px;
+        transition: all 0.25s;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+        .info-item:hover {
+            transform: translateX(4px);
+            border-color: var(--green);
+            box-shadow: var(--shadow-sm);
+            background: var(--green-pale);
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+    .info-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--green-gradient);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 18px;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.25);
+    }
+
+    .info-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .info-label {
+        font-size: 10px;
+        color: var(--gray-600);
+        margin-bottom: 3px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .info-value {
+        font-size: 14px;
+        color: var(--navy);
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    /* ── ACTIONS ── */
+    .profile-actions {
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1.5px solid var(--gray-200);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .sq-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex: 1;
+        min-width: 160px;
+        padding: 14px 20px;
+        background: var(--green-gradient);
+        color: var(--white);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s;
+        box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .sq-btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .sq-btn-primary:hover::before {
+            width: 250px;
+            height: 250px;
+        }
+
+        .sq-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+            color: var(--white);
+        }
+
+    .sq-btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex: 1;
+        min-width: 160px;
+        padding: 13px 20px;
+        background: var(--white);
+        color: var(--green-dark);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        border: 1.5px solid var(--border-green);
+        border-radius: 12px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s;
+        box-shadow: var(--shadow-sm);
+    }
+
+        .sq-btn-secondary:hover {
+            background: var(--green-pale);
+            border-color: var(--green);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            color: var(--navy);
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 768px) {
+        .profile-body
+
+    {
+        padding: 22px 18px;
+    }
+
+    .profile-header {
+        padding: 16px 18px;
+    }
+
+        .profile-header h3 {
+            font-size: 18px;
+            gap: 8px;
+        }
+
+        .profile-header i {
+            font-size: 20px;
+        }
+
+    .avatar-image {
+        width: 140px;
+        height: 140px;
+    }
+
+    .avatar-badge {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+        bottom: 6px;
+        right: 6px;
+    }
+
+    .student-name {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .lrn-badge {
+        font-size: 12px;
+        padding: 6px 14px;
+    }
+
+    .info-item {
+        padding: 14px 16px;
+        margin-bottom: 10px;
+    }
+
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .info-label {
+        font-size: 9px;
+    }
+
+    .info-value {
+        font-size: 13px;
+    }
+
+    .profile-actions {
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 18px;
+    }
+
+    .sq-btn-primary,
+    .sq-btn-secondary {
+        min-width: 140px;
+        padding: 12px 16px;
+        font-size: 12px;
+        flex: 1;
+    }
+
+    }
+
+    @@media (max-width: 480px) {
+        .profile-wrap
+
+    {
+        padding: 0 4px 24px;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .sq-btn-primary,
+    .sq-btn-secondary {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .student-name {
+        font-size: 18px;
+    }
+
+    .avatar-image {
+        width: 130px;
+        height: 130px;
+    }
+
+    }
+</style>
+
+<div class="profile-wrap">
+    <div class="profile-card">
+        <!-- Header -->
+        <div class="profile-header">
+            <h3>
+                <i class="bi bi-person-circle"></i> My Profile
+            </h3>
+        </div>
+
+        <!-- Body -->
+        <div class="profile-body">
+            <!-- Avatar & Intro -->
+            <div class="profile-intro">
+                <div class="avatar-container">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfilePhoto)
+                                                         ? Url.Content("~/Images/ProfilePic.jfif")
+                                                         : Url.Content(Model.ProfilePhoto))"
+                         alt="Student Avatar"
+                         class="avatar-image"
+                         onerror="this.onerror=null; this.src='@Url.Content("~/Images/ProfilePic.jfif")';">
+                    <div class="avatar-badge">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                </div>
+
+                <h2 class="student-name">
+                    @Model.FirstName @Model.MiddleName @Model.LastName
+                </h2>
+
+                <div class="lrn-badge">
+                    <i class="bi bi-credit-card"></i>
+                    LRN: @Model.LRN
+                </div>
+            </div>
+
+            <!-- Info Items -->
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-envelope"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Email Address</div>
+                    <div class="info-value">@Model.Email</div>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Grade Level</div>
+                    <div class="info-value">@Model.GradeLevel</div>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-book"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Strand</div>
+                    <div class="info-value">@Model.Strand</div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="profile-actions">
+                <a href="@Url.Action("EditProfile", "Student")" class="sq-btn-primary">
+                    <i class="bi bi-pencil"></i> Edit Profile
+                </a>
+                <a href="@Url.Action("Dashboard", "Student")" class="sq-btn-secondary">
+                    <i class="bi bi-house"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

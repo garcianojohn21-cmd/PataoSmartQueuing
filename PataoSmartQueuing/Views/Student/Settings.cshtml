@@ -1,0 +1,844 @@
+﻿@model PataoSmartQueuing.ViewModels.StudentSettingsViewModel
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "_StudentLayout";
+}
+
+<style>
+    :root {
+        --navy: #0D1B2A;
+        --navy-mid: #1B2E44;
+        --navy-light: #243A52;
+        --green: #22C55E;
+        --green-dark: #16A34A;
+        --green-light: #4ADE80;
+        --green-pale: #F0FDF4;
+        --green-gradient: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        --navy-gradient: linear-gradient(135deg, #0D1B2A 0%, #1B2E44 100%);
+        --white: #FFFFFF;
+        --border: rgba(34, 197, 94, 0.25);
+        --shadow: 0 8px 32px rgba(13, 27, 42, 0.18);
+        --shadow-sm: 0 2px 8px rgba(13, 27, 42, 0.08);
+        --shadow-green: 0 6px 24px rgba(34, 197, 94, 0.25);
+    }
+
+    .settings-wrap {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 4px 40px;
+    }
+
+    /* ── HEADER ── */
+    .settings-header {
+        background: var(--navy-gradient);
+        padding: 28px 32px;
+        border-radius: 22px;
+        margin-bottom: 28px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .settings-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .settings-header::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+        }
+
+        .settings-header h2 {
+            color: var(--white);
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+            .settings-header h2 i {
+                color: var(--green-light);
+                font-size: 24px;
+            }
+
+    /* ── ALERTS ── */
+    .sq-alert {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 14px 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-size: 13.5px;
+        font-weight: 600;
+        line-height: 1.5;
+        animation: slideDown 0.3s ease;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .sq-alert i {
+        font-size: 16px;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .sq-alert.ok {
+        background: var(--green-pale);
+        color: var(--navy);
+        border: 2px solid rgba(34,197,94,0.3);
+        border-left: 5px solid var(--green);
+    }
+
+    .sq-alert.err {
+        background: #FEE2E2;
+        color: #7F1D1D;
+        border: 2px solid #EF4444;
+        border-left: 5px solid #DC2626;
+    }
+
+    .sq-alert .btn-close {
+        padding: 0;
+        opacity: 0.5;
+    }
+
+        .sq-alert .btn-close:hover {
+            opacity: 1;
+        }
+
+    /* ── CARDS ── */
+    .settings-card {
+        background: var(--white);
+        border-radius: 22px;
+        border: 2px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .settings-card-header {
+        background: var(--navy-gradient);
+        padding: 20px 28px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .settings-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .settings-card-header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+        }
+
+        .settings-card-header h5 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.4px;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .settings-card-header h5 i {
+                color: var(--green-light);
+                font-size: 17px;
+            }
+
+    .settings-card-body {
+        padding: 28px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    /* ── INFO ROW ── */
+    .info-row {
+        background: #F9FAFB;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-row strong {
+            color: #6B7280;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .info-row span {
+            color: var(--navy);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+    /* ── FORM ── */
+    .form-label-sq {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 12px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+        .form-label-sq i {
+            color: var(--green-dark);
+            font-size: 14px;
+        }
+
+    .form-control-sq {
+        border: 2px solid rgba(34,197,94,0.3);
+        border-radius: 12px;
+        padding: 13px 16px;
+        transition: all 0.25s;
+        background: var(--white);
+        color: var(--navy);
+        font-size: 14px;
+        font-weight: 500;
+        width: 100%;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+        .form-control-sq:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+            background: var(--white);
+        }
+
+        .form-control-sq::placeholder {
+            color: #9CA3AF;
+            font-weight: 400;
+        }
+
+    /* ── PASSWORD INPUT ── */
+    .password-input-group {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+        .password-input-group:last-of-type {
+            margin-bottom: 24px;
+        }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 12px;
+        top: calc(50% + 14px);
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--green-dark);
+        cursor: pointer;
+        font-size: 17px;
+        transition: all 0.25s;
+        z-index: 10;
+        padding: 6px 8px;
+        display: flex;
+        align-items: center;
+    }
+
+        .password-toggle-btn:hover {
+            color: var(--green);
+            transform: translateY(-50%) scale(1.15);
+        }
+
+    .form-control-sq.password-input {
+        padding-right: 44px;
+    }
+
+    .helper-text {
+        font-size: 12px;
+        color: #6B7280;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .helper-text i {
+            color: var(--green-dark);
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+    /* ── PRIMARY BUTTON ── */
+    .sq-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 14px 20px;
+        background: var(--green-gradient);
+        color: var(--white);
+        font-size: 13.5px;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: var(--shadow-green);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .sq-btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .sq-btn-primary:hover::before {
+            width: 280px;
+            height: 280px;
+        }
+
+        .sq-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(34,197,94,0.4);
+        }
+
+        .sq-btn-primary:active {
+            transform: translateY(0);
+        }
+
+    /* ── DANGER CARD ── */
+    .danger-card {
+        background: linear-gradient(145deg, #FEF2F2 0%, #FEE2E2 100%);
+        border: 2px solid #FCA5A5;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        margin-bottom: 20px;
+    }
+
+    .danger-card-header {
+        background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+        padding: 20px 28px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .danger-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #FCA5A5 0%, #F87171 100%);
+        }
+
+        .danger-card-header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .danger-card-header h5 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 15px;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .danger-card-header h5 i {
+                color: #FCA5A5;
+                font-size: 17px;
+            }
+
+    .danger-card-body {
+        padding: 24px 28px;
+    }
+
+    .danger-warning {
+        color: #7F1D1D;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        background: #FEF2F2;
+        border: 2px solid #FCA5A5;
+        border-left: 5px solid #DC2626;
+        border-radius: 12px;
+        padding: 13px 16px;
+    }
+
+        .danger-warning i {
+            color: #DC2626;
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+    .sq-btn-danger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 14px 20px;
+        background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+        color: var(--white);
+        font-size: 13.5px;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: 0 4px 14px rgba(220,38,38,0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .sq-btn-danger::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .sq-btn-danger:hover::before {
+            width: 280px;
+            height: 280px;
+        }
+
+        .sq-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(220,38,38,0.4);
+        }
+
+        .sq-btn-danger:active {
+            transform: translateY(0);
+        }
+
+    /* ── MODAL ── */
+    .modal-sq .modal-content {
+        border: 2px solid #FCA5A5;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .modal-sq .modal-header {
+        background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+        border: none;
+        padding: 22px 28px;
+        position: relative;
+    }
+
+        .modal-sq .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #FCA5A5 0%, #F87171 100%);
+        }
+
+        .modal-sq .modal-header h5 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 16px;
+            margin: 0;
+        }
+
+    .modal-sq .modal-body {
+        padding: 28px 24px;
+        background: linear-gradient(160deg, #fff 60%, #FEF2F2 100%);
+    }
+
+    .modal-sq .modal-footer {
+        border: none;
+        padding: 16px 24px 24px;
+        background: #FEF2F2;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .warning-box {
+        background: #FEF2F2;
+        border: 2px solid #FCA5A5;
+        border-radius: 12px;
+        padding: 20px 16px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+        .warning-box i {
+            color: #DC2626;
+            font-size: 36px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .warning-box p {
+            color: #991B1B;
+            font-weight: 700;
+            margin: 0;
+            font-size: 14px;
+        }
+
+    .sq-btn-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 13px 24px;
+        background: var(--white);
+        color: var(--navy-mid);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 2px solid #D1D5DB;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s;
+    }
+
+        .sq-btn-cancel:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF;
+            color: var(--navy);
+            transform: translateY(-2px);
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 768px) {
+        .settings-wrap {
+            padding: 0 4px 24px;
+        }
+
+        .settings-header {
+            padding: 20px 20px;
+            border-radius: 16px;
+        }
+
+            .settings-header h2 {
+                font-size: 17px;
+            }
+
+        .settings-card, .danger-card {
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .settings-card-header, .danger-card-header {
+            padding: 16px 20px;
+        }
+
+        .settings-card-body, .danger-card-body {
+            padding: 20px 18px;
+        }
+
+        .info-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .sq-btn-primary, .sq-btn-danger {
+            font-size: 13px;
+            padding: 13px 16px;
+        }
+
+        .modal-sq .modal-header,
+        .modal-sq .modal-body,
+        .modal-sq .modal-footer {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+    }
+</style>
+
+<div class="settings-wrap">
+
+    <!-- Header -->
+    <div class="settings-header">
+        <h2>
+            <i class="bi bi-gear-fill"></i> Settings
+        </h2>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["PasswordSuccess"] != null)
+    {
+        <div class="sq-alert ok alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@TempData["PasswordSuccess"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["PasswordError"] != null)
+    {
+        <div class="sq-alert err alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@TempData["PasswordError"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["DeleteError"] != null)
+    {
+        <div class="sq-alert err alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@TempData["DeleteError"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Account Information Card -->
+    <div class="settings-card">
+        <div class="settings-card-header">
+            <h5><i class="bi bi-person-circle"></i> Account Information</h5>
+        </div>
+        <div class="settings-card-body">
+            <div class="info-row">
+                <div>
+                    <strong>Name</strong>
+                    <span>@Model.FirstName @Model.LastName</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <div>
+                    <strong>Email</strong>
+                    <span>@Model.Email</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Card -->
+    <div class="settings-card">
+        <div class="settings-card-header">
+            <h5><i class="bi bi-lock-fill"></i> Change Password</h5>
+        </div>
+        <div class="settings-card-body">
+            <form asp-action="UpdatePassword" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="password-input-group">
+                    <label class="form-label-sq">
+                        <i class="bi bi-key-fill"></i> Current Password
+                    </label>
+                    <input type="password" class="form-control-sq password-input" id="currentPassword"
+                           name="currentPassword" placeholder="Enter current password" required />
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('currentPassword', this)" title="Show/Hide">
+                        <i class="bi bi-eye-fill"></i>
+                    </button>
+                </div>
+
+                <div class="password-input-group">
+                    <label class="form-label-sq">
+                        <i class="bi bi-shield-lock-fill"></i> New Password
+                    </label>
+                    <input type="password" class="form-control-sq password-input" id="newPassword"
+                           name="newPassword" placeholder="Enter new password" minlength="6" required />
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('newPassword', this)" title="Show/Hide">
+                        <i class="bi bi-eye-fill"></i>
+                    </button>
+                    <p class="helper-text">
+                        <i class="bi bi-info-circle-fill"></i> Minimum 6 characters
+                    </p>
+                </div>
+
+                <div class="password-input-group">
+                    <label class="form-label-sq">
+                        <i class="bi bi-check-circle-fill"></i> Confirm New Password
+                    </label>
+                    <input type="password" class="form-control-sq password-input" id="confirmPassword"
+                           name="confirmPassword" placeholder="Confirm new password" required />
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('confirmPassword', this)" title="Show/Hide">
+                        <i class="bi bi-eye-fill"></i>
+                    </button>
+                </div>
+
+                <button type="submit" class="sq-btn-primary">
+                    <i class="bi bi-check-lg"></i> Update Password
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Danger Zone Card -->
+    <div class="danger-card">
+        <div class="danger-card-header">
+            <h5><i class="bi bi-exclamation-triangle-fill"></i> Danger Zone</h5>
+        </div>
+        <div class="danger-card-body">
+            <div class="danger-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Once you delete your account, there is no going back. Please be certain.</span>
+            </div>
+            <button type="button" class="sq-btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                <i class="bi bi-trash-fill"></i> Delete Account
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal fade modal-sq" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Account Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="DeleteAccount" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="warning-box">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <p>This action cannot be undone!</p>
+                    </div>
+
+                    <p style="color: #6B7280; font-size: 14px; text-align: center; margin-bottom: 20px;">
+                        All your queue history and data will be permanently deleted.
+                    </p>
+
+                    <div class="password-input-group">
+                        <label class="form-label-sq">
+                            <i class="bi bi-lock-fill"></i> Enter your password to confirm
+                        </label>
+                        <input type="password" class="form-control-sq password-input" id="confirmPasswordDelete"
+                               name="confirmPassword" placeholder="Enter your password" required />
+                        <button type="button" class="password-toggle-btn" onclick="togglePassword('confirmPasswordDelete', this)" title="Show/Hide">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="sq-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancel
+                    </button>
+                    <button type="submit" class="sq-btn-danger" style="width: auto; padding: 13px 24px;">
+                        <i class="bi bi-trash-fill"></i> Yes, Delete Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
+            }
+        }
+
+        document.getElementById('confirmPassword')?.addEventListener('input', function () {
+            const newPassword = document.getElementById('newPassword').value;
+            if (this.value !== newPassword) {
+                this.setCustomValidity('Passwords do not match');
+                this.style.borderColor = '#EF4444';
+            } else {
+                this.setCustomValidity('');
+                this.style.borderColor = 'var(--green)';
+            }
+        });
+    </script>
+}

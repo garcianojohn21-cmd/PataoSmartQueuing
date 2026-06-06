@@ -1,0 +1,998 @@
+﻿@model IEnumerable<PataoSmartQueuing.Models.Queue>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Queue Archive";
+}
+
+@Html.AntiForgeryToken()
+
+<style>
+    :root {
+        --parakeet-green: #22C55E;
+        --parakeet-dark: #16A34A;
+        --parakeet-light: #4ADE80;
+        --parakeet-pale: #F0FDF4;
+        --parakeet-glow: rgba(34, 197, 94, 0.25);
+        --parakeet-navy: #1E293B;
+        --parakeet-border: rgba(34, 197, 94, 0.3);
+        --parakeet-gradient: linear-gradient(135deg, #22C55E, #16A34A);
+        --parakeet-shadow: 0 4px 16px rgba(34, 197, 94, 0.2);
+        --parakeet-shadow-sm: 0 2px 8px rgba(34, 197, 94, 0.12);
+    }
+
+    /* ── HEADER ── */
+    .archive-header {
+        background: var(--parakeet-gradient);
+        border-radius: 14px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        box-shadow: var(--parakeet-shadow);
+    }
+
+        .archive-header h2 {
+            color: white;
+            font-weight: 700;
+            font-size: 1.6rem;
+            margin: 0 0 4px 0;
+        }
+
+        .archive-header p {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+    .btn-header-solid {
+        background: white;
+        color: var(--parakeet-dark);
+        border: none;
+        padding: 9px 18px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.4px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.25s;
+    }
+
+        .btn-header-solid:hover {
+            background: var(--parakeet-pale);
+            color: var(--parakeet-dark);
+            transform: translateY(-2px);
+        }
+
+    /* ── STAT CARDS ── */
+    .stat-card {
+        background: white;
+        border-radius: 14px;
+        padding: 20px;
+        border: 1.5px solid var(--parakeet-border);
+        border-left: 4px solid var(--parakeet-green);
+        box-shadow: var(--parakeet-shadow-sm);
+        transition: all 0.25s;
+        height: 100%;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--parakeet-shadow);
+        }
+
+        .stat-card .stat-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background: var(--parakeet-pale);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+            .stat-card .stat-icon.green {
+                color: var(--parakeet-dark);
+                background: var(--parakeet-pale);
+            }
+
+            .stat-card .stat-icon.blue {
+                color: #0EA5E9;
+                background: #E0F2FE;
+            }
+
+            .stat-card .stat-icon.red {
+                color: #DC2626;
+                background: #FEF2F2;
+            }
+
+            .stat-card .stat-icon.amber {
+                color: #D97706;
+                background: #FEF3C7;
+            }
+
+        .stat-card h6 {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #64748B;
+            margin: 0 0 4px 0;
+        }
+
+        .stat-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--parakeet-navy);
+            margin: 0;
+        }
+
+    /* ── FILTER CARD ── */
+    .filter-card {
+        background: white;
+        border-radius: 14px;
+        padding: 20px 24px;
+        border: 1.5px solid var(--parakeet-border);
+        box-shadow: var(--parakeet-shadow-sm);
+        margin-bottom: 20px;
+    }
+
+        .filter-card .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--parakeet-navy);
+            margin-bottom: 6px;
+        }
+
+        .filter-card .form-control,
+        .filter-card .form-select {
+            border: 1.5px solid var(--parakeet-border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13.5px;
+            color: var(--parakeet-navy);
+            transition: all 0.25s;
+            box-shadow: var(--parakeet-shadow-sm);
+        }
+
+            .filter-card .form-control:focus,
+            .filter-card .form-select:focus {
+                border-color: var(--parakeet-green);
+                box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+                outline: none;
+            }
+
+    .btn-apply {
+        background: var(--parakeet-gradient);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 13px;
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: var(--parakeet-shadow-sm);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+        .btn-apply:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--parakeet-shadow);
+        }
+
+    .btn-clear-link {
+        color: var(--parakeet-dark);
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+    }
+
+        .btn-clear-link:hover {
+            color: var(--parakeet-green);
+        }
+
+    /* ── BULK ACTIONS ── */
+    .bulk-bar {
+        background: white;
+        border: 1.5px solid var(--parakeet-border);
+        border-radius: 12px;
+        padding: 12px 18px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        box-shadow: var(--parakeet-shadow-sm);
+    }
+
+    .btn-bulk {
+        padding: 7px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        transition: all 0.25s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        border: 1.5px solid;
+    }
+
+    .btn-bulk-select {
+        border-color: var(--parakeet-border);
+        color: var(--parakeet-navy);
+        background: white;
+    }
+
+        .btn-bulk-select:hover {
+            background: var(--parakeet-pale);
+            border-color: var(--parakeet-green);
+        }
+
+    .btn-bulk-restore {
+        border-color: var(--parakeet-green);
+        color: var(--parakeet-dark);
+        background: white;
+    }
+
+        .btn-bulk-restore:hover:not(:disabled) {
+            background: var(--parakeet-green);
+            color: white;
+        }
+
+        .btn-bulk-restore:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+    .btn-bulk-delete {
+        border-color: #FCA5A5;
+        color: #DC2626;
+        background: white;
+    }
+
+        .btn-bulk-delete:hover:not(:disabled) {
+            background: #EF4444;
+            color: white;
+            border-color: #EF4444;
+        }
+
+        .btn-bulk-delete:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+    .selected-count {
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748B;
+        margin-left: 4px;
+    }
+
+    /* ── TABLE CARD ── */
+    .table-card {
+        background: white;
+        border-radius: 14px;
+        border: 1.5px solid var(--parakeet-border);
+        box-shadow: var(--parakeet-shadow-sm);
+        overflow: hidden;
+    }
+
+        .table-card .table {
+            margin: 0;
+        }
+
+            .table-card .table thead th {
+                background: var(--parakeet-pale);
+                color: var(--parakeet-navy);
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                border-bottom: 1.5px solid var(--parakeet-border);
+                padding: 14px 16px;
+                white-space: nowrap;
+            }
+
+            .table-card .table tbody td {
+                padding: 14px 16px;
+                border-bottom: 1px solid #F1F5F9;
+                vertical-align: middle;
+                font-size: 13.5px;
+                color: var(--parakeet-navy);
+            }
+
+            .table-card .table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .table-card .table tbody tr:hover td {
+                background: var(--parakeet-pale);
+            }
+
+    /* queue name in table */
+    .queue-name {
+        font-weight: 700;
+        color: var(--parakeet-navy);
+        font-size: 14px;
+        margin: 0 0 3px 0;
+    }
+
+    .queue-desc {
+        color: #64748B;
+        font-size: 12px;
+        margin: 0 0 4px 0;
+    }
+
+    .code-badge {
+        background: var(--parakeet-pale);
+        color: var(--parakeet-dark);
+        border: 1.5px solid var(--parakeet-border);
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        font-family: 'Courier New', monospace;
+    }
+
+    /* stat badges in table */
+    .tbl-badge {
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .tbl-badge-total {
+        background: #EFF6FF;
+        color: #1D4ED8;
+    }
+
+    .tbl-badge-done {
+        background: var(--parakeet-pale);
+        color: var(--parakeet-dark);
+    }
+
+    .tbl-badge-unsrvd {
+        background: #FEF2F2;
+        color: #DC2626;
+    }
+
+    /* progress bar */
+    .prog-wrap {
+        margin-top: 6px;
+    }
+
+    .prog-bar-bg {
+        height: 5px;
+        background: #E2E8F0;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .prog-bar-fill {
+        height: 100%;
+        background: var(--parakeet-gradient);
+        border-radius: 999px;
+        transition: width 0.4s ease;
+    }
+
+    .prog-label {
+        font-size: 11px;
+        color: #64748B;
+        margin-top: 3px;
+    }
+
+    /* timeline */
+    .timeline-text {
+        font-size: 12.5px;
+        color: var(--parakeet-navy);
+        line-height: 1.6;
+    }
+
+        .timeline-text strong {
+            color: var(--parakeet-navy);
+            font-weight: 700;
+        }
+
+        .timeline-text .dur {
+            color: #64748B;
+            font-size: 11.5px;
+        }
+
+    /* action buttons */
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 1.5px solid;
+        background: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .action-btn-info {
+        border-color: #BAE6FD;
+        color: #0EA5E9;
+    }
+
+        .action-btn-info:hover {
+            background: #0EA5E9;
+            color: white;
+            border-color: #0EA5E9;
+        }
+
+    .action-btn-success {
+        border-color: var(--parakeet-border);
+        color: var(--parakeet-dark);
+    }
+
+        .action-btn-success:hover {
+            background: var(--parakeet-green);
+            color: white;
+            border-color: var(--parakeet-green);
+        }
+
+    .action-btn-primary {
+        border-color: #BFDBFE;
+        color: #2563EB;
+    }
+
+        .action-btn-primary:hover {
+            background: #3B82F6;
+            color: white;
+            border-color: #3B82F6;
+        }
+
+    .action-btn-danger {
+        border-color: #FCA5A5;
+        color: #DC2626;
+    }
+
+        .action-btn-danger:hover {
+            background: #EF4444;
+            color: white;
+            border-color: #EF4444;
+        }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 60px 24px;
+    }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #CBD5E1;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .empty-state h5 {
+            font-weight: 700;
+            color: var(--parakeet-navy);
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            color: #64748B;
+            font-size: 14px;
+        }
+
+    /* ── MODAL ── */
+    .modal-content {
+        border: 1.5px solid var(--parakeet-border);
+        border-radius: 14px;
+        box-shadow: 0 10px 40px rgba(34, 197, 94, 0.15);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: var(--parakeet-gradient);
+        color: white;
+        border-bottom: none;
+    }
+
+    .modal-title {
+        font-weight: 700;
+    }
+
+    .btn-modal-cancel {
+        border: 1.5px solid var(--parakeet-border);
+        color: var(--parakeet-navy);
+        background: white;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+        .btn-modal-cancel:hover {
+            background: var(--parakeet-pale);
+        }
+
+    .btn-modal-confirm {
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 700;
+        font-size: 13px;
+        transition: all 0.25s;
+    }
+
+        .btn-modal-confirm.confirm-restore {
+            background: var(--parakeet-gradient);
+            color: white;
+            box-shadow: var(--parakeet-shadow-sm);
+        }
+
+            .btn-modal-confirm.confirm-restore:hover {
+                transform: translateY(-1px);
+                box-shadow: var(--parakeet-shadow);
+            }
+
+        .btn-modal-confirm.confirm-delete {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+        }
+
+            .btn-modal-confirm.confirm-delete:hover {
+                transform: translateY(-1px);
+            }
+
+    /* form-check styling */
+    .form-check-input:checked {
+        background-color: var(--parakeet-green);
+        border-color: var(--parakeet-green);
+    }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 768px) {
+        .archive-header {
+            padding: 16px;
+        }
+
+            .archive-header h2 {
+                font-size: 1.3rem;
+            }
+
+        .table-card {
+            border-radius: 10px;
+        }
+
+        .bulk-bar {
+            padding: 10px 14px;
+        }
+    }
+</style>
+
+<div class="container-fluid py-4">
+
+    <!-- Header -->
+    <div class="archive-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2><i class="bi bi-archive me-2"></i>Queue Archive</h2>
+            <p>View and manage completed queues</p>
+        </div>
+        <a href="@Url.Action("ManageQueues")" class="btn-header-solid">
+            <i class="bi bi-arrow-left"></i> Back to Manage Queues
+        </a>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon green"><i class="bi bi-archive-fill"></i></div>
+                    <div>
+                        <h6>Total Archived</h6>
+                        <h3>@ViewBag.TotalArchived</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon blue"><i class="bi bi-check-circle-fill"></i></div>
+                    <div>
+                        <h6>Students Served</h6>
+                        <h3>@ViewBag.TotalStudentsServed</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon red"><i class="bi bi-x-circle-fill"></i></div>
+                    <div>
+                        <h6>Unserved</h6>
+                        <h3>@ViewBag.TotalStudentsUnserved</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon amber"><i class="bi bi-bar-chart-fill"></i></div>
+                    <div>
+                        <h6>Avg Per Queue</h6>
+                        <h3>@ViewBag.AverageStudentsPerQueue</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-card">
+        <form method="get" asp-action="Archive" id="filterForm">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control"
+                           placeholder="Queue name, code, creator..."
+                           value="@ViewBag.SearchTerm">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="startDate" class="form-control"
+                           value="@ViewBag.StartDate">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="endDate" class="form-control"
+                           value="@ViewBag.EndDate">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Sort By</label>
+                    <select name="sortBy" class="form-select">
+                        @{
+                            var sortBy = ViewBag.SortBy as string ?? "recent";
+                        }
+                        <option value="recent" selected="@(sortBy == "recent")">Most Recent</option>
+                        <option value="oldest" selected="@(sortBy == "oldest")">Oldest First</option>
+                        <option value="name" selected="@(sortBy == "name")">Name (A-Z)</option>
+                        <option value="students" selected="@(sortBy == "students")">Most Students</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex flex-column justify-content-end gap-2">
+                    <button type="submit" class="btn-apply">
+                        <i class="bi bi-filter"></i> Apply Filters
+                    </button>
+                    <a href="@Url.Action("Archive")" class="btn-clear-link">
+                        <i class="bi bi-x-circle"></i> Clear Filters
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bulk Actions (SuperAdmin only) -->
+    @if (Context.Session.GetString("AdminRole") == "SuperAdmin")
+    {
+        <div class="bulk-bar">
+            <button class="btn-bulk btn-bulk-select" id="selectAllBtn">
+                <i class="bi bi-check-square"></i> Select All
+            </button>
+            <button class="btn-bulk btn-bulk-restore" id="bulkRestoreBtn" disabled>
+                <i class="bi bi-arrow-counterclockwise"></i> Restore Selected
+            </button>
+            <button class="btn-bulk btn-bulk-delete" id="bulkDeleteBtn" disabled>
+                <i class="bi bi-trash"></i> Delete Selected
+            </button>
+            <span class="selected-count" id="selectedCount">0 selected</span>
+        </div>
+    }
+
+    <!-- Table Card -->
+    <div class="table-card">
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <i class="bi bi-archive"></i>
+                <h5>No Archived Queues Found</h5>
+                <p>
+                    @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string) || ViewBag.StartDate != null || ViewBag.EndDate != null)
+                    {
+                        <text>Try adjusting your filters</text>
+                    }
+                    else
+                    {
+                        <text>Completed queues will appear here</text>
+                    }
+                </p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            @if (Context.Session.GetString("AdminRole") == "SuperAdmin")
+                            {
+                                <th width="40">
+                                    <input type="checkbox" class="form-check-input" id="selectAllCheckbox">
+                                </th>
+                            }
+                            <th>Queue Details</th>
+                            <th>Statistics</th>
+                            <th>Timeline</th>
+                            <th>Created By</th>
+                            <th width="160">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var q in Model)
+                        {
+                            var totalStudents = q.QueueStudents?.Count ?? 0;
+                            var completedStudents = q.QueueStudents?.Count(s => s.Status == "Done") ?? 0;
+                            var unservedStudents = q.QueueStudents?.Count(s => s.Status == "Unserved") ?? 0;
+                            var completionRate = totalStudents > 0
+                            ? Math.Round((completedStudents * 100.0) / totalStudents, 1)
+                            : 0;
+                            var duration = q.DateCompleted.HasValue
+                            ? (q.DateCompleted.Value - q.DateCreated).TotalHours
+                            : 0;
+
+                            <tr data-queue-id="@q.QueueID">
+                                @if (Context.Session.GetString("AdminRole") == "SuperAdmin")
+                                {
+                                    <td>
+                                        <input type="checkbox" class="form-check-input queue-checkbox" value="@q.QueueID">
+                                    </td>
+                                }
+                                <td>
+                                    <p class="queue-name">
+                                        <i class="bi bi-archive-fill me-1" style="color:var(--parakeet-green);font-size:13px;"></i>
+                                        @q.QueueName
+                                    </p>
+                                    <p class="queue-desc">@q.Description</p>
+                                    <span class="code-badge">@q.QueueCode</span>
+                                    <span class="ms-1" style="font-size:11px;color:#64748B;">Max: @q.MaxStudents</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-1 mb-2">
+                                        <span class="tbl-badge tbl-badge-total">@totalStudents Total</span>
+                                        <span class="tbl-badge tbl-badge-done">@completedStudents Done</span>
+                                        @if (unservedStudents > 0)
+                                        {
+                                            <span class="tbl-badge tbl-badge-unsrvd">@unservedStudents Unserved</span>
+                                        }
+                                    </div>
+                                    <div class="prog-wrap">
+                                        <div class="prog-bar-bg">
+                                            <div class="prog-bar-fill" style="width:@completionRate%"></div>
+                                        </div>
+                                        <div class="prog-label">@completionRate% completion</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="timeline-text">
+                                        <div><strong>Created:</strong> @q.DateCreated.ToString("MMM dd, yyyy")</div>
+                                        @if (q.DateCompleted.HasValue)
+                                        {
+                                            <div><strong>Completed:</strong> @q.DateCompleted.Value.ToString("MMM dd, yyyy")</div>
+                                            <div class="dur">Duration: @Math.Round(duration, 1)h</div>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="font-size:13px;color:var(--parakeet-navy);font-weight:500;">
+                                        @q.CreatedByAdmin.FirstName @q.CreatedByAdmin.LastName
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        <a href="@Url.Action("ArchiveDetails", new { id = q.QueueID })"
+                                           class="action-btn action-btn-info" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("DownloadQueueReportCsv", new { queueId = q.QueueID })"
+                                           class="action-btn action-btn-success" title="Download Report">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                        <button class="action-btn action-btn-primary restore-queue-btn"
+                                                data-queue-id="@q.QueueID"
+                                                data-queue-name="@q.QueueName"
+                                                title="Restore Queue">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                        @if (Context.Session.GetString("AdminRole") == "SuperAdmin")
+                                        {
+                                            <button class="action-btn action-btn-danger delete-archive-btn"
+                                                    data-queue-id="@q.QueueID"
+                                                    data-queue-name="@q.QueueName"
+                                                    title="Permanently Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalTitle">Confirm Action</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="confirmModalBody">Are you sure?</div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn-modal-confirm" id="confirmActionBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let currentAction = null;
+            let currentQueueId = null;
+            const confirmModal = new bootstrap.Modal($('#confirmModal')[0]);
+
+            // ── Restore ──
+            $('.restore-queue-btn').click(function () {
+                const queueId   = $(this).data('queue-id');
+                const queueName = $(this).data('queue-name');
+
+                $('#confirmModalTitle').text('Restore Queue');
+                $('#confirmModalBody').html(`
+                    <p>Are you sure you want to restore <strong>"${queueName}"</strong>?</p>
+                    <p class="text-muted small">This will return the queue to pending status.</p>
+                `);
+                $('#confirmActionBtn')
+                    .removeClass('confirm-delete').addClass('confirm-restore')
+                    .text('Restore');
+
+                currentAction   = 'restore';
+                currentQueueId  = queueId;
+                confirmModal.show();
+            });
+
+            // ── Delete ──
+            $('.delete-archive-btn').click(function () {
+                const queueId   = $(this).data('queue-id');
+                const queueName = $(this).data('queue-name');
+
+                $('#confirmModalTitle').text('Permanently Delete');
+                $('#confirmModalBody').html(`
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Warning: This action cannot be undone!</strong>
+                    </div>
+                    <p>Are you sure you want to permanently delete <strong>"${queueName}"</strong>?</p>
+                    <p class="text-muted small">All student records and data will be lost forever.</p>
+                `);
+                $('#confirmActionBtn')
+                    .removeClass('confirm-restore').addClass('confirm-delete')
+                    .text('Delete Permanently');
+
+                currentAction   = 'delete';
+                currentQueueId  = queueId;
+                confirmModal.show();
+            });
+
+            // ── Confirm click ──
+            $('#confirmActionBtn').click(function () {
+                if (currentAction === 'restore')    restoreQueue(currentQueueId);
+                else if (currentAction === 'delete') deleteArchive(currentQueueId);
+                else if (currentAction === 'bulkRestore') bulkRestore(currentQueueId);
+            });
+
+            function restoreQueue(queueId) {
+                $.ajax({
+                    url: '@Url.Action("RestoreQueueAjax")',
+                    type: 'POST',
+                    data: { id: queueId, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (r) {
+                        confirmModal.hide();
+                        r.success ? (toastr.success(r.message), setTimeout(() => location.reload(), 1500))
+                                  : toastr.error(r.message);
+                    },
+                    error: function () { confirmModal.hide(); toastr.error('Error restoring queue'); }
+                });
+            }
+
+            function deleteArchive(queueId) {
+                $.ajax({
+                    url: '@Url.Action("PermanentlyDeleteArchive")',
+                    type: 'POST',
+                    data: { id: queueId, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (r) {
+                        confirmModal.hide();
+                        r.success ? (toastr.success(r.message), setTimeout(() => location.reload(), 1500))
+                                  : toastr.error(r.message);
+                    },
+                    error: function () { confirmModal.hide(); toastr.error('Error deleting archive'); }
+                });
+            }
+
+            function bulkRestore(ids) {
+                $.ajax({
+                    url: '@Url.Action("BulkRestoreArchives")',
+                    type: 'POST',
+                    data: { queueIds: ids, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (r) {
+                        confirmModal.hide();
+                        r.success ? (toastr.success(r.message), setTimeout(() => location.reload(), 1500))
+                                  : toastr.error(r.message);
+                    }
+                });
+            }
+
+            // ── Bulk selection ──
+            function updateBulkButtons() {
+                const count = $('.queue-checkbox:checked').length;
+                $('#selectedCount').text(`${count} selected`);
+                $('#bulkRestoreBtn, #bulkDeleteBtn').prop('disabled', count === 0);
+            }
+
+            $('#selectAllCheckbox').change(function () {
+                $('.queue-checkbox').prop('checked', this.checked);
+                updateBulkButtons();
+            });
+
+            $(document).on('change', '.queue-checkbox', updateBulkButtons);
+
+            $('#selectAllBtn').click(function () {
+                $('.queue-checkbox, #selectAllCheckbox').prop('checked', true);
+                updateBulkButtons();
+            });
+
+            $('#bulkRestoreBtn').click(function () {
+                const selected = $('.queue-checkbox:checked').map(function () { return $(this).val(); }).get();
+                if (!selected.length) return;
+
+                $('#confirmModalTitle').text('Bulk Restore');
+                $('#confirmModalBody').html(`
+                    <p>Are you sure you want to restore <strong>${selected.length}</strong> queue(s)?</p>
+                    <p class="text-muted small">All selected queues will return to pending status.</p>
+                `);
+                $('#confirmActionBtn')
+                    .removeClass('confirm-delete').addClass('confirm-restore')
+                    .text('Restore All');
+
+                currentAction  = 'bulkRestore';
+                currentQueueId = selected.join(',');
+                confirmModal.show();
+            });
+        });
+    </script>
+}

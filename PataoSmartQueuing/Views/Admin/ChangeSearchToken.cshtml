@@ -1,0 +1,808 @@
+﻿@model PataoSmartQueuing.Models.AdminSettings
+@{
+    ViewData["Title"] = "Change Portal Token";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    :root {
+        --navy: #0D1B2A;
+        --navy-mid: #1B2E44;
+        --navy-light: #243A52;
+        --green: #22C55E;
+        --green-dark: #16A34A;
+        --green-light: #4ADE80;
+        --green-pale: #F0FDF4;
+        --green-gradient: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        --navy-gradient: linear-gradient(135deg, #0D1B2A 0%, #1B2E44 100%);
+        --white: #FFFFFF;
+        --border: rgba(34, 197, 94, 0.25);
+        --shadow: 0 8px 32px rgba(13, 27, 42, 0.18);
+        --shadow-green: 0 6px 24px rgba(34, 197, 94, 0.25);
+    }
+
+    /* ── CARD ── */
+    .cq-card {
+        background: var(--white);
+        border-radius: 22px;
+        border: 2px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .cq-card-header {
+        background: var(--navy-gradient);
+        padding: 28px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .cq-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .cq-card-header::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+        }
+
+        .cq-card-header h4 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+            .cq-card-header h4 i {
+                color: var(--green-light);
+            }
+
+    .cq-card-body {
+        padding: 36px 32px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    /* ── LABELS ── */
+    .form-label-cq {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .form-label-cq i {
+            color: var(--green-dark);
+            font-size: 15px;
+        }
+
+    /* ── INPUTS ── */
+    .form-control-cq {
+        border: 2px solid rgba(34,197,94,0.3);
+        border-radius: 12px;
+        padding: 13px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--navy);
+        background: var(--white);
+        transition: all 0.25s;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+        display: block;
+    }
+
+        .form-control-cq:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+            background: var(--white);
+        }
+
+        .form-control-cq::placeholder {
+            color: #9CA3AF;
+            font-weight: 400;
+        }
+
+        .form-control-cq:disabled,
+        .form-control-cq[readonly] {
+            background: #F9FAFB;
+            color: #6B7280;
+            cursor: default;
+        }
+
+    /* ── INPUT GROUP ── */
+    .input-group-cq {
+        display: flex;
+        border: 2px solid rgba(34,197,94,0.3);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+        .input-group-cq input {
+            border: none;
+            padding: 13px 16px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--navy);
+            background: #F9FAFB;
+            flex: 1;
+            outline: none;
+            min-width: 0;
+        }
+
+        .input-group-cq .copy-btn {
+            border: none;
+            border-left: 2px solid rgba(34,197,94,0.3);
+            background: var(--white);
+            color: var(--green-dark);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+            .input-group-cq .copy-btn:hover {
+                background: var(--green-gradient);
+                color: var(--white);
+            }
+
+    /* ── ALERTS ── */
+    .alert-cq-danger {
+        background: #FEE2E2;
+        border: 2px solid #EF4444;
+        border-left: 5px solid #DC2626;
+        color: #7F1D1D;
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-weight: 600;
+        font-size: 13.5px;
+        margin-bottom: 20px;
+    }
+
+    .alert-cq-success {
+        background: var(--green-pale);
+        border: 2px solid var(--green);
+        border-left: 5px solid var(--green-dark);
+        color: #14532D;
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-weight: 600;
+        font-size: 13.5px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* ── WARNING BOX ── */
+    .warning-box {
+        background: var(--navy);
+        border-radius: 12px;
+        padding: 14px 16px;
+        color: rgba(255,255,255,0.8);
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 28px;
+    }
+
+        .warning-box i {
+            color: var(--green-light);
+            flex-shrink: 0;
+            font-size: 15px;
+        }
+
+        .warning-box strong {
+            color: var(--white);
+        }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+        border: none;
+        border-top: 2px solid rgba(34,197,94,0.15);
+        margin: 28px 0;
+    }
+
+    /* ── LINK PREVIEW CARD ── */
+    .link-preview {
+        background: var(--navy);
+        border-radius: 16px;
+        padding: 20px 24px;
+        position: relative;
+        overflow: hidden;
+        margin-top: 28px;
+    }
+
+        .link-preview::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%);
+        }
+
+    .link-preview-label {
+        color: rgba(255,255,255,0.55);
+        font-weight: 700;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .link-preview-label i {
+            color: var(--green-light);
+        }
+
+    .link-preview .input-group-cq {
+        border-color: rgba(34,197,94,0.2);
+    }
+
+        .link-preview .input-group-cq input {
+            background: rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.85);
+            font-family: 'Courier New', monospace;
+            font-size: 12.5px;
+        }
+
+        .link-preview .input-group-cq .copy-btn {
+            border-left-color: rgba(34,197,94,0.2);
+            background: rgba(255,255,255,0.08);
+            color: var(--green-light);
+        }
+
+            .link-preview .input-group-cq .copy-btn:hover {
+                background: var(--green-gradient);
+                color: var(--white);
+            }
+
+    /* ── BUTTONS ── */
+    .btn-cq-create {
+        background: var(--green-gradient);
+        color: var(--white);
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: var(--shadow-green);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+        .btn-cq-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(34,197,94,0.4);
+            color: var(--white);
+        }
+
+        .btn-cq-create:active {
+            transform: translateY(0);
+        }
+
+    .btn-cq-cancel {
+        background: var(--white);
+        color: var(--navy-mid);
+        border: 2px solid #D1D5DB;
+        padding: 13px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        cursor: pointer;
+        transition: all 0.25s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+        .btn-cq-cancel:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF;
+            color: var(--navy);
+            transform: translateY(-2px);
+        }
+
+    /* ── GENERATE BUTTON ── */
+    .btn-generate {
+        border: 2px solid rgba(34,197,94,0.4);
+        background: var(--white);
+        color: var(--green-dark);
+        border-radius: 12px;
+        padding: 13px 18px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.25s;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+        .btn-generate:hover {
+            background: var(--green-pale);
+            border-color: var(--green);
+            transform: translateY(-2px);
+        }
+
+    /* ── SUCCESS MODAL ── */
+    .modal-cq .modal-content {
+        border: 2px solid var(--border);
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .modal-cq .modal-header {
+        background: var(--navy-gradient);
+        border: none;
+        padding: 22px 28px;
+        position: relative;
+    }
+
+        .modal-cq .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .modal-cq .modal-header h5 {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--white);
+            margin: 0;
+        }
+
+            .modal-cq .modal-header h5 i {
+                color: var(--green-light);
+            }
+
+    .modal-cq .modal-body {
+        padding: 28px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    .modal-cq .modal-footer {
+        border: none;
+        padding: 20px 28px;
+        background: var(--green-pale);
+        justify-content: center;
+    }
+
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--green-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 2.2rem;
+        margin: 0 auto 24px;
+        box-shadow: var(--shadow-green);
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 6px 20px rgba(34,197,94,0.3);
+        }
+
+        50% {
+            transform: scale(1.06);
+            box-shadow: 0 8px 28px rgba(34,197,94,0.5);
+        }
+    }
+
+    .modal-input-group {
+        display: flex;
+        border: 2px solid rgba(34,197,94,0.3);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+        .modal-input-group input {
+            border: none;
+            padding: 12px 14px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--navy);
+            background: var(--white);
+            flex: 1;
+            outline: none;
+            min-width: 0;
+        }
+
+        .modal-input-group .copy-btn {
+            border: none;
+            border-left: 2px solid rgba(34,197,94,0.3);
+            background: var(--white);
+            color: var(--green-dark);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+            .modal-input-group .copy-btn:hover {
+                background: var(--green-gradient);
+                color: var(--white);
+            }
+
+    .modal-label {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .modal-label i {
+            color: var(--green-dark);
+        }
+
+    .modal-note {
+        background: var(--navy);
+        border-radius: 12px;
+        padding: 14px 16px;
+        color: rgba(255,255,255,0.8);
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .modal-note i {
+            color: var(--green-light);
+            flex-shrink: 0;
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 768px) {
+        .cq-card-body {
+            padding: 22px 18px;
+        }
+
+        .cq-card-header {
+            padding: 18px 20px;
+        }
+
+        .btn-cq-create, .btn-cq-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .new-token-row {
+            flex-direction: column;
+        }
+
+            .new-token-row .btn-generate {
+                width: 100%;
+                justify-content: center;
+            }
+    }
+</style>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="cq-card">
+
+                <div class="cq-card-header">
+                    <h4>
+                        <i class="bi bi-key-fill me-2"></i>Change Portal Token
+                    </h4>
+                </div>
+
+                <div class="cq-card-body">
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert-cq-success">
+                            <i class="bi bi-check-circle-fill" style="color: var(--green-dark); font-size:18px;"></i>
+                            <span>@TempData["Success"]</span>
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert-cq-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+                        </div>
+                    }
+
+                    <div class="mb-4">
+                        <label class="form-label-cq">
+                            <i class="bi bi-shield-lock-fill"></i> Current Token
+                        </label>
+                        <div class="input-group-cq">
+                            <input type="text"
+                                   id="currentTokenInput"
+                                   value="@Model?.PortalToken"
+                                   readonly />
+                            <button class="copy-btn" type="button" onclick="copyField('currentTokenInput', this)">
+                                <i class="bi bi-clipboard"></i> Copy
+                            </button>
+                        </div>
+                        <small style="color:#6B7280; font-size:12px; margin-top:6px; display:block;">
+                            This token is required to access the admin login page.
+                        </small>
+                    </div>
+
+                    <hr class="section-divider" />
+
+                    <form id="changeTokenForm" asp-action="ChangeSearchToken" method="post">
+                        @Html.AntiForgeryToken()
+
+         
+                        <div class="mb-4">
+                            <label class="form-label-cq">
+                                <i class="bi bi-key-fill"></i> New Token
+                            </label>
+                            <div class="d-flex gap-2 new-token-row">
+                                <input type="text"
+                                       name="newToken"
+                                       id="newTokenInput"
+                                       class="form-control-cq"
+                                       placeholder="Enter or generate a new portal token"
+                                       minlength="6"
+                                       required />
+                                <button type="button" class="btn-generate" onclick="generateToken()">
+                                    <i class="bi bi-shuffle"></i> Generate
+                                </button>
+                            </div>
+                            <small style="color:#6B7280; font-size:12px; margin-top:6px; display:block;">
+                                Minimum 6 characters. Letters, numbers, or symbols allowed.
+                            </small>
+                        </div>
+
+   
+                        <div class="warning-box">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            <span>
+                                <strong>Heads up:</strong> Changing this token will invalidate the current login link.
+                                Share the new link with all admins after updating.
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between flex-wrap gap-2">
+                            <a asp-controller="Admin" asp-action="Settings" class="btn-cq-cancel">
+                                <i class="bi bi-arrow-left-circle"></i> Back to Settings
+                            </a>
+                            <button type="submit" class="btn-cq-create">
+                                <i class="bi bi-save"></i> Update Token
+                            </button>
+                        </div>
+                    </form>
+
+                  
+                    @if (Model?.PortalToken != null)
+                    {
+                        <div class="link-preview">
+                            <p class="link-preview-label">
+                                <i class="bi bi-link-45deg"></i> Current Login Link
+                            </p>
+                            <div class="input-group-cq">
+                                <input type="text"
+                                       id="loginLinkInput"
+                                       value="@($"{Context.Request.Scheme}://{Context.Request.Host}/Admin/Login?token={Model.PortalToken}")"
+                                       readonly />
+                                <button class="copy-btn" type="button" onclick="copyField('loginLinkInput', this)">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade modal-cq" id="tokenUpdatedModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-check-circle-fill me-2"></i>Token Updated!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="success-icon">
+                    <i class="bi bi-key-fill"></i>
+                </div>
+
+                <div class="mb-4">
+                    <p class="modal-label"><i class="bi bi-key-fill"></i> New Token</p>
+                    <div class="modal-input-group">
+                        <input type="text" readonly id="modalNewToken" />
+                        <button class="copy-btn" onclick="copyField('modalNewToken', this)">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <p class="modal-label"><i class="bi bi-link-45deg"></i> New Login Link</p>
+                    <div class="modal-input-group">
+                        <input type="text" readonly id="modalNewLink" />
+                        <button class="copy-btn" onclick="copyField('modalNewLink', this)">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal-note">
+                    <i class="bi bi-info-circle-fill"></i>
+                    Share the new login link with all admins. The old link will no longer work.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cq-create" data-bs-dismiss="modal">
+                    <i class="bi bi-check-circle"></i> Done
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ── Auto-show modal if success came from redirect ──
+        @if (TempData["ShowModal"] != null)
+        {
+                <text>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const token = '@TempData["NewToken"]';
+                    const link  = '@TempData["NewLink"]';
+                    if (token) {
+                        document.getElementById('modalNewToken').value = token;
+                        document.getElementById('modalNewLink').value  = link;
+                        new bootstrap.Modal(document.getElementById('tokenUpdatedModal')).show();
+                    }
+                });
+                </text>
+        }
+
+        // ── Submit via AJAX so we can show the modal ──
+        document.getElementById('changeTokenForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const newToken = document.getElementById('newTokenInput').value.trim();
+            if (!newToken || newToken.length < 6) {
+                showError('Token must be at least 6 characters.');
+                return;
+            }
+
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            }).then(function (response) {
+                // If redirect happened (successful POST → redirect), reload to pick up TempData
+                if (response.redirected) {
+                    // Build new link client-side for the modal before redirecting
+                    const origin = window.location.origin;
+                    document.getElementById('modalNewToken').value = newToken;
+                    document.getElementById('modalNewLink').value  = origin + '/Admin/Login?token=' + encodeURIComponent(newToken);
+                    const modal = new bootstrap.Modal(document.getElementById('tokenUpdatedModal'));
+                    modal.show();
+                    document.getElementById('tokenUpdatedModal').addEventListener('hidden.bs.modal', function () {
+                        window.location.href = response.url;
+                    });
+                } else {
+                    window.location.reload();
+                }
+            }).catch(function () {
+                showError('An unexpected error occurred. Please try again.');
+            });
+        });
+
+        function generateToken() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let token = '';
+            for (let i = 0; i < 12; i++) {
+                token += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('newTokenInput').value = token;
+            document.getElementById('newTokenInput').focus();
+        }
+
+        function copyField(inputId, btn) {
+            const val = document.getElementById(inputId).value;
+            if (!val) return;
+            navigator.clipboard.writeText(val).then(function () {
+                const original = btn.innerHTML;
+                btn.innerHTML = "<i class='bi bi-clipboard-check'></i> Copied!";
+                btn.style.background = "var(--green-gradient)";
+                btn.style.color      = "white";
+                setTimeout(function () {
+                    btn.innerHTML = original;
+                    btn.style.background = "";
+                    btn.style.color      = "";
+                }, 2000);
+            });
+        }
+
+        function showError(msg) {
+            let el = document.getElementById('inlineError');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'inlineError';
+                el.className = 'alert-cq-danger';
+                document.querySelector('.cq-card-body').prepend(el);
+            }
+            el.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>' + msg;
+            el.classList.remove('d-none');
+        }
+    </script>
+}

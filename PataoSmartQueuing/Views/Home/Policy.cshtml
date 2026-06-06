@@ -1,0 +1,470 @@
+﻿@{
+    ViewBag.Title = "Queuing Policy - Patao NHS";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* ── PASTE THIS ENTIRE BLOCK TO REPLACE YOUR EXISTING <style> IN Policy.cshtml ── */
+
+    :root {
+        --navy: #0D1B2A;
+        --navy-mid: #1B2E44;
+        --navy-light: #243A52;
+        --green: #22C55E;
+        --green-dark: #16A34A;
+        --green-light: #4ADE80;
+        --green-pale: #F0FDF4;
+        --green-gradient: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        --navy-gradient: linear-gradient(135deg, #0D1B2A 0%, #1B2E44 100%);
+        --white: #FFFFFF;
+        --border: rgba(34, 197, 94, 0.25);
+        --shadow: 0 8px 32px rgba(13, 27, 42, 0.18);
+        --shadow-green: 0 6px 24px rgba(34, 197, 94, 0.25);
+        --accent-blue: #0EA5E9;
+        --accent-amber: #F59E0B;
+        --accent-red: #EF4444;
+        --accent-purple: #8B5CF6;
+    }
+
+    body {
+        background: linear-gradient(160deg, #f0fdf4 0%, #e0f2fe 100%);
+        min-height: 100vh;
+    }
+
+    .policy-page {
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    /* Header */
+    .policy-header {
+        background: var(--navy-gradient);
+        color: var(--white);
+        padding: 60px 40px;
+        border-radius: 22px;
+        margin-bottom: 40px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+        .policy-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--green-gradient);
+        }
+
+        .policy-header::before {
+            content: '📋';
+            position: absolute;
+            font-size: 200px;
+            opacity: 0.07;
+            right: -30px;
+            top: -30px;
+            transform: rotate(15deg);
+        }
+
+        .policy-header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .policy-header h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--green-light);
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .policy-header .lead {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            position: relative;
+            z-index: 2;
+        }
+
+    .icon-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        background: rgba(34, 197, 94, 0.2);
+        border: 2px solid rgba(34, 197, 94, 0.4);
+        border-radius: 50%;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+    }
+
+        .icon-badge i {
+            font-size: 28px;
+            color: var(--green-light);
+        }
+
+    /* Policy Cards */
+    .policy-card {
+        background: var(--white);
+        border: 2px solid var(--border);
+        border-left: 5px solid transparent;
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        margin-bottom: 22px;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s ease forwards;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .policy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 48px rgba(13, 27, 42, 0.2);
+        }
+
+        .policy-card:nth-child(1) {
+            border-left-color: var(--green);
+            animation-delay: 0.1s;
+        }
+
+        .policy-card:nth-child(2) {
+            border-left-color: var(--accent-blue);
+            animation-delay: 0.15s;
+        }
+
+        .policy-card:nth-child(3) {
+            border-left-color: var(--green-dark);
+            animation-delay: 0.2s;
+        }
+
+        .policy-card:nth-child(4) {
+            border-left-color: var(--accent-blue);
+            animation-delay: 0.25s;
+        }
+
+        .policy-card:nth-child(5) {
+            border-left-color: var(--accent-red);
+            animation-delay: 0.3s;
+        }
+
+        .policy-card:nth-child(6) {
+            border-left-color: var(--accent-amber);
+            animation-delay: 0.35s;
+        }
+
+        .policy-card:nth-child(7) {
+            border-left-color: var(--accent-purple);
+            animation-delay: 0.4s;
+        }
+
+        .policy-card .card-body {
+            padding: 35px;
+        }
+
+    .policy-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        background: var(--green-gradient);
+        color: var(--white);
+        border-radius: 50%;
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin-right: 15px;
+        box-shadow: var(--shadow-green);
+        flex-shrink: 0;
+    }
+
+    .policy-title {
+        display: inline-flex;
+        align-items: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 20px;
+    }
+
+    .policy-card p {
+        color: #4B5563;
+        line-height: 1.8;
+        font-size: 1.02rem;
+        margin-bottom: 15px;
+    }
+
+    .policy-card ul {
+        padding-left: 0;
+        list-style: none;
+    }
+
+        .policy-card ul li {
+            padding: 11px 0 11px 36px;
+            color: #4B5563;
+            font-size: 1rem;
+            line-height: 1.7;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.1);
+            position: relative;
+        }
+
+            .policy-card ul li:last-child {
+                border-bottom: none;
+            }
+
+            .policy-card ul li::before {
+                content: '✓';
+                position: absolute;
+                left: 0;
+                top: 11px;
+                width: 22px;
+                height: 22px;
+                background: var(--green-gradient);
+                color: var(--white);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 12px;
+            }
+
+    /* Prohibited uses red X */
+    .policy-card:nth-child(5) ul li::before {
+        content: '✕';
+        background: linear-gradient(135deg, var(--accent-red), #B91C1C);
+    }
+
+    .policy-card b {
+        color: var(--green-dark);
+        font-weight: 600;
+    }
+
+    /* Footer */
+    .policy-footer {
+        background: var(--navy-gradient);
+        color: var(--white);
+        padding: 40px;
+        border-radius: 18px;
+        text-align: center;
+        margin-top: 40px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .policy-footer::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--green-gradient);
+        }
+
+        .policy-footer .effective-date {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .policy-footer .signature {
+            margin-top: 16px;
+            font-style: italic;
+            opacity: 0.75;
+            font-size: 0.95rem;
+        }
+
+        .policy-footer .icon-badge {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+@@keyframes fadeInUp {
+        to
+
+    {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Responsive */
+@@media (max-width: 768px) {
+        .policy-header
+
+    {
+        padding: 40px 20px;
+        border-radius: 18px;
+    }
+
+    .policy-header h1 {
+        font-size: 1.9rem;
+    }
+
+    .policy-header h3 {
+        font-size: 1.3rem;
+    }
+
+    .policy-title {
+        font-size: 1.2rem;
+    }
+
+    .policy-card .card-body {
+        padding: 22px 18px;
+    }
+
+    .policy-card {
+        border-radius: 14px;
+    }
+
+    }
+</style>
+
+<div class="policy-page">
+    <div class="container">
+        <!-- Header -->
+        <div class="policy-header text-center">
+            <div class="icon-badge">
+                <i class="fas fa-scroll"></i>
+            </div>
+            <h1>🦜 Patao National Senior High School</h1>
+            <h3>Student Queuing System Policy</h3>
+            <p class="lead">Ensuring fairness, order, and efficiency in the enrollment process</p>
+        </div>
+
+        <!-- Policy Sections -->
+        <div class="policy-card">
+            <div class="card-body">
+                <h4 class="policy-title">
+                    <span class="policy-number">1</span>
+                    Purpose
+                </h4>
+                <p>
+                    The purpose of this policy is to provide clear guidelines for the use of the
+                    <b>Patao NHS Student Queuing System</b>. It aims to ensure fairness, efficiency,
+                    and transparency during enrollment and other school-related transactions.
+                </p>
+            </div>
+        </div>
+
+        <div class="policy-card">
+            <div class="card-body">
+                <h4 class="policy-title">
+                    <span class="policy-number">2</span>
+                    Scope
+                </h4>
+                <p>
+                    This policy applies to all students, both new and returning, as well as
+                    school administrators and staff who are responsible for managing the queue.
+                </p>
+            </div>
+        </div>
+
+        <div class="policy-card">
+            <div class="card-body">
+                <h4 class="policy-title">
+                    <span class="policy-number">3</span>
+                    Student Responsibilities
+                </h4>
+                <ul>
+                    <li>All students must create an account in the system before joining a queue.</li>
+                    <li>Students are required to use their <b>Learner Reference Number (LRN)</b> or upload valid documents for verification.</li>
+                    <li>Only verified students will be allowed to receive a queue number.</li>
+                    <li>Students must keep their <b>Queue Number</b> and <b>Pin Code</b> secure and private.</li>
+                    <li>Students must be present and ready when their number is called; failure to appear may result in forfeiture of their slot.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="policy-card">
+            <div class="card-body">
+                <h4 class="policy-title">
+                    <span class="policy-number">4</span>
+                    Admin Responsibilities
+                </h4>
+                <ul>
+                    <li>Admins are responsible for creating, monitoring, and closing queue sessions.</li>
+                    <li>Admins must ensure timely verification of student accounts and documents.</li>
+                    <li>Admins must manage the queue fairly without giving preferential treatment.</li>
+                    <li>Admins should provide real-time updates on queue progress through the system and live displays.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="policy-card">
+            <div class="card-body">
+                <h4 class="policy-title">
+                    <span class="policy-number">5</span>
+                    Prohibited Actions
+                </h4>
+                <ul>
+                    <li>Sharing queue numbers or Pin Codes with other individuals.</li>
+                    <li>Attempting to bypass the system by manually cutting the line.</li>
+                    <li>Submitting falsified or invalid documents for verification.</li>
+                    <li>Engaging in disruptive behavior while waiting in line, either online or on-site.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="policy-card">
+            <div class="card-body">
+                <h4 class="policy-title">
+                    <span class="policy-number">6</span>
+                    Enforcement
+                </h4>
+                <p>
+                    Any student found violating this policy may face the following consequences:
+                </p>
+                <ul>
+                    <li>Immediate removal from the queue.</li>
+                    <li>Temporary or permanent suspension of system access.</li>
+                    <li>Referral to the school administration for further disciplinary action.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="policy-card">
+            <div class="card-body">
+                <h4 class="policy-title">
+                    <span class="policy-number">7</span>
+                    Amendments
+                </h4>
+                <p>
+                    The school reserves the right to amend this policy as needed to improve
+                    the efficiency and fairness of the queuing system. Updates will be communicated
+                    to students through official school channels.
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="policy-footer">
+            <div class="icon-badge">
+                <i class="fas fa-stamp"></i>
+            </div>
+            <p class="effective-date">
+                <i class="fas fa-calendar-check me-2"></i>
+                Effective Date: <b>@DateTime.Now.ToString("MMMM dd, yyyy")</b>
+            </p>
+            <p class="signature">
+                By using the Patao NHS Student Queuing System, you acknowledge that you have read,
+                understood, and agree to comply with this policy.
+            </p>
+            <div class="mt-4">
+                <i class="fas fa-shield-alt" style="font-size: 2rem; opacity: 0.7;"></i>
+            </div>
+        </div>
+    </div>
+</div>

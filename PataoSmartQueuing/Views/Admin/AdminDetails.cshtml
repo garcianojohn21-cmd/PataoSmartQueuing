@@ -1,0 +1,839 @@
+﻿@model PataoSmartQueuing.Models.Admin
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Administrator Details";
+}
+
+<style>
+    :root {
+        --navy: #0D1B2A;
+        --navy-mid: #1B2E44;
+        --navy-light: #243A52;
+        --green: #22C55E;
+        --green-dark: #16A34A;
+        --green-light: #4ADE80;
+        --green-pale: #F0FDF4;
+        --green-gradient: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        --navy-gradient: linear-gradient(135deg, #0D1B2A 0%, #1B2E44 100%);
+        --white: #FFFFFF;
+        --border: rgba(34, 197, 94, 0.25);
+        --shadow: 0 8px 32px rgba(13, 27, 42, 0.18);
+        --shadow-green: 0 6px 24px rgba(34, 197, 94, 0.25);
+    }
+
+    /* ── PAGE HEADER ── */
+    .ad-page-header {
+        background: var(--navy-gradient);
+        border-radius: 22px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+        .ad-page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .ad-page-header::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+        }
+
+    .ad-page-title {
+        color: var(--white);
+        font-weight: 800;
+        font-size: 22px;
+        margin: 0 0 4px 0;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .ad-page-title i {
+            color: var(--green-light);
+        }
+
+    .ad-page-subtitle {
+        color: rgba(255,255,255,0.6);
+        font-size: 13.5px;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-ad-secondary {
+        background: rgba(255,255,255,0.12);
+        color: var(--white);
+        border: 1.5px solid rgba(255,255,255,0.25);
+        padding: 10px 22px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.25s;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        text-decoration: none;
+        position: relative;
+        z-index: 1;
+    }
+
+        .btn-ad-secondary:hover {
+            background: rgba(255,255,255,0.22);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+    /* ── CARDS ── */
+    .ad-card {
+        background: var(--white);
+        border-radius: 22px;
+        border: 2px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .ad-card-header {
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+    }
+
+        .ad-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .ad-card-header h6 {
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin: 0;
+            color: var(--white);
+        }
+
+        .ad-card-header i {
+            color: var(--green-light);
+            font-size: 15px;
+        }
+
+    .ad-card-header-navy {
+        background: var(--navy-gradient);
+    }
+
+    .ad-card-header-green {
+        background: var(--green-gradient);
+    }
+
+    .ad-card-header-info {
+        background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+    }
+
+    .ad-card-header-plain {
+        background: var(--white);
+        border-bottom: 2px solid var(--border);
+    }
+
+        .ad-card-header-plain h5 {
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            margin: 0;
+            color: var(--navy);
+        }
+
+        .ad-card-header-plain i {
+            color: var(--green-dark);
+        }
+
+    .ad-card-body {
+        padding: 22px 24px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    /* ── AVATAR ── */
+    .avatar-cq {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: var(--navy-gradient);
+        border: 3px solid var(--green);
+        box-shadow: var(--shadow-green);
+        color: var(--green-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 30px;
+        margin: 0 auto 16px;
+        letter-spacing: 1px;
+    }
+
+    .profile-name {
+        color: var(--navy);
+        font-weight: 800;
+        font-size: 18px;
+        margin: 0 0 4px 0;
+    }
+
+    .profile-email {
+        color: #6B7280;
+        font-size: 13px;
+        margin: 0 0 14px 0;
+    }
+
+    /* ── ROLE BADGES ── */
+    .role-badge {
+        display: inline-block;
+        border-radius: 10px;
+        padding: 5px 16px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .role-superadmin {
+        background: rgba(220,38,38,0.1);
+        color: #DC2626;
+        border: 1.5px solid rgba(220,38,38,0.25);
+    }
+
+    .role-registrar {
+        background: rgba(14,165,233,0.1);
+        color: #0284C7;
+        border: 1.5px solid rgba(14,165,233,0.25);
+    }
+
+    .role-advance {
+        background: rgba(234,179,8,0.1);
+        color: #B45309;
+        border: 1.5px solid rgba(234,179,8,0.3);
+    }
+
+    .role-default {
+        background: rgba(107,114,128,0.1);
+        color: #4B5563;
+        border: 1.5px solid rgba(107,114,128,0.2);
+    }
+
+    /* ── INFO TABLE ── */
+    .info-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .info-table tr + tr td,
+        .info-table tr + tr th {
+            border-top: 1px solid rgba(34,197,94,0.12);
+        }
+
+        .info-table th {
+            color: #6B7280;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 10px 0;
+            width: 42%;
+        }
+
+        .info-table td {
+            color: var(--navy);
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 10px 0;
+        }
+
+    .code-badge {
+        background: var(--navy);
+        color: var(--green-light);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: monospace;
+        letter-spacing: 1px;
+    }
+
+    /* ── STAT BOXES ── */
+    .stat-boxes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .stat-box {
+        background: rgba(34,197,94,0.06);
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 16px 12px;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+        .stat-box:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-green);
+        }
+
+        .stat-box h4 {
+            font-weight: 800;
+            font-size: 24px;
+            margin: 0 0 3px 0;
+            color: var(--navy);
+        }
+
+        .stat-box small {
+            font-size: 11px;
+            color: #6B7280;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+    /* ── TABLE ── */
+    .table-cq {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 6px;
+    }
+
+        .table-cq thead th {
+            color: #6B7280;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 6px 14px;
+            border: none;
+        }
+
+        .table-cq tbody tr {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(13,27,42,0.06);
+            transition: all 0.2s;
+        }
+
+            .table-cq tbody tr:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(34,197,94,0.15);
+            }
+
+        .table-cq tbody td {
+            padding: 12px 14px;
+            color: var(--navy);
+            font-size: 13.5px;
+            font-weight: 500;
+            border: none;
+            vertical-align: middle;
+        }
+
+            .table-cq tbody td:first-child {
+                border-radius: 12px 0 0 12px;
+            }
+
+            .table-cq tbody td:last-child {
+                border-radius: 0 12px 12px 0;
+            }
+
+    .queue-code-badge {
+        background: var(--navy);
+        color: var(--green-light);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        font-family: monospace;
+        letter-spacing: 1px;
+    }
+
+    .live-badge {
+        background: rgba(34,197,94,0.15);
+        color: var(--green-dark);
+        border: 1.5px solid rgba(34,197,94,0.3);
+        border-radius: 7px;
+        padding: 2px 8px;
+        font-size: 10.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        animation: pulse-border 2s infinite;
+    }
+
+    @@keyframes pulse-border {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(34,197,94,0.3);
+        }
+
+        50% {
+            box-shadow: 0 0 0 4px rgba(34,197,94,0.1);
+        }
+    }
+
+    .status-active {
+        background: rgba(34,197,94,0.1);
+        color: var(--green-dark);
+        border: 1.5px solid rgba(34,197,94,0.25);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .status-done {
+        background: rgba(107,114,128,0.1);
+        color: #4B5563;
+        border: 1.5px solid rgba(107,114,128,0.2);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background: rgba(234,179,8,0.1);
+        color: #B45309;
+        border: 1.5px solid rgba(234,179,8,0.25);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        border: 1.5px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-icon-view {
+        background: rgba(14,165,233,0.08);
+        color: #0284C7;
+        border-color: rgba(14,165,233,0.2);
+    }
+
+        .btn-icon-view:hover {
+            background: linear-gradient(135deg,#0EA5E9,#0284C7);
+            color: #fff;
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+
+    .btn-icon-archive {
+        background: rgba(107,114,128,0.08);
+        color: #4B5563;
+        border-color: rgba(107,114,128,0.2);
+    }
+
+        .btn-icon-archive:hover {
+            background: linear-gradient(135deg,#6B7280,#4B5563);
+            color: #fff;
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+
+    .btn-icon-edit {
+        background: rgba(34,197,94,0.08);
+        color: var(--green-dark);
+        border-color: var(--border);
+    }
+
+        .btn-icon-edit:hover {
+            background: var(--green-gradient);
+            color: #fff;
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+
+    /* ── PERMISSIONS ── */
+    .permission-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(34,197,94,0.1);
+        color: var(--navy);
+        font-size: 13.5px;
+        font-weight: 500;
+    }
+
+        .permission-item:last-child {
+            border-bottom: none;
+        }
+
+        .permission-item i {
+            color: var(--green-dark);
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: rgba(34,197,94,0.3);
+        }
+
+        .empty-state p {
+            color: #9CA3AF;
+            font-size: 14px;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+
+    /* ── PAGER NOTE ── */
+    .pager-note {
+        text-align: center;
+        margin-top: 12px;
+        color: #9CA3AF;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    @@media (max-width: 768px) {
+        .ad-page-header {
+            padding: 20px 18px;
+        }
+
+        .ad-page-title {
+            font-size: 17px;
+        }
+
+        .ad-card-body {
+            padding: 16px;
+        }
+
+        .stat-boxes {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .btn-ad-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="ad-page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="ad-page-title">
+                    <i class="bi bi-person-badge-fill"></i> Administrator Details
+                </h2>
+                <p class="ad-page-subtitle">View detailed information about this administrator</p>
+            </div>
+            <a href="@Url.Action("ManageAdmins")" class="btn-ad-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Manage Admins
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ── LEFT COLUMN ── -->
+        <div class="col-md-4">
+
+            <!-- Profile Card -->
+            <div class="ad-card">
+                <div class="ad-card-body" style="text-align:center; padding: 32px 24px;">
+                    <div class="avatar-cq">
+                        @Model.FirstName.Substring(0, 1)@Model.LastName.Substring(0, 1)
+                    </div>
+                    <h4 class="profile-name">@Model.FirstName @Model.MiddleName @Model.LastName</h4>
+                    <p class="profile-email">@Model.Email</p>
+                    @{
+                        var roleClass = Model.Role switch
+                        {
+                            "SuperAdmin" => "role-superadmin",
+                            "Registrar" => "role-registrar",
+                            "Advance" => "role-advance",
+                            _ => "role-default"
+                        };
+                    }
+                    <span class="role-badge @roleClass">@Model.Role</span>
+                </div>
+            </div>
+
+            <!-- Account Information -->
+            <div class="ad-card">
+                <div class="ad-card-header ad-card-header-navy">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <h6>Account Information</h6>
+                </div>
+                <div class="ad-card-body">
+                    <table class="info-table">
+                        <tr>
+                            <th>Admin ID</th>
+                            <td><span class="code-badge">@Model.AdminID</span></td>
+                        </tr>
+                        <tr>
+                            <th>First Name</th>
+                            <td>@Model.FirstName</td>
+                        </tr>
+                        @if (!string.IsNullOrEmpty(Model.MiddleName))
+                        {
+                            <tr>
+                                <th>Middle Name</th>
+                                <td>@Model.MiddleName</td>
+                            </tr>
+                        }
+                        <tr>
+                            <th>Last Name</th>
+                            <td>@Model.LastName</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td><small style="color:#6B7280;font-weight:600;">@Model.Email</small></td>
+                        </tr>
+                        <tr>
+                            <th>Role</th>
+                            <td><span class="role-badge @roleClass" style="font-size:11px;padding:3px 10px;">@Model.Role</span></td>
+                        </tr>
+                        <tr>
+                            <th>Created</th>
+                            <td>@Model.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</td>
+                        </tr>
+                        <tr>
+                            <th>Account Age</th>
+                            <td>
+                                @{
+                                    var accountAge = DateTime.Now - Model.CreatedAt;
+                                    var daysOld = (int)accountAge.TotalDays;
+                                }
+                                <strong>@daysOld</strong> days
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Activity Statistics -->
+            <div class="ad-card">
+                <div class="ad-card-header ad-card-header-green">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <h6>Activity Statistics</h6>
+                </div>
+                <div class="ad-card-body">
+                    <div class="stat-boxes">
+                        <div class="stat-box">
+                            <h4>@ViewBag.TotalQueuesCreated</h4>
+                            <small>Queues Created</small>
+                        </div>
+                        <div class="stat-box">
+                            <h4 style="color:var(--green-dark);">@ViewBag.ActiveQueuesCreated</h4>
+                            <small>Active</small>
+                        </div>
+                        <div class="stat-box">
+                            <h4 style="color:#6B7280;">@ViewBag.CompletedQueuesCreated</h4>
+                            <small>Completed</small>
+                        </div>
+                        <div class="stat-box">
+                            <h4 style="color:#0284C7;">@ViewBag.TotalStudentsServed</h4>
+                            <small>Students Served</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── RIGHT COLUMN ── -->
+        <div class="col-md-8">
+
+            <!-- Recent Queues -->
+            <div class="ad-card">
+                <div class="ad-card-header ad-card-header-plain">
+                    <i class="bi bi-list-task"></i>
+                    <h5>Recent Queues Created</h5>
+                </div>
+                <div class="ad-card-body">
+                    @if (ViewBag.QueuesCreated == null || !((IEnumerable<PataoSmartQueuing.Models.Queue>)ViewBag.QueuesCreated).Any())
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <p>No queues created yet</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table-cq">
+                                <thead>
+                                    <tr>
+                                        <th>Queue Name</th>
+                                        <th>Code</th>
+                                        <th>Students</th>
+                                        <th>Created</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var queue in (IEnumerable<PataoSmartQueuing.Models.Queue>)ViewBag.QueuesCreated)
+                                    {
+                                        var statusClass = queue.IsDone ? "status-done" : (queue.IsActive ? "status-active" : "status-pending");
+                                        var statusText = queue.IsDone ? "Done" : (queue.IsActive ? "Active" : "Pending");
+                                        var studentCount = queue.QueueStudents?.Count(s => s.Status != "Done") ?? 0;
+                                        var totalStudents = queue.QueueStudents?.Count ?? 0;
+
+                                        <tr>
+                                            <td>
+                                                <strong style="color:var(--navy);">@queue.QueueName</strong>
+                                                @if (queue.IsActive)
+                                                {
+                                                    <span class="live-badge ms-1">
+                                                        <i class="bi bi-broadcast"></i> LIVE
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td><span class="queue-code-badge">@queue.QueueCode</span></td>
+                                            <td>
+                                                <small style="color:#6B7280;font-weight:600;">
+                                                    @studentCount / @totalStudents
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <small style="color:#6B7280;font-weight:500;">
+                                                    @queue.DateCreated.ToString("MMM dd, yyyy")
+                                                </small>
+                                            </td>
+                                            <td><span class="@statusClass">@statusText</span></td>
+                                            <td>
+                                                @if (queue.IsActive)
+                                                {
+                                                    <a href="@Url.Action("StudentInQueue", new { queueId = queue.QueueID })"
+                                                       class="btn-icon btn-icon-view" title="View">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                }
+                                                else if (queue.IsDone)
+                                                {
+                                                    <a href="@Url.Action("ArchiveDetails", new { id = queue.QueueID })"
+                                                       class="btn-icon btn-icon-archive" title="Archive">
+                                                        <i class="bi bi-archive"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="@Url.Action("EditQueue", new { id = queue.QueueID })"
+                                                       class="btn-icon btn-icon-edit" title="Edit">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @if (ViewBag.TotalQueuesCreated > 10)
+                        {
+                            <p class="pager-note">
+                                Showing 10 of <strong>@ViewBag.TotalQueuesCreated</strong> queues
+                            </p>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Role Permissions -->
+            <div class="ad-card">
+                <div class="ad-card-header ad-card-header-info">
+                    <i class="bi bi-shield-check-fill"></i>
+                    <h6>Role Permissions</h6>
+                </div>
+                <div class="ad-card-body">
+                    @{
+                        var permissions = Model.Role switch
+                        {
+                            "SuperAdmin" => new[] {
+                                        "Full system access",
+                                        "Manage all administrators",
+                                        "Create and manage queues",
+                                        "View all reports and analytics",
+                                        "Configure system settings",
+                                        "Access student management"
+                                        },
+                            "Registrar" => new[] {
+                                        "Create and manage queues",
+                                        "View reports and analytics",
+                                        "Manage students",
+                                        "Send notifications"
+                                        },
+                            "Advance" => new[] {
+                                        "Create and manage queues",
+                                        "View reports",
+                                        "Send notifications"
+                                        },
+                            _ => new[] {
+                                        "View queues",
+                                        "Manage assigned queues",
+                                        "Basic reporting"
+                                        }
+                        };
+                    }
+                    @foreach (var permission in permissions)
+                    {
+                        <div class="permission-item">
+                            <i class="bi bi-check-circle-fill"></i>
+                            @permission
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

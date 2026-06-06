@@ -1,0 +1,786 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<style>
+    :root {
+        --navy: #1E3A5F;
+        --navy-light: #2C5282;
+        --green: #22C55E;
+        --green-dark: #16A34A;
+        --green-pale: #DCFCE7;
+        --white: #FFFFFF;
+        --off-white: #F9FAFB;
+        --gray-200: #E5E7EB;
+        --gray-400: #9CA3AF;
+        --gray-600: #4B5563;
+        --gray-700: #374151;
+        --border-green: #BBF7D0;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --nav-gradient: linear-gradient(135deg, #1E3A5F 0%, #16A34A 100%);
+        --green-gradient: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+    }
+
+    .dashboard-header {
+        background: var(--white);
+        border-bottom: 2px solid var(--border-green);
+        padding: 24px 0;
+        margin-bottom: 28px;
+    }
+
+        .dashboard-header h2 {
+            color: var(--navy);
+            font-weight: 800;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 12px 0;
+        }
+
+            .dashboard-header h2 i {
+                color: var(--green);
+                font-size: 32px;
+            }
+
+    .dashboard-subtitle {
+        color: var(--gray-600);
+        font-size: 14px;
+    }
+
+        .dashboard-subtitle strong {
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+    .role-badge {
+        background: var(--green-gradient);
+        color: var(--white);
+        font-weight: 700;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+    }
+
+    /* ── FILTER SECTION ── */
+    .filter-section {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 28px;
+    }
+
+    .filter-label {
+        color: var(--gray-600);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    .form-select {
+        border: 1.5px solid var(--border-green);
+        border-radius: 10px;
+        padding: 10px 14px;
+        color: var(--navy);
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.25s;
+    }
+
+        .form-select:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
+    /* ── STAT CARDS ── */
+    .stat-card {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.25s;
+        height: 100%;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: var(--green);
+        }
+
+    .stat-label {
+        color: var(--gray-600);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+    }
+
+    .stat-value {
+        color: var(--navy);
+        font-size: 36px;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 14px;
+    }
+
+    .stat-delta {
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .stat-delta.positive {
+            color: #16A34A;
+        }
+
+        .stat-delta.negative {
+            color: #DC2626;
+        }
+
+        .stat-delta.neutral {
+            color: var(--gray-400);
+        }
+
+    .stat-delta-text {
+        color: var(--gray-600);
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    /* ── CHART CARDS ── */
+    .chart-card {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        height: 100%;
+    }
+
+    .chart-title {
+        color: var(--navy);
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .chart-loader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 280px;
+        color: var(--gray-400);
+    }
+
+    .spinner-green {
+        border-color: var(--green-pale);
+        border-top-color: var(--green);
+    }
+
+    /* ── QUICK ACTIONS ── */
+    .action-card {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 14px;
+        padding: 28px 24px;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .action-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--green);
+        }
+
+    .action-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        display: block;
+    }
+
+        .action-icon.green {
+            color: var(--green);
+        }
+
+        .action-icon.blue {
+            color: #3B82F6;
+        }
+
+        .action-icon.cyan {
+            color: #06B6D4;
+        }
+
+    .action-title {
+        color: var(--navy);
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .action-desc {
+        color: var(--gray-600);
+        font-size: 13px;
+        margin-bottom: 18px;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 10px;
+        transition: all 0.25s;
+        text-decoration: none;
+        cursor: pointer;
+        width: 100%;
+    }
+
+        .btn-action.green {
+            background: var(--green-gradient);
+            color: var(--white);
+            box-shadow: 0 3px 10px rgba(34, 197, 94, 0.3);
+        }
+
+            .btn-action.green:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+            }
+
+        .btn-action.blue {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            color: var(--white);
+            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+        }
+
+            .btn-action.blue:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+            }
+
+        .btn-action.cyan {
+            background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+            color: var(--white);
+            box-shadow: 0 3px 10px rgba(6, 182, 212, 0.3);
+        }
+
+            .btn-action.cyan:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(6, 182, 212, 0.4);
+            }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 1200px) {
+        .stat-value
+
+    {
+        font-size: 28px;
+    }
+
+    .dashboard-header h2 {
+        font-size: 24px;
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .dashboard-header
+
+    {
+        padding: 16px 0;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-header h2 {
+        font-size: 20px;
+        gap: 8px;
+    }
+
+        .dashboard-header h2 i {
+            font-size: 24px;
+        }
+
+    .stat-card, .chart-card, .action-card {
+        padding: 18px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .chart-loader {
+        min-height: 200px;
+    }
+
+    }
+</style>
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <h2>
+        <i class="bi bi-speedometer2"></i> Digital Dashboard
+    </h2>
+    <p class="dashboard-subtitle">
+        Welcome back, <strong>@Context.Session.GetString("AdminName")</strong>
+        | Role: <span class="role-badge">@Context.Session.GetString("AdminRole")</span>
+    </p>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="filter-label">Auto date range</div>
+            <select class="form-select" id="dateRange" onchange="loadDashboardData()">
+                <option value="7">This Week</option>
+                <option value="30" selected>This Month</option>
+                <option value="90">Last 3 Months</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-3 mb-4">
+    <!-- Total Queues -->
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-label">Total Queues</div>
+            <div class="stat-value" id="totalQueues">
+                <span class="spinner-border spinner-border-sm spinner-green" role="status"></span>
+            </div>
+            <div class="stat-delta positive" id="queueDelta"></div>
+            <div class="stat-delta-text">vs previous period</div>
+        </div>
+    </div>
+
+    <!-- Completion Rate -->
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-label">Completion Rate</div>
+            <div class="stat-value" id="completionRate">
+                <span class="spinner-border spinner-border-sm spinner-green" role="status"></span>
+            </div>
+            <div class="stat-delta positive" id="completionDelta"></div>
+            <div class="stat-delta-text">vs previous period</div>
+        </div>
+    </div>
+
+    <!-- Avg Students Per Queue -->
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-label">Avg Students Per Queue</div>
+            <div class="stat-value" id="avgStudents">
+                <span class="spinner-border spinner-border-sm spinner-green" role="status"></span>
+            </div>
+            <div class="stat-delta positive" id="avgDelta"></div>
+            <div class="stat-delta-text">vs previous period</div>
+        </div>
+    </div>
+
+    <!-- Total Students Served -->
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-label">Total Students Served</div>
+            <div class="stat-value" id="totalServed">
+                <span class="spinner-border spinner-border-sm spinner-green" role="status"></span>
+            </div>
+            <div class="stat-delta positive" id="servedDelta"></div>
+            <div class="stat-delta-text">vs previous period</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-3 mb-4">
+    <!-- Queue Activity Bar Chart -->
+    <div class="col-lg-8">
+        <div class="chart-card">
+            <div class="chart-title">Queue Activity Over Time</div>
+            <div class="chart-loader" id="activityLoader">
+                <span class="spinner-border spinner-green mb-2" role="status"></span>
+                <p class="small">Loading chart data...</p>
+            </div>
+            <canvas id="activityChart" height="80" style="display:none;"></canvas>
+        </div>
+    </div>
+
+    <!-- Status Distribution Donut -->
+    <div class="col-lg-4">
+        <div class="chart-card">
+            <div class="chart-title">Student Status Distribution</div>
+            <div class="chart-loader" id="statusLoader">
+                <span class="spinner-border spinner-green mb-2" role="status"></span>
+                <p class="small">Loading...</p>
+            </div>
+            <canvas id="statusChart" height="200" style="display:none;"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Performance Area Chart -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="chart-card">
+            <div class="chart-title">Daily Queue Performance (Last 30 Days)</div>
+            <div class="chart-loader" id="dailyLoader">
+                <span class="spinner-border spinner-green mb-2" role="status"></span>
+                <p class="small">Loading performance data...</p>
+            </div>
+            <canvas id="dailyChart" height="60" style="display:none;"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="action-card">
+            <i class="bi bi-list-task action-icon green"></i>
+            <h5 class="action-title">Manage Queues</h5>
+            <p class="action-desc">Create, edit, and monitor queues</p>
+            <a class="btn-action green" href="@Url.Action("ManageQueues", "Admin")">
+                <i class="bi bi-arrow-right-circle"></i> Go to Queues
+            </a>
+        </div>
+    </div>
+
+    @if (Context.Session.GetString("AdminRole") == "SuperAdmin")
+    {
+        <div class="col-lg-4">
+            <div class="action-card">
+                <i class="bi bi-people-fill action-icon blue"></i>
+                <h5 class="action-title">Manage Admins</h5>
+                <p class="action-desc">Add and manage admin users</p>
+                <a class="btn-action blue" href="@Url.Action("ManageAdmins", "Admin")">
+                    <i class="bi bi-arrow-right-circle"></i> Go to Admins
+                </a>
+            </div>
+        </div>
+    }
+
+    <div class="col-lg-4">
+        <div class="action-card">
+            <i class="bi bi-bar-chart action-icon cyan"></i>
+            <h5 class="action-title">Reports</h5>
+            <p class="action-desc">View detailed analytics and reports</p>
+            <a class="btn-action cyan" href="@Url.Action("Reports", "Admin")">
+                <i class="bi bi-arrow-right-circle"></i> View Reports
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+        let activityChart, statusChart, dailyChart;
+
+        // ─── SignalR ────────────────────────────────────────────────
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificationHub")
+            .build();
+
+        connection.on("RefreshQueue", () => loadDashboardData());
+        connection.on("QueueActivated", () => loadDashboardData());
+        connection.on("QueueCompleted", () => loadDashboardData());
+        connection.on("StudentCompleted", () => loadDashboardData());
+
+        connection.start().catch(err => console.error('SignalR Error:', err));
+
+        // ─── Delta helper ───────────────────────────────────────────
+        function renderDelta(elementId, value, suffix = '') {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+
+            const deltaEl = el.parentElement.querySelector('.stat-delta');
+            if (!deltaEl) return;
+
+            if (value > 0) {
+                deltaEl.className = 'stat-delta positive';
+                deltaEl.innerHTML = `<i class="bi bi-arrow-up"></i> +${value}${suffix}`;
+            } else if (value < 0) {
+                deltaEl.className = 'stat-delta negative';
+                deltaEl.innerHTML = `<i class="bi bi-arrow-down"></i> ${value}${suffix}`;
+            } else {
+                deltaEl.className = 'stat-delta neutral';
+                deltaEl.innerHTML = `<i class="bi bi-dash"></i> 0${suffix}`;
+            }
+        }
+
+        // ─── Main load ──────────────────────────────────────────────
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/Admin/GetOverallStatistics');
+                const data = await response.json();
+
+                if (!data.success) {
+                    console.error('API error:', data.message);
+                    showErrorState();
+                    return;
+                }
+
+                updateStatCards(data);
+                updateActivityChart(data);
+                updateStatusChart(data);
+                updateDailyChart(data);
+
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+                showErrorState();
+            }
+        }
+
+        // ─── Stat cards ─────────────────────────────────────────────
+        function updateStatCards(data) {
+            const o = data.overview;
+            const d = data.deltas;
+
+            // Total queues
+            document.getElementById('totalQueues').textContent = o.totalQueues;
+            renderDelta('queueDelta', d.queues);
+
+            // Completion rate
+            const total = o.totalStudentsServed + o.totalStudentsInQueue;
+            const rate = total > 0 ? ((o.totalStudentsServed / total) * 100).toFixed(1) : 0;
+            document.getElementById('completionRate').textContent = rate + '%';
+            renderDelta('completionDelta', d.completion, '%');
+
+            // Avg students per queue
+            const avg = o.totalQueues > 0 ? Math.round(total / o.totalQueues) : 0;
+            document.getElementById('avgStudents').textContent = avg;
+            renderDelta('avgDelta', d.avg);
+
+            // Total served
+            document.getElementById('totalServed').textContent = o.totalStudentsServed.toLocaleString();
+            renderDelta('servedDelta', d.served);
+        }
+
+        // ─── Activity bar chart (students per day, last 7 days) ─────
+        function updateActivityChart(data) {
+            const recentQueues = data.recentQueues || [];
+
+            const labels = [];
+            const completedData = [];
+            const pendingData = [];
+
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toDateString();
+
+                labels.push(date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
+
+                const dayQueues = recentQueues.filter(q => new Date(q.dateCreated).toDateString() === dateStr);
+                const done = dayQueues.reduce((s, q) => s + (q.doneCount || 0), 0);
+                const pending = dayQueues.reduce((s, q) => s + (q.pendingCount || 0), 0);
+                completedData.push(done);
+                pendingData.push(pending);
+            }
+
+            document.getElementById('activityLoader').style.display = 'none';
+            document.getElementById('activityChart').style.display = 'block';
+
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            if (activityChart) activityChart.destroy();
+
+            activityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Completed',
+                            data: completedData,
+                            backgroundColor: '#22C55E',
+                            borderRadius: 6,
+                            borderSkipped: false
+                        },
+                        {
+                            label: 'Pending',
+                            data: pendingData,
+                            backgroundColor: '#93C5FD',
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true, padding: 15, font: { size: 12, weight: '600' } }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { font: { size: 11 } } },
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // ─── Status donut chart ──────────────────────────────────────
+        function updateStatusChart(data) {
+            const s = data.statusDist;
+
+            document.getElementById('statusLoader').style.display = 'none';
+            document.getElementById('statusChart').style.display = 'block';
+
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            if (statusChart) statusChart.destroy();
+
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Serving', 'Pending', 'Unserved'],
+                    datasets: [{
+                        data: [s.done, s.serving, s.pending, s.unserved],
+                        backgroundColor: ['#22C55E', '#FBBF24', '#60A5FA', '#EF4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 15, font: { size: 11, weight: '500' }, usePointStyle: true }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ─── Daily performance area chart (real 30-day data) ────────
+        function updateDailyChart(data) {
+            const daily = data.dailyData || [];
+
+            if (daily.length === 0) {
+                document.getElementById('dailyLoader').innerHTML =
+                    '<p class="text-muted">No queue data in the last 30 days yet.</p>';
+                return;
+            }
+
+            const labels = daily.map(d => d.date);
+            const completedData = daily.map(d => d.completed);
+            const pendingData = daily.map(d => d.pending);
+            const unservedData = daily.map(d => d.unserved);
+
+            document.getElementById('dailyLoader').style.display = 'none';
+            document.getElementById('dailyChart').style.display = 'block';
+
+            const ctx = document.getElementById('dailyChart').getContext('2d');
+            if (dailyChart) dailyChart.destroy();
+
+            dailyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Completed',
+                            data: completedData,
+                            backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                            borderColor: '#22C55E',
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#22C55E',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Pending',
+                            data: pendingData,
+                            backgroundColor: 'rgba(147, 197, 253, 0.15)',
+                            borderColor: '#93C5FD',
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#93C5FD',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Unserved',
+                            data: unservedData,
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderColor: '#EF4444',
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#EF4444',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { usePointStyle: true, padding: 15, font: { size: 12, weight: '600' } } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { font: { size: 11 } } },
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // ─── Error state ─────────────────────────────────────────────
+        function showErrorState() {
+            ['totalQueues', 'completionRate', 'avgStudents', 'totalServed'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '<span style="color: #DC2626; font-weight: 700;">Error</span>';
+            });
+            ['activityLoader', 'statusLoader', 'dailyLoader'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '<p style="color: #DC2626;"><i class="bi bi-exclamation-triangle me-2"></i>Failed to load data. <a href="javascript:loadDashboardData()" style="color: #22C55E; font-weight: 600;">Retry</a></p>';
+            });
+        }
+
+        // ─── Init ────────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function () {
+            loadDashboardData();
+            setInterval(loadDashboardData, 30000);
+        });
+    </script>
+}

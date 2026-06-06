@@ -1,0 +1,805 @@
+﻿@{
+    ViewBag.Title = "Terms and Conditions - Patao NHS Smart Queuing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* ── PASTE THIS ENTIRE BLOCK TO REPLACE YOUR EXISTING <style> IN Terms.cshtml ── */
+
+    :root {
+        --navy: #0D1B2A;
+        --navy-mid: #1B2E44;
+        --green: #22C55E;
+        --green-dark: #16A34A;
+        --green-light: #4ADE80;
+        --green-pale: #F0FDF4;
+        --green-gradient: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        --navy-gradient: linear-gradient(135deg, #0D1B2A 0%, #1B2E44 100%);
+        --white: #FFFFFF;
+        --border: rgba(34, 197, 94, 0.25);
+        --shadow: 0 8px 32px rgba(13, 27, 42, 0.18);
+        --shadow-green: 0 6px 24px rgba(34, 197, 94, 0.25);
+        --accent-amber: #F59E0B;
+        --accent-red: #EF4444;
+        --accent-blue: #0EA5E9;
+    }
+
+    body {
+        background: linear-gradient(160deg, #f0fdf4 0%, #e0f2fe 100%);
+        min-height: 100vh;
+    }
+
+    .terms-page {
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    /* Header */
+    .terms-header {
+        background: var(--navy-gradient);
+        color: var(--white);
+        padding: 60px 40px;
+        border-radius: 22px;
+        margin-bottom: 40px;
+        box-shadow: var(--shadow);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .terms-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--green-gradient);
+        }
+
+        .terms-header::before {
+            content: '📜';
+            position: absolute;
+            font-size: 200px;
+            opacity: 0.07;
+            right: -30px;
+            top: -30px;
+        }
+
+        .terms-header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .terms-header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            position: relative;
+            z-index: 2;
+        }
+
+        .terms-header .last-updated {
+            margin-top: 16px;
+            font-size: 0.95rem;
+            opacity: 0.7;
+            position: relative;
+            z-index: 2;
+        }
+
+    /* Main Content Card */
+    .terms-content {
+        background: var(--white);
+        border-radius: 22px;
+        padding: 50px;
+        box-shadow: var(--shadow);
+        border: 2px solid var(--border);
+        margin-bottom: 30px;
+    }
+
+    /* Intro box */
+    .terms-intro {
+        background: var(--green-pale);
+        border-left: 6px solid var(--green);
+        padding: 28px;
+        border-radius: 12px;
+        margin-bottom: 40px;
+    }
+
+        .terms-intro h3 {
+            color: var(--green-dark);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .terms-intro p {
+            color: #166534;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin: 0;
+        }
+
+    /* Sections */
+    .terms-section {
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 2px solid rgba(34, 197, 94, 0.1);
+    }
+
+        .terms-section:last-child {
+            border-bottom: none;
+        }
+
+    .section-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: var(--green-gradient);
+        color: var(--white);
+        border-radius: 50%;
+        font-weight: 800;
+        font-size: 1.1rem;
+        margin-right: 14px;
+        flex-shrink: 0;
+        box-shadow: var(--shadow-green);
+    }
+
+    .section-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+    }
+
+    .terms-section p {
+        color: #4B5563;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        margin-bottom: 14px;
+    }
+
+    .terms-section ul, .terms-section ol {
+        padding-left: 28px;
+        margin-bottom: 18px;
+    }
+
+    .terms-section li {
+        color: #4B5563;
+        font-size: 1rem;
+        line-height: 1.8;
+        margin-bottom: 10px;
+    }
+
+    .terms-section strong {
+        color: var(--green-dark);
+        font-weight: 600;
+    }
+
+    /* Subsections */
+    .subsection {
+        background: var(--green-pale);
+        padding: 22px 24px;
+        border-radius: 12px;
+        margin: 18px 0;
+        border-left: 4px solid var(--green);
+    }
+
+    .subsection-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--green-dark);
+        margin-bottom: 12px;
+    }
+
+    /* Warning box */
+    .warning-box {
+        background: #FFFBEB;
+        border-left: 6px solid var(--accent-amber);
+        padding: 22px 24px;
+        border-radius: 12px;
+        margin: 22px 0;
+    }
+
+        .warning-box h5 {
+            color: #92400E;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .warning-box p, .warning-box li {
+            color: #78350F;
+            font-size: 1rem;
+        }
+
+    /* Prohibited list */
+    .prohibited-list {
+        list-style: none;
+        padding-left: 0;
+    }
+
+        .prohibited-list li {
+            padding: 14px 16px;
+            background: #FEF2F2;
+            border-left: 4px solid var(--accent-red);
+            margin-bottom: 8px;
+            border-radius: 8px;
+            color: #991B1B;
+            font-size: 1rem;
+        }
+
+            .prohibited-list li::before {
+                content: '✗';
+                color: var(--accent-red);
+                font-weight: bold;
+                margin-right: 10px;
+                font-size: 1.1rem;
+            }
+
+    /* Rights list */
+    .rights-list {
+        list-style: none;
+        padding-left: 0;
+    }
+
+        .rights-list li {
+            padding: 14px 16px;
+            background: var(--green-pale);
+            border-left: 4px solid var(--green);
+            margin-bottom: 8px;
+            border-radius: 8px;
+            color: #14532D;
+            font-size: 1rem;
+        }
+
+            .rights-list li::before {
+                content: '✓';
+                color: var(--green-dark);
+                font-weight: bold;
+                margin-right: 10px;
+                font-size: 1.1rem;
+            }
+
+    /* Contact box */
+    .contact-box {
+        background: var(--green-pale);
+        border-left: 6px solid var(--green);
+        padding: 24px;
+        border-radius: 12px;
+        margin: 22px 0;
+    }
+
+        .contact-box h5 {
+            color: var(--green-dark);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .contact-box p {
+            color: #166534;
+            margin: 5px 0;
+            font-size: 0.97rem;
+        }
+
+    /* Agreement Section */
+    .agreement-section {
+        background: var(--navy-gradient);
+        color: var(--white);
+        padding: 50px;
+        border-radius: 22px;
+        text-align: center;
+        margin-top: 40px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .agreement-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--green-gradient);
+        }
+
+        .agreement-section h2 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 18px;
+        }
+
+        .agreement-section p {
+            font-size: 1.1rem;
+            margin-bottom: 28px;
+            opacity: 0.85;
+        }
+
+    .btn-agree {
+        background: var(--green-gradient);
+        color: var(--white);
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 14px 44px;
+        border-radius: 50px;
+        border: none;
+        margin: 8px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        box-shadow: var(--shadow-green);
+    }
+
+        .btn-agree:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.45);
+            color: var(--white);
+        }
+
+    /* Responsive */
+@@media (max-width: 768px) {
+        .terms-header
+
+    {
+        padding: 40px 20px;
+        border-radius: 18px;
+    }
+
+    .terms-header h1 {
+        font-size: 1.9rem;
+    }
+
+    .terms-content {
+        padding: 28px 18px;
+        border-radius: 16px;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+    }
+
+    .agreement-section {
+        padding: 36px 20px;
+        border-radius: 18px;
+    }
+
+        .agreement-section h2 {
+            font-size: 1.8rem;
+        }
+
+    }
+</style>
+
+<div class="terms-page">
+    <div class="container">
+        <!-- Header -->
+        <div class="terms-header">
+            <h1>📜 Terms and Conditions</h1>
+            <p class="subtitle">Patao NHS Smart Queuing System - Student Portal</p>
+            <p class="last-updated">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Last Updated: @DateTime.Now.ToString("MMMM dd, yyyy")
+            </p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="terms-content">
+            <!-- Introduction -->
+            <div class="terms-intro">
+                <h3><i class="fas fa-info-circle me-2"></i>Before You Continue</h3>
+                <p>
+                    Please read these Terms and Conditions carefully before using the Patao NHS Smart Queuing System.
+                    By creating an account and using this system, you agree to be bound by these terms.
+                    If you do not agree with any part of these terms, please do not use the system.
+                </p>
+            </div>
+
+            <!-- Section 1: Acceptance of Terms -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">1</span>
+                    Acceptance of Terms
+                </h2>
+                <p>
+                    By registering for and using the Patao NHS Smart Queuing System ("the System"), you acknowledge that you have read, understood,
+                    and agree to comply with these Terms and Conditions. These terms constitute a legally binding agreement between you (the "Student" or "User")
+                    and Patao National Senior High School ("the School").
+                </p>
+            </div>
+
+            <!-- Section 2: Account Registration -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">2</span>
+                    Account Registration and Verification
+                </h2>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">2.1 Registration Requirements</h4>
+                    <p>To use the System, you must:</p>
+                    <ul>
+                        <li>Provide accurate and complete information including your full name, email address, LRN (Learner Reference Number), grade level, and strand</li>
+                        <li>Create a secure password with at least 6 characters</li>
+                        <li>Be a currently enrolled or incoming student of Patao National Senior High School</li>
+                        <li>Maintain only <strong>one account per student</strong> - multiple accounts are prohibited</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">2.2 Account Security</h4>
+                    <ul>
+                        <li>You are responsible for maintaining the confidentiality of your password</li>
+                        <li>You must not share your account credentials with anyone</li>
+                        <li>You must notify the school immediately of any unauthorized access to your account</li>
+                        <li>You are responsible for all activities that occur under your account</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Important Security Notice</h5>
+                    <p>
+                        Your PIN code is unique to each queue session. Never share your PIN code with other students.
+                        Admins will only ask for your PIN when verifying your identity during service.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Section 3: System Usage -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">3</span>
+                    System Usage and Queue Participation
+                </h2>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">3.1 Joining Queues</h4>
+                    <p>When joining a queue, you agree to:</p>
+                    <ul>
+                        <li>Use only valid Queue Codes provided by school administrators</li>
+                        <li>Join each queue only <strong>once</strong> - attempting to join the same queue multiple times is prohibited</li>
+                        <li>Not join multiple active queues simultaneously</li>
+                        <li>Respect the queue order as assigned by the system</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">3.2 Queue Number and PIN Code</h4>
+                    <p>Upon successfully joining a queue, you will receive:</p>
+                    <ul>
+                        <li><strong>Queue Number:</strong> Your position in line (e.g., #15)</li>
+                        <li><strong>PIN Code:</strong> A unique 6-character verification code (e.g., "XY9K2L")</li>
+                    </ul>
+                    <p>You must keep your PIN code secure and provide it only when requested by authorized school staff.</p>
+                </div>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">3.3 Real-Time Tracking</h4>
+                    <p>The System provides:</p>
+                    <ul>
+                        <li>Real-time updates on your queue position via your Dashboard</li>
+                        <li>Live display of currently serving numbers</li>
+                        <li>Push notifications when your turn is approaching (at positions 20, 10, and 3)</li>
+                        <li>Queue history showing your past queue participations</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">3.4 Attendance and Service</h4>
+                    <p>When your number is called:</p>
+                    <ul>
+                        <li>You must be <strong>present and ready</strong> to be served</li>
+                        <li>Check the live display screen or listen for announcements</li>
+                        <li>Proceed to the designated counter when called</li>
+                        <li>Provide your PIN code when requested by the admin</li>
+                        <li>Complete your transaction in a timely manner</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h5><i class="fas fa-clock me-2"></i>Missed Turn Policy</h5>
+                    <p>
+                        If you are not present when your number is called, the admin may mark you as <strong>"Unserved"</strong>.
+                        You will need to rejoin the queue if this happens. Multiple absences may result in temporary system suspension.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Section 4: Student Rights -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">4</span>
+                    Your Rights as a Student User
+                </h2>
+                <p>You have the right to:</p>
+                <ul class="rights-list">
+                    <li>Fair and equal treatment in the queue system regardless of grade level, strand, or status</li>
+                    <li>Access real-time information about your queue position at any time</li>
+                    <li>Receive timely notifications about your queue status</li>
+                    <li>View your complete queue history</li>
+                    <li>Update your profile information (except email and LRN)</li>
+                    <li>Change your password at any time through Settings</li>
+                    <li>Request assistance from school staff if you experience technical issues</li>
+                    <li>Delete your account (with all associated queue records) through Settings</li>
+                </ul>
+            </div>
+
+            <!-- Section 5: Prohibited Actions -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">5</span>
+                    Prohibited Actions
+                </h2>
+                <p>The following actions are strictly prohibited and may result in account suspension or termination:</p>
+                <ul class="prohibited-list">
+                    <li>Sharing your account credentials, queue numbers, or PIN codes with other students</li>
+                    <li>Creating multiple accounts or attempting to join the same queue multiple times</li>
+                    <li>Attempting to manipulate, bypass, or exploit the queue system</li>
+                    <li>Using another student's account or allowing others to use yours</li>
+                    <li>Providing false or misleading information during registration or verification</li>
+                    <li>Attempting to access queues without proper authorization</li>
+                    <li>Engaging in any behavior that disrupts the fair operation of the system</li>
+                    <li>Harassing, threatening, or behaving inappropriately toward school staff or other students</li>
+                    <li>Attempting to hack, modify, or interfere with the system's operation</li>
+                </ul>
+            </div>
+
+            <!-- Section 6: Data Privacy -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">6</span>
+                    Data Privacy and Information Usage
+                </h2>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">6.1 Information Collection</h4>
+                    <p>The System collects the following information:</p>
+                    <ul>
+                        <li><strong>Personal Information:</strong> Name, email, LRN, grade level, strand</li>
+                        <li><strong>Profile Photo:</strong> Optional, if uploaded by you</li>
+                        <li><strong>Queue Data:</strong> Queue participation history, status, timestamps</li>
+                        <li><strong>System Data:</strong> Login times, device information, push notification preferences</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">6.2 Information Usage</h4>
+                    <p>Your information is used to:</p>
+                    <ul>
+                        <li>Manage queue operations and verify your identity</li>
+                        <li>Send notifications about your queue status</li>
+                        <li>Generate reports and analytics for school administration</li>
+                        <li>Improve the system's functionality and user experience</li>
+                        <li>Maintain records for school enrollment and transaction purposes</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">6.3 Data Protection</h4>
+                    <ul>
+                        <li>Your personal information is stored securely and encrypted</li>
+                        <li>Access to your data is restricted to authorized school personnel only</li>
+                        <li>Your information will not be shared with third parties without your consent, except as required by law</li>
+                        <li>You can request to view or delete your data by contacting the school administration</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 7: Push Notifications -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">7</span>
+                    Push Notifications
+                </h2>
+                <p>
+                    The System uses push notifications to alert you about your queue status. By using the System, you consent to receive:
+                </p>
+                <ul>
+                    <li>Position-based notifications (when you're 20, 10, or 3 positions away)</li>
+                    <li>Service alerts (when your number is called or your status changes)</li>
+                    <li>Important announcements from school administration</li>
+                    <li>System updates and maintenance notices</li>
+                </ul>
+                <p>
+                    You can manage your notification preferences in your browser settings or by unsubscribing through the Dashboard.
+                    However, disabling notifications may affect your ability to know when it's your turn.
+                </p>
+            </div>
+
+            <!-- Section 8: System Availability -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">8</span>
+                    System Availability and Maintenance
+                </h2>
+                <p>
+                    While we strive to provide continuous access to the System, we cannot guarantee uninterrupted service. The System may be:
+                </p>
+                <ul>
+                    <li>Temporarily unavailable due to maintenance, updates, or technical issues</li>
+                    <li>Subject to modifications or improvements without prior notice</li>
+                    <li>Discontinued or replaced with an updated version</li>
+                </ul>
+                <p>
+                    The School is not liable for any inconvenience or consequences resulting from system downtime or technical issues.
+                </p>
+            </div>
+
+            <!-- Section 9: Queue Management -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">9</span>
+                    Queue Management and Admin Discretion
+                </h2>
+                <p>School administrators have the authority to:</p>
+                <ul>
+                    <li>Create, activate, pause, or close queues as needed</li>
+                    <li>Set maximum capacity limits for each queue</li>
+                    <li>Mark students as "Serving," "Done," or "Unserved" based on actual attendance</li>
+                    <li>Send manual notifications or announcements to students in queue</li>
+                    <li>Archive completed queues for record-keeping purposes</li>
+                    <li>Remove students from queues for policy violations</li>
+                </ul>
+                <p>
+                    Admin decisions regarding queue management are final and made in the best interest of fair and efficient operations.
+                </p>
+            </div>
+
+            <!-- Section 10: Consequences -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">10</span>
+                    Consequences of Violations
+                </h2>
+                <p>Violation of these Terms and Conditions may result in:</p>
+                <ol>
+                    <li><strong>First Offense:</strong> Warning and educational counseling</li>
+                    <li><strong>Second Offense:</strong> Temporary suspension of system access (3-7 days)</li>
+                    <li><strong>Third Offense:</strong> Extended suspension or permanent ban from the system</li>
+                    <li><strong>Severe Violations:</strong> Immediate account termination and referral to school disciplinary committee</li>
+                </ol>
+                <p>
+                    Severe violations include but are not limited to: account sharing, system manipulation, fraudulent activity,
+                    or any behavior that significantly disrupts the queue system.
+                </p>
+            </div>
+
+            <!-- Section 11: Disclaimer -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">11</span>
+                    Disclaimer of Warranties
+                </h2>
+                <p>
+                    The System is provided "as is" without warranties of any kind, either express or implied. The School does not guarantee that:
+                </p>
+                <ul>
+                    <li>The System will be error-free or uninterrupted</li>
+                    <li>Notifications will always be delivered on time</li>
+                    <li>Data will never be lost due to technical issues</li>
+                    <li>The System will meet all your expectations</li>
+                </ul>
+                <p>
+                    Students are advised to check their Dashboard regularly and not rely solely on notifications.
+                </p>
+            </div>
+
+            <!-- Section 12: Modifications -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">12</span>
+                    Modifications to Terms
+                </h2>
+                <p>
+                    The School reserves the right to modify these Terms and Conditions at any time. Changes will be effective immediately upon posting.
+                    Continued use of the System after modifications constitutes acceptance of the updated terms.
+                </p>
+                <p>
+                    Major changes will be announced through the System and school official channels.
+                    It is your responsibility to review these terms periodically.
+                </p>
+            </div>
+
+            <!-- Section 13: Termination -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">13</span>
+                    Account Termination
+                </h2>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">13.1 Voluntary Termination</h4>
+                    <p>
+                        You may delete your account at any time through the Settings page. Upon deletion:
+                    </p>
+                    <ul>
+                        <li>Your personal information will be removed from active systems</li>
+                        <li>Your queue history will be permanently deleted</li>
+                        <li>Your push notification subscriptions will be cancelled</li>
+                        <li>You will need to create a new account if you wish to use the System again</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <h4 class="subsection-title">13.2 Involuntary Termination</h4>
+                    <p>
+                        The School may terminate your account without prior notice if you:
+                    </p>
+                    <ul>
+                        <li>Violate these Terms and Conditions</li>
+                        <li>Engage in fraudulent or illegal activities</li>
+                        <li>Are no longer enrolled at Patao National Senior High School</li>
+                        <li>Request account deletion through official channels</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 14: Contact -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">14</span>
+                    Questions and Support
+                </h2>
+                <div class="contact-box">
+                    <h5><i class="fas fa-question-circle me-2"></i>Need Help?</h5>
+                    <p>
+                        If you have questions about these Terms and Conditions or need technical support, please contact:
+                    </p>
+                    <p><strong>Patao National Senior High School</strong></p>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>Registrar's Office</p>
+                    <p><i class="fas fa-envelope me-2"></i>Email: registrar@pataonhs.edu.ph</p>
+                    <p><i class="fas fa-phone me-2"></i>During school hours: 8:00 AM - 5:00 PM</p>
+                </div>
+            </div>
+
+            <!-- Section 15: Final Agreement -->
+            <div class="terms-section">
+                <h2 class="section-title">
+                    <span class="section-number">15</span>
+                    Agreement
+                </h2>
+                <p>
+                    By clicking "I Agree" and proceeding to use the Patao NHS Smart Queuing System, you acknowledge that:
+                </p>
+                <ul>
+                    <li>You have read and understood these Terms and Conditions in their entirety</li>
+                    <li>You agree to comply with all rules and policies outlined herein</li>
+                    <li>You understand the consequences of violating these terms</li>
+                    <li>You consent to the collection and use of your information as described</li>
+                    <li>You are legally capable of entering into this agreement</li>
+                </ul>
+                <p class="mt-4">
+                    <strong>Effective Date:</strong> @DateTime.Now.ToString("MMMM dd, yyyy")<br>
+                    <strong>Version:</strong> 1.0
+                </p>
+            </div>
+        </div>
+
+        <!-- Agreement Section -->
+        <div class="agreement-section">
+            <h2>Ready to Get Started?</h2>
+            <p>By continuing, you agree to these Terms and Conditions</p>
+            <a href="@Url.Action("Register", "Account")" class="btn btn-agree">
+                <i class="fas fa-check-circle me-2"></i> I Agree - Register Now
+            </a>
+            <a href="@Url.Action("Login", "Account")" class="btn btn-agree">
+                <i class="fas fa-sign-in-alt me-2"></i> I Agree - Login
+            </a>
+            <div class="mt-4">
+                <small style="opacity: 0.8;">
+                    <a href="@Url.Action("Index", "Home")" style="color: white; text-decoration: underline;">
+                        ← Back to Home
+                    </a>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

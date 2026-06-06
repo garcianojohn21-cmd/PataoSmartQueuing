@@ -1,0 +1,572 @@
+﻿@{
+    ViewBag.Title = "How It Works - Patao NHS Queuing System";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* ── PASTE THIS ENTIRE BLOCK TO REPLACE YOUR EXISTING <style> IN HowItWorks.cshtml ── */
+
+    :root {
+        --navy: #0D1B2A;
+        --navy-mid: #1B2E44;
+        --green: #22C55E;
+        --green-dark: #16A34A;
+        --green-light: #4ADE80;
+        --green-pale: #F0FDF4;
+        --green-gradient: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        --navy-gradient: linear-gradient(135deg, #0D1B2A 0%, #1B2E44 100%);
+        --white: #FFFFFF;
+        --border: rgba(34, 197, 94, 0.25);
+        --shadow: 0 8px 32px rgba(13, 27, 42, 0.18);
+        --shadow-green: 0 6px 24px rgba(34, 197, 94, 0.25);
+        --accent-amber: #F59E0B;
+        --accent-blue: #0EA5E9;
+    }
+
+    body {
+        background: linear-gradient(160deg, #f0fdf4 0%, #e0f2fe 100%);
+        min-height: 100vh;
+    }
+
+    .guide-page {
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    /* Header */
+    .guide-header {
+        background: var(--navy-gradient);
+        color: var(--white);
+        padding: 60px 40px;
+        border-radius: 22px;
+        margin-bottom: 40px;
+        box-shadow: var(--shadow);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .guide-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--green-gradient);
+        }
+
+        .guide-header::before {
+            content: '🦜';
+            position: absolute;
+            font-size: 220px;
+            opacity: 0.06;
+            right: -30px;
+            top: -20px;
+        }
+
+        .guide-header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .guide-header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            position: relative;
+            z-index: 2;
+        }
+
+    /* Step Cards */
+    .step-card {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 40px 40px 40px 52px;
+        margin-bottom: 28px;
+        box-shadow: var(--shadow);
+        border: 2px solid var(--border);
+        border-left: 6px solid var(--green);
+        position: relative;
+        opacity: 0;
+        animation: slideIn 0.6s ease forwards;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .step-card:hover {
+            transform: translateX(8px);
+            box-shadow: 0 16px 48px rgba(13, 27, 42, 0.2);
+        }
+
+        .step-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .step-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .step-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .step-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .step-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .step-card:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        .step-card:nth-child(7) {
+            animation-delay: 0.7s;
+        }
+
+        .step-card:nth-child(8) {
+            animation-delay: 0.8s;
+        }
+
+        .step-card:nth-child(9) {
+            animation-delay: 0.9s;
+        }
+
+    .step-number {
+        position: absolute;
+        left: -28px;
+        top: 38px;
+        width: 56px;
+        height: 56px;
+        background: var(--green-gradient);
+        color: var(--white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        font-weight: 800;
+        box-shadow: var(--shadow-green);
+    }
+
+    .step-icon {
+        font-size: 3rem;
+        color: var(--green-dark);
+        margin-bottom: 18px;
+    }
+
+    .step-title {
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 12px;
+    }
+
+    .step-description {
+        font-size: 1.08rem;
+        color: #4B5563;
+        line-height: 1.8;
+        margin-bottom: 18px;
+    }
+
+    .step-details {
+        background: var(--green-pale);
+        padding: 20px 24px;
+        border-radius: 12px;
+        border-left: 4px solid var(--green);
+    }
+
+        .step-details ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .step-details li {
+            padding: 7px 0;
+            color: #374151;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+    /* Important box */
+    .important-box {
+        background: #FFFBEB;
+        border-left: 5px solid var(--accent-amber);
+        padding: 22px 24px;
+        border-radius: 12px;
+        margin: 18px 0;
+    }
+
+        .important-box h5 {
+            color: #92400E;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .important-box p {
+            color: #78350F;
+            margin: 0;
+            font-size: 1rem;
+        }
+
+    /* Tips box */
+    .tips-box {
+        background: #EFF6FF;
+        border-left: 5px solid var(--accent-blue);
+        padding: 22px 24px;
+        border-radius: 12px;
+        margin: 18px 0;
+    }
+
+        .tips-box h5 {
+            color: #1E40AF;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .tips-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .tips-box li {
+            color: #1D4ED8;
+            padding: 5px 0;
+            font-size: 1rem;
+        }
+
+    /* Benefits card accent */
+    .step-card[style*="amber"] {
+        border-left-color: var(--accent-amber);
+    }
+
+    /* CTA */
+    .cta-section {
+        background: var(--navy-gradient);
+        padding: 50px;
+        border-radius: 22px;
+        text-align: center;
+        color: var(--white);
+        margin-top: 40px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+        .cta-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--green-gradient);
+        }
+
+        .cta-section h2 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 18px;
+        }
+
+    .btn-start {
+        background: var(--green-gradient);
+        color: var(--white);
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 14px 40px;
+        border-radius: 50px;
+        border: none;
+        margin: 8px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        box-shadow: var(--shadow-green);
+    }
+
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.45);
+            color: var(--white);
+        }
+
+@@keyframes slideIn {
+        to
+
+    {
+        opacity: 1;
+    }
+
+    }
+
+    /* Responsive */
+@@media (max-width: 768px) {
+        .guide-header
+
+    {
+        padding: 40px 20px;
+        border-radius: 18px;
+    }
+
+    .guide-header h1 {
+        font-size: 1.9rem;
+    }
+
+    .step-number {
+        position: relative;
+        left: 0;
+        top: 0;
+        margin-bottom: 16px;
+    }
+
+    .step-card {
+        padding: 26px 18px;
+        border-radius: 16px;
+    }
+
+    .step-title {
+        font-size: 1.3rem;
+    }
+
+    .cta-section {
+        padding: 36px 20px;
+        border-radius: 18px;
+    }
+
+        .cta-section h2 {
+            font-size: 1.8rem;
+        }
+
+    }
+</style>
+
+<div class="guide-page">
+    <div class="container">
+        <!-- Header -->
+        <div class="guide-header">
+            <h1>🦜 How the Queuing System Works</h1>
+            <p>A Simple Guide for Students</p>
+        </div>
+
+        <!-- Step 1: Create Account -->
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h3 class="step-title">Create Your Account</h3>
+            <p class="step-description">
+                First, you need to register in the system. This is a one-time process.
+            </p>
+            <div class="step-details">
+                <ul>
+                    <li><strong>Go to the registration page</strong> and fill out your information</li>
+                    <li>Provide your <strong>full name, email, LRN, grade level, and strand</strong></li>
+                    <li>Create a <strong>secure password</strong> (at least 6 characters)</li>
+                    <li>Click "Register" to create your account</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 2: Login -->
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-icon">
+                <i class="fas fa-sign-in-alt"></i>
+            </div>
+            <h3 class="step-title">Login to Your Account</h3>
+            <p class="step-description">
+                Once registered, you can login anytime using your email and password.
+            </p>
+            <div class="step-details">
+                <ul>
+                    <li>Enter your <strong>email address</strong></li>
+                    <li>Enter your <strong>password</strong></li>
+                    <li>Click "Login" to access your dashboard</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 3: Get Queue Code -->
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-icon">
+                <i class="fas fa-code"></i>
+            </div>
+            <h3 class="step-title">Get the Queue Code from Admin</h3>
+            <p class="step-description">
+                The school admin will create a queue and share a unique <strong>Queue Code</strong>.
+            </p>
+            <div class="step-details">
+                <ul>
+                    <li>Check school announcements, bulletin boards, or group chats</li>
+                    <li>The admin will post the <strong>6-character Queue Code</strong> (e.g., "ABC123")</li>
+                    <li>Write down or remember this code - you'll need it to join!</li>
+                </ul>
+            </div>
+            <div class="important-box">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Important!</h5>
+                <p>Each queue has a different code. Make sure you have the correct code for today's queue!</p>
+            </div>
+        </div>
+
+        <!-- Step 4: Join Queue -->
+        <div class="step-card">
+            <div class="step-number">4</div>
+            <div class="step-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3 class="step-title">Join the Queue</h3>
+            <p class="step-description">
+                Use the queue code to join the line digitally - no need to stand in the sun!
+            </p>
+            <div class="step-details">
+                <ul>
+                    <li>Go to your <strong>Dashboard</strong> and click "Join Queue"</li>
+                    <li>Enter the <strong>Queue Code</strong> given by the admin</li>
+                    <li>Click "Join" to enter the queue</li>
+                    <li>You'll instantly receive your <strong>Queue Number</strong> and <strong>PIN Code</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 5: Receive Queue Number & PIN -->
+        <div class="step-card">
+            <div class="step-number">5</div>
+            <div class="step-icon">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+            <h3 class="step-title">Get Your Queue Number & PIN Code</h3>
+            <p class="step-description">
+                After joining, you'll receive two important things:
+            </p>
+            <div class="step-details">
+                <ul>
+                    <li><strong>Queue Number</strong> - This is your position in line (e.g., #15)</li>
+                    <li><strong>PIN Code</strong> - A unique 6-character code (e.g., "XY9K2L")</li>
+                </ul>
+            </div>
+            <div class="important-box">
+                <h5><i class="fas fa-lock me-2"></i>Keep Your PIN Safe!</h5>
+                <p>Your PIN code is like a password. The admin will ask for it when it's your turn. <strong>Don't share it with anyone!</strong></p>
+            </div>
+        </div>
+
+        <!-- Step 6: Track Your Position -->
+        <div class="step-card">
+            <div class="step-number">6</div>
+            <div class="step-icon">
+                <i class="fas fa-eye"></i>
+            </div>
+            <h3 class="step-title">Track Your Queue Position</h3>
+            <p class="step-description">
+                No need to stand in line! Monitor your position from anywhere.
+            </p>
+            <div class="step-details">
+                <ul>
+                    <li>Check your <strong>Dashboard</strong> anytime to see your queue number</li>
+                    <li>See who's currently being served</li>
+                    <li>Know exactly how many people are ahead of you</li>
+                    <li>Receive <strong>notifications</strong> when you're getting close!</li>
+                </ul>
+            </div>
+            <div class="tips-box">
+                <h5><i class="fas fa-lightbulb me-2"></i>Pro Tip!</h5>
+                <ul>
+                    <li>Enable browser notifications to get alerts</li>
+                    <li>Keep your phone or laptop nearby</li>
+                    <li>Check the dashboard regularly as your turn approaches</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 7: Get Notified -->
+        <div class="step-card">
+            <div class="step-number">7</div>
+            <div class="step-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            <h3 class="step-title">Receive Turn Notifications</h3>
+            <p class="step-description">
+                The system will notify you when it's almost your turn!
+            </p>
+            <div class="step-details">
+                <ul>
+                    <li>You'll receive alerts when you're <strong>20 people away</strong></li>
+                    <li>Another alert when you're <strong>10 people away</strong></li>
+                    <li>Final alert when you're <strong>3 people away</strong> - time to head to the office!</li>
+                    <li>You'll also get notified when the admin calls your number</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 8: Get Served -->
+        <div class="step-card">
+            <div class="step-number">8</div>
+            <div class="step-icon">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <h3 class="step-title">It's Your Turn - Get Served!</h3>
+            <p class="step-description">
+                When your number is called, head to the office and complete your transaction.
+            </p>
+            <div class="step-details">
+                <ul>
+                    <li>Check the <strong>live display screen</strong> or listen for announcements</li>
+                    <li>When your number is called, <strong>go to the counter</strong></li>
+                    <li>The admin will ask for your <strong>PIN Code</strong> - provide it</li>
+                    <li>Complete your enrollment or transaction</li>
+                    <li>After completion, the admin will mark you as <strong>"Done"</strong></li>
+                </ul>
+            </div>
+            <div class="important-box">
+                <h5><i class="fas fa-clock me-2"></i>Be Ready!</h5>
+                <p>Make sure to be present when your number is called. If you miss your turn, you might be marked as "Unserved" and need to rejoin the queue.</p>
+            </div>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="step-card" style="border-left-color: var(--parakeet-accent);">
+            <div class="step-icon" style="color: var(--parakeet-accent);">
+                <i class="fas fa-star"></i>
+            </div>
+            <h3 class="step-title">Why Use This System?</h3>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-check-circle text-success me-2"></i>No More Long Lines</h5>
+                    <p>Wait comfortably at home, in the canteen, or anywhere on campus!</p>
+                </div>
+                <div class="col-md-6">
+                    <h5><i class="fas fa-check-circle text-success me-2"></i>Fair & Organized</h5>
+                    <p>Everyone gets a number - no more line-cutting or confusion.</p>
+                </div>
+                <div class="col-md-6">
+                    <h5><i class="fas fa-check-circle text-success me-2"></i>Track Anytime</h5>
+                    <p>Check your position from your phone or computer anytime!</p>
+                </div>
+                <div class="col-md-6">
+                    <h5><i class="fas fa-check-circle text-success me-2"></i>Stay Cool</h5>
+                    <p>No need to stand under the hot sun while waiting.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>Ready to Try It?</h2>
+            <p class="lead mb-4">Join thousands of students experiencing hassle-free queuing!</p>
+            <a href="@Url.Action("Register", "Account")" class="btn btn-start">
+                <i class="fas fa-user-plus me-2"></i> Register Now
+            </a>
+            <a href="@Url.Action("Login", "Account")" class="btn btn-start">
+                <i class="fas fa-sign-in-alt me-2"></i> Login
+            </a>
+        </div>
+    </div>
+</div>

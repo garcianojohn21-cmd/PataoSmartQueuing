@@ -1,0 +1,1186 @@
+﻿@model PataoSmartQueuing.Models.Queue
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Archive Details - " + Model.QueueName;
+}
+
+<style>
+    :root {
+        --navy: #0D1B2A;
+        --navy-mid: #1B2E44;
+        --navy-light: #243A52;
+        --green: #22C55E;
+        --green-dark: #16A34A;
+        --green-light: #4ADE80;
+        --green-pale: #F0FDF4;
+        --green-gradient: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        --navy-gradient: linear-gradient(135deg, #0D1B2A 0%, #1B2E44 100%);
+        --white: #FFFFFF;
+        --border: rgba(34, 197, 94, 0.25);
+        --shadow: 0 8px 32px rgba(13, 27, 42, 0.18);
+        --shadow-green: 0 6px 24px rgba(34, 197, 94, 0.25);
+    }
+
+    /* ── PAGE HEADER ── */
+    .ad-page-header {
+        background: var(--navy-gradient);
+        border-radius: 22px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+        .ad-page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .ad-page-header::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+        }
+
+    .ad-page-title {
+        color: var(--white);
+        font-weight: 800;
+        font-size: 22px;
+        margin: 0 0 4px 0;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .ad-page-title i {
+            color: var(--green-light);
+        }
+
+    .ad-page-subtitle {
+        color: rgba(255,255,255,0.6);
+        font-size: 13.5px;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .badge-archived {
+        background: rgba(255,255,255,0.15);
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 8px;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-ad-primary {
+        background: var(--green-gradient);
+        color: var(--white);
+        border: none;
+        padding: 11px 22px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: var(--shadow-green);
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        text-decoration: none;
+    }
+
+        .btn-ad-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(34,197,94,0.4);
+            color: var(--white);
+        }
+
+    .btn-ad-secondary {
+        background: rgba(255,255,255,0.12);
+        color: var(--white);
+        border: 1.5px solid rgba(255,255,255,0.25);
+        padding: 10px 22px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.25s;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        text-decoration: none;
+    }
+
+        .btn-ad-secondary:hover {
+            background: rgba(255,255,255,0.2);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+    /* ── CARDS ── */
+    .ad-card {
+        background: var(--white);
+        border-radius: 22px;
+        border: 2px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .ad-card-header {
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+    }
+
+        .ad-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .ad-card-header h6 {
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin: 0;
+            color: var(--white);
+        }
+
+        .ad-card-header i {
+            color: var(--green-light);
+            font-size: 15px;
+        }
+
+    .ad-card-header-navy {
+        background: var(--navy-gradient);
+    }
+
+    .ad-card-header-green {
+        background: var(--green-gradient);
+    }
+
+    .ad-card-header-info {
+        background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+    }
+
+    .ad-card-body {
+        padding: 22px 24px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    /* ── INFO TABLE ── */
+    .info-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .info-table tr + tr td,
+        .info-table tr + tr th {
+            border-top: 1px solid rgba(34,197,94,0.12);
+        }
+
+        .info-table th {
+            color: #6B7280;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 10px 0;
+            width: 45%;
+        }
+
+        .info-table td {
+            color: var(--navy);
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 10px 0;
+        }
+
+    .code-badge {
+        background: var(--navy);
+        color: var(--green-light);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: monospace;
+        letter-spacing: 1px;
+    }
+
+    /* ── STAT ROWS ── */
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(34,197,94,0.1);
+    }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-row span {
+            font-size: 13.5px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+
+        .stat-row strong {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+            .stat-row strong.green {
+                color: var(--green-dark);
+            }
+
+            .stat-row strong.red {
+                color: #DC2626;
+            }
+
+    /* ── PROGRESS BAR ── */
+    .progress-cq {
+        height: 10px;
+        background: rgba(34,197,94,0.12);
+        border-radius: 99px;
+        overflow: hidden;
+        margin-top: 6px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: var(--green-gradient);
+        border-radius: 99px;
+        transition: width 0.6s ease;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+    }
+
+        .progress-label small {
+            font-size: 12px;
+            color: #6B7280;
+            font-weight: 600;
+        }
+
+            .progress-label small.fw-bold {
+                color: var(--navy);
+                font-weight: 800;
+            }
+
+    /* ── STAT BOXES ── */
+    .stat-boxes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .stat-box {
+        background: rgba(34,197,94,0.06);
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+        text-align: center;
+    }
+
+        .stat-box h4 {
+            font-weight: 800;
+            font-size: 24px;
+            margin: 0 0 2px 0;
+        }
+
+            .stat-box h4.green {
+                color: var(--green-dark);
+            }
+
+            .stat-box h4.red {
+                color: #DC2626;
+            }
+
+        .stat-box small {
+            font-size: 11px;
+            color: #6B7280;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+    /* ── ACTION BUTTONS ── */
+    .btn-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        cursor: pointer;
+        transition: all 0.25s;
+        text-decoration: none;
+        border: 2px solid transparent;
+        margin-bottom: 10px;
+    }
+
+        .btn-action:last-child {
+            margin-bottom: 0;
+        }
+
+    .btn-action-restore {
+        background: rgba(34,197,94,0.08);
+        color: var(--green-dark);
+        border-color: var(--border);
+    }
+
+        .btn-action-restore:hover {
+            background: var(--green-gradient);
+            color: var(--white);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-green);
+        }
+
+    .btn-action-export {
+        background: rgba(14,165,233,0.08);
+        color: #0284C7;
+        border-color: rgba(14,165,233,0.25);
+    }
+
+        .btn-action-export:hover {
+            background: linear-gradient(135deg, #0EA5E9, #0284C7);
+            color: var(--white);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14,165,233,0.35);
+        }
+
+    .btn-action-delete {
+        background: rgba(220,38,38,0.06);
+        color: #DC2626;
+        border-color: rgba(220,38,38,0.2);
+    }
+
+        .btn-action-delete:hover {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: var(--white);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220,38,38,0.35);
+        }
+
+    /* ── TAB PANEL ── */
+    .tab-nav-cq {
+        display: flex;
+        gap: 4px;
+        padding: 16px 24px 0;
+        background: var(--white);
+        border-bottom: 2px solid var(--border);
+    }
+
+        .tab-nav-cq .nav-link {
+            color: #6B7280;
+            font-weight: 700;
+            font-size: 12.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 18px;
+            border-radius: 12px 12px 0 0;
+            border: none;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+            .tab-nav-cq .nav-link:hover {
+                color: var(--green-dark);
+                background: var(--green-pale);
+            }
+
+            .tab-nav-cq .nav-link.active {
+                color: var(--green-dark);
+                background: var(--green-pale);
+                border: 2px solid var(--border);
+                border-bottom: 2px solid var(--green-pale);
+                margin-bottom: -2px;
+            }
+
+    .tab-content-cq {
+        padding: 24px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    /* ── TABLE ── */
+    .table-cq {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 6px;
+    }
+
+        .table-cq thead th {
+            color: #6B7280;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 6px 14px;
+            border: none;
+        }
+
+        .table-cq tbody tr {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(13,27,42,0.06);
+            transition: all 0.2s;
+        }
+
+            .table-cq tbody tr:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(34,197,94,0.15);
+            }
+
+        .table-cq tbody td {
+            padding: 12px 14px;
+            color: var(--navy);
+            font-size: 13.5px;
+            font-weight: 500;
+            border: none;
+            vertical-align: middle;
+        }
+
+            .table-cq tbody td:first-child {
+                border-radius: 12px 0 0 12px;
+            }
+
+            .table-cq tbody td:last-child {
+                border-radius: 0 12px 12px 0;
+            }
+
+    .queue-num {
+        font-weight: 800;
+        color: var(--navy);
+        font-size: 14px;
+    }
+
+    .status-done {
+        background: rgba(34,197,94,0.12);
+        color: var(--green-dark);
+        border: 1.5px solid rgba(34,197,94,0.3);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .status-unserved {
+        background: rgba(220,38,38,0.08);
+        color: #DC2626;
+        border: 1.5px solid rgba(220,38,38,0.2);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .status-other {
+        background: rgba(107,114,128,0.1);
+        color: #6B7280;
+        border: 1.5px solid rgba(107,114,128,0.2);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .pin-code {
+        background: var(--navy);
+        color: var(--green-light);
+        border-radius: 8px;
+        padding: 3px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: monospace;
+        letter-spacing: 1px;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: rgba(34,197,94,0.3);
+        }
+
+        .empty-state p {
+            color: #9CA3AF;
+            font-size: 14px;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+
+    /* ── MODAL ── */
+    .modal-cq .modal-content {
+        border: 2px solid var(--border);
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .modal-cq .modal-header {
+        background: var(--navy-gradient);
+        border: none;
+        padding: 22px 28px;
+        position: relative;
+    }
+
+        .modal-cq .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .modal-cq .modal-header .modal-title {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--white);
+        }
+
+            .modal-cq .modal-header .modal-title i {
+                color: var(--green-light);
+            }
+
+        .modal-cq .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.7;
+        }
+
+            .modal-cq .modal-header .btn-close:hover {
+                opacity: 1;
+            }
+
+    .modal-cq .modal-body {
+        padding: 28px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+        color: var(--navy);
+        font-size: 14px;
+    }
+
+    .modal-cq .modal-footer {
+        border: none;
+        padding: 18px 28px;
+        background: var(--green-pale);
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .alert-cq-danger {
+        background: #FEE2E2;
+        border: 2px solid #EF4444;
+        border-left: 5px solid #DC2626;
+        color: #7F1D1D;
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-weight: 600;
+        font-size: 13.5px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-cq-confirm-restore {
+        background: var(--green-gradient);
+        color: var(--white);
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: var(--shadow-green);
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .btn-cq-confirm-restore:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(34,197,94,0.4);
+            color: var(--white);
+        }
+
+    .btn-cq-confirm-delete {
+        background: linear-gradient(135deg, #EF4444, #DC2626);
+        color: var(--white);
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: 0 6px 20px rgba(220,38,38,0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .btn-cq-confirm-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(220,38,38,0.45);
+            color: var(--white);
+        }
+
+    .btn-cq-cancel {
+        background: var(--white);
+        color: var(--navy-mid);
+        border: 2px solid #D1D5DB;
+        padding: 11px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.25s;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .btn-cq-cancel:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF;
+            color: var(--navy);
+            transform: translateY(-2px);
+        }
+
+    @@media (max-width: 768px) {
+        .ad-page-header {
+            padding: 20px 18px;
+        }
+
+        .ad-page-title {
+            font-size: 17px;
+        }
+
+        .ad-card-body, .tab-content-cq {
+            padding: 16px;
+        }
+
+        .tab-nav-cq {
+            padding: 12px 12px 0;
+            gap: 2px;
+        }
+
+            .tab-nav-cq .nav-link {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+
+        .btn-ad-primary, .btn-ad-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="ad-page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="ad-page-title">
+                    <i class="bi bi-archive-fill"></i>
+                    @Model.QueueName
+                    <span class="badge-archived ms-2">Archived</span>
+                </h2>
+                <p class="ad-page-subtitle">@Model.Description</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap" style="position:relative;z-index:1;">
+                <a href="@Url.Action("Archive")" class="btn-ad-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Archive
+                </a>
+                <a href="@Url.Action("DownloadQueueReportCsv", new { queueId = Model.QueueID })" class="btn-ad-primary">
+                    <i class="bi bi-download"></i> Download Report
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ── LEFT COLUMN ── -->
+        <div class="col-md-4">
+
+            <!-- Queue Info -->
+            <div class="ad-card">
+                <div class="ad-card-header ad-card-header-navy">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <h6>Queue Information</h6>
+                </div>
+                <div class="ad-card-body">
+                    <table class="info-table">
+                        <tr>
+                            <th>Queue Code</th>
+                            <td><span class="code-badge">@Model.QueueCode</span></td>
+                        </tr>
+                        <tr>
+                            <th>Max Students</th>
+                            <td>@Model.MaxStudents</td>
+                        </tr>
+                        <tr>
+                            <th>Batch Size</th>
+                            <td>@Model.ServingBatchSize</td>
+                        </tr>
+                        <tr>
+                            <th>Created By</th>
+                            <td>@Model.CreatedByAdmin.FirstName @Model.CreatedByAdmin.LastName</td>
+                        </tr>
+                        <tr>
+                            <th>Created</th>
+                            <td>@Model.DateCreated.ToString("MMM dd, yyyy hh:mm tt")</td>
+                        </tr>
+                        <tr>
+                            <th>Completed</th>
+                            <td>
+                                @if (Model.DateCompleted.HasValue)
+                                {
+                                    @Model.DateCompleted.Value.ToString("MMM dd, yyyy hh:mm tt")
+                                }
+                                else
+                                {
+                                    <span style="color:#9CA3AF;">N/A</span>
+                                }
+                            </td>
+                        </tr>
+                        @if (ViewBag.Duration != null)
+                        {
+                            <tr>
+                                <th>Duration</th>
+                                <td><strong>@ViewBag.Duration</strong></td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="ad-card">
+                <div class="ad-card-header ad-card-header-green">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <h6>Statistics</h6>
+                </div>
+                <div class="ad-card-body">
+                    <div class="stat-row">
+                        <span>Total Students</span>
+                        <strong>@ViewBag.TotalStudents</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Completed</span>
+                        <strong class="green">@ViewBag.CompletedCount</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Unserved</span>
+                        <strong class="red">@ViewBag.UnservedCount</strong>
+                    </div>
+
+                    <div style="margin-top:18px;">
+                        <div class="progress-label">
+                            <small>Completion Rate</small>
+                            <small class="fw-bold">@ViewBag.CompletionRate%</small>
+                        </div>
+                        <div class="progress-cq">
+                            <div class="progress-fill" style="width: @ViewBag.CompletionRate%"></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-boxes">
+                        <div class="stat-box">
+                            <h4 class="green">@ViewBag.CompletedCount</h4>
+                            <small>Served</small>
+                        </div>
+                        <div class="stat-box">
+                            <h4 class="red">@ViewBag.UnservedCount</h4>
+                            <small>Unserved</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="ad-card">
+                <div class="ad-card-header ad-card-header-info">
+                    <i class="bi bi-gear-fill"></i>
+                    <h6>Actions</h6>
+                </div>
+                <div class="ad-card-body">
+                    <button class="btn-action btn-action-restore" id="restoreQueueBtn">
+                        <i class="bi bi-arrow-counterclockwise"></i> Restore Queue
+                    </button>
+                    <a href="@Url.Action("ExportQueueReport", new { queueId = Model.QueueID })"
+                       class="btn-action btn-action-export">
+                        <i class="bi bi-file-earmark-text"></i> Export JSON
+                    </a>
+                    @if (Context.Session.GetString("AdminRole") == "SuperAdmin")
+                    {
+                        <button class="btn-action btn-action-delete" id="deleteArchiveBtn">
+                            <i class="bi bi-trash"></i> Delete Permanently
+                        </button>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── RIGHT COLUMN ── -->
+        <div class="col-md-8">
+            <div class="ad-card" style="overflow:visible;">
+
+                <!-- Tabs -->
+                <ul class="tab-nav-cq nav" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#allStudents" role="tab">
+                            <i class="bi bi-people-fill me-1"></i>All (@ViewBag.TotalStudents)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#completedStudents" role="tab">
+                            <i class="bi bi-check-circle-fill me-1"></i>Completed (@ViewBag.CompletedCount)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#unservedStudents" role="tab">
+                            <i class="bi bi-x-circle-fill me-1"></i>Unserved (@ViewBag.UnservedCount)
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content tab-content-cq">
+
+                    <!-- ALL -->
+                    <div class="tab-pane fade show active" id="allStudents" role="tabpanel">
+                        @if (Model.QueueStudents == null || !Model.QueueStudents.Any())
+                        {
+                            <div class="empty-state">
+                                <i class="bi bi-inbox"></i>
+                                <p>No students in this queue</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table-cq">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Student</th>
+                                            <th>Email</th>
+                                            <th>Joined</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var qs in Model.QueueStudents.OrderBy(s => s.QueueNumber))
+                                        {
+                                            var statusClass = qs.Status switch
+                                            {
+                                                "Done" => "status-done",
+                                                "Unserved" => "status-unserved",
+                                                _ => "status-other"
+                                            };
+                                            <tr>
+                                                <td><span class="queue-num">#@qs.QueueNumber</span></td>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <img src="@(!string.IsNullOrEmpty(qs.Student.ProfilePhoto) ? qs.Student.ProfilePhoto : "/Images/ProfilePic.jfif")"
+                                                             class="rounded-circle"
+                                                             width="32" height="32"
+                                                             style="object-fit:cover;border:2px solid var(--border);"
+                                                             alt="Profile">
+                                                        <span>@qs.Student.FirstName @qs.Student.MiddleName @qs.Student.LastName</span>
+                                                    </div>
+                                                </td>
+                                                <td><small style="color:#6B7280;">@qs.Student.Email</small></td>
+                                                <td><small style="color:#6B7280;">@qs.JoinedAt.ToString("MMM dd, hh:mm tt")</small></td>
+                                                <td><span class="@statusClass">@qs.Status</span></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- COMPLETED -->
+                    <div class="tab-pane fade" id="completedStudents" role="tabpanel">
+                        @{
+                            var completedStudents = Model.QueueStudents?.Where(s => s.Status == "Done").OrderBy(s => s.QueueNumber).ToList();
+                        }
+                        @if (completedStudents == null || !completedStudents.Any())
+                        {
+                            <div class="empty-state">
+                                <i class="bi bi-check-circle"></i>
+                                <p>No completed students</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table-cq">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Student</th>
+                                            <th>Email</th>
+                                            <th>PIN Code</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var qs in completedStudents)
+                                        {
+                                            <tr>
+                                                <td><span class="queue-num">#@qs.QueueNumber</span></td>
+                                                <td>@qs.Student.FirstName @qs.Student.MiddleName @qs.Student.LastName</td>
+                                                <td><small style="color:#6B7280;">@qs.Student.Email</small></td>
+                                                <td><span class="pin-code">@qs.PinCode</span></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- UNSERVED -->
+                    <div class="tab-pane fade" id="unservedStudents" role="tabpanel">
+                        @{
+                            var unservedStudents = Model.QueueStudents?.Where(s => s.Status == "Unserved").OrderBy(s => s.QueueNumber).ToList();
+                        }
+                        @if (unservedStudents == null || !unservedStudents.Any())
+                        {
+                            <div class="empty-state">
+                                <i class="bi bi-x-circle"></i>
+                                <p>No unserved students</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table-cq">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Student</th>
+                                            <th>Email</th>
+                                            <th>PIN Code</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var qs in unservedStudents)
+                                        {
+                                            <tr>
+                                                <td><span class="queue-num">#@qs.QueueNumber</span></td>
+                                                <td>@qs.Student.FirstName @qs.Student.MiddleName @qs.Student.LastName</td>
+                                                <td><small style="color:#6B7280;">@qs.Student.Email</small></td>
+                                                <td><span class="pin-code">@qs.PinCode</span></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade modal-cq" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalTitle">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>Confirm Action
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="confirmModalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cq-cancel" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </button>
+                <button type="button" id="confirmActionBtn" class="btn-cq-confirm-restore">
+                    <i class="bi bi-check-circle"></i> Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        @Html.AntiForgeryToken()
+
+        $(document).ready(function () {
+            const confirmModal = new bootstrap.Modal($('#confirmModal')[0]);
+            const queueId = @Model.QueueID;
+
+            $('#restoreQueueBtn').click(function () {
+                $('#confirmModalTitle').html('<i class="bi bi-arrow-counterclockwise me-2" style="color:var(--green-light)"></i>Restore Queue');
+                $('#confirmModalBody').html(`
+                    <p style="color:var(--navy);font-size:14px;">
+                        Are you sure you want to restore <strong>"@Model.QueueName"</strong>?
+                    </p>
+                    <p style="color:#6B7280;font-size:13px;">
+                        This will return the queue to pending status and you can activate it again.
+                    </p>
+                `);
+                $('#confirmActionBtn')
+                    .removeClass('btn-cq-confirm-delete')
+                    .addClass('btn-cq-confirm-restore')
+                    .html('<i class="bi bi-arrow-counterclockwise"></i> Restore')
+                    .data('action', 'restore');
+                confirmModal.show();
+            });
+
+            $('#deleteArchiveBtn').click(function () {
+                $('#confirmModalTitle').html('<i class="bi bi-trash-fill me-2" style="color:#FCA5A5"></i>Permanently Delete');
+                $('#confirmModalBody').html(`
+                    <div class="alert-cq-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Warning: This action cannot be undone!</strong>
+                    </div>
+                    <p style="color:var(--navy);font-size:14px;">
+                        Are you sure you want to permanently delete <strong>"@Model.QueueName"</strong>?
+                    </p>
+                    <p style="color:#6B7280;font-size:13px;">
+                        All @ViewBag.TotalStudents student records will be lost forever.
+                    </p>
+                `);
+                $('#confirmActionBtn')
+                    .removeClass('btn-cq-confirm-restore')
+                    .addClass('btn-cq-confirm-delete')
+                    .html('<i class="bi bi-trash"></i> Delete Permanently')
+                    .data('action', 'delete');
+                confirmModal.show();
+            });
+
+            $('#confirmActionBtn').click(function () {
+                const action = $(this).data('action');
+                if (action === 'restore') restoreQueue();
+                else if (action === 'delete') deleteArchive();
+            });
+
+            function restoreQueue() {
+                $.ajax({
+                    url: '@Url.Action("RestoreQueueAjax")',
+                    type: 'POST',
+                    data: {
+                        id: queueId,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        confirmModal.hide();
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => window.location.href = '@Url.Action("ManageQueues")', 1500);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function () {
+                        confirmModal.hide();
+                        toastr.error('Error restoring queue');
+                    }
+                });
+            }
+
+            function deleteArchive() {
+                $.ajax({
+                    url: '@Url.Action("PermanentlyDeleteArchive")',
+                    type: 'POST',
+                    data: {
+                        id: queueId,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        confirmModal.hide();
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => window.location.href = '@Url.Action("Archive")', 1500);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function () {
+                        confirmModal.hide();
+                        toastr.error('Error deleting archive');
+                    }
+                });
+            }
+        });
+    </script>
+}

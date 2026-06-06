@@ -1,0 +1,1039 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var isLoggedIn = HttpContextAccessor.HttpContext.Session.GetInt32("StudentID") != null;
+    var studentName = HttpContextAccessor.HttpContext.Session.GetString("StudentName");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Patao Smart Queuing</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        :root {
+            /* ── NAVY ── */
+            --navy: #0B2B1A;
+            --navy-deep: #061710;
+            --navy-mid: #123D24;
+            --navy-light: #1A5233;
+            /* ── GREEN ── */
+            --green: #22C55E;
+            --green-dark: #16A34A;
+            --green-mid: #4ADE80;
+            --green-light: #86EFAC;
+            --green-pale: #DCFCE7;
+            /* ── NEUTRALS ── */
+            --white: #FFFFFF;
+            --off-white: #F0FAF4;
+            --gray-100: #F1F5F9;
+            --gray-200: #E2E8F0;
+            /* ── MISC ── */
+            --muted: rgba(255, 255, 255, 0.55);
+            --border-dim: rgba(255, 255, 255, 0.12);
+            --border-green: rgba(34, 197, 94, 0.30);
+            --shadow: 0 4px 6px rgba(6, 23, 16, 0.14);
+            --shadow-lg: 0 10px 30px rgba(6, 23, 16, 0.22);
+            /* ── GRADIENTS ── */
+            --nav-gradient: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-mid) 100%);
+            --green-gradient: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(160deg, var(--off-white) 0%, var(--white) 50%, var(--green-pale) 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ========== FLOATING ICONS ========== */
+        .floating-icons {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+            .floating-icons span {
+                position: absolute;
+                font-size: 2.5rem;
+                opacity: 0.06;
+                color: var(--navy);
+                animation: floatUp 20s infinite ease-in-out;
+            }
+
+                .floating-icons span:nth-child(1) {
+                    top: 15%;
+                    left: 8%;
+                    animation-delay: 0s;
+                    animation-duration: 18s;
+                }
+
+                .floating-icons span:nth-child(2) {
+                    top: 22%;
+                    right: 12%;
+                    animation-delay: 3s;
+                    animation-duration: 22s;
+                }
+
+                .floating-icons span:nth-child(3) {
+                    top: 52%;
+                    left: 18%;
+                    animation-delay: 6s;
+                    animation-duration: 20s;
+                }
+
+                .floating-icons span:nth-child(4) {
+                    bottom: 18%;
+                    right: 22%;
+                    animation-delay: 9s;
+                    animation-duration: 19s;
+                }
+
+                .floating-icons span:nth-child(5) {
+                    top: 40%;
+                    left: 48%;
+                    animation-delay: 12s;
+                    animation-duration: 21s;
+                }
+
+        @@keyframes floatUp {
+            0%, 100%
+
+        {
+            transform: translate(0,0) rotate(0deg);
+            opacity: 0.06;
+        }
+
+        25% {
+            transform: translate(15px,-25px) rotate(5deg);
+            opacity: 0.04;
+        }
+
+        50% {
+            transform: translate(-10px,-50px) rotate(-5deg);
+            opacity: 0.08;
+        }
+
+        75% {
+            transform: translate(20px,-30px) rotate(3deg);
+            opacity: 0.05;
+        }
+
+        }
+
+        /* ========== NAVBAR ========== */
+        .custom-navbar {
+            background: var(--nav-gradient);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+        }
+
+            .custom-navbar::after {
+                content: '';
+                display: block;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, var(--green-dark), var(--green-light), var(--green-dark), transparent);
+            }
+
+            .custom-navbar.scrolled {
+                padding: 0.5rem 0;
+                box-shadow: 0 10px 40px rgba(6, 23, 16, 0.40);
+            }
+
+        .navbar-brand {
+            color: var(--white) !important;
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            transition: transform 0.3s ease;
+        }
+
+            .navbar-brand:hover {
+                transform: scale(1.04);
+            }
+
+        .nav-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--green);
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.25);
+            transition: all 0.4s ease;
+        }
+
+        .navbar-brand:hover .nav-logo {
+            transform: rotate(360deg) scale(1.1);
+            box-shadow: 0 0 0 5px rgba(34,197,94,0.35);
+        }
+
+        /* Desktop nav links */
+        .nav-link {
+            color: var(--muted) !important;
+            font-weight: 600;
+            padding: 0.55rem 1.1rem !important;
+            margin: 0 0.15rem;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+            font-size: 0.80rem;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+            .nav-link::after {
+                content: '';
+                position: absolute;
+                bottom: 4px;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background: var(--green-light);
+                transition: all 0.25s ease;
+                transform: translateX(-50%);
+                border-radius: 2px;
+            }
+
+            .nav-link:hover {
+                background: rgba(34,197,94,0.13) !important;
+                color: var(--white) !important;
+                transform: translateY(-2px);
+            }
+
+                .nav-link:hover::after {
+                    width: 65%;
+                }
+
+            .nav-link.active {
+                color: var(--white) !important;
+                background: rgba(34,197,94,0.16) !important;
+            }
+
+                .nav-link.active::after {
+                    width: 65%;
+                }
+
+        /* Green pill CTA */
+        .btn-nav-cta {
+            background: var(--green-gradient);
+            color: var(--white) !important;
+            border: none;
+            padding: 0.55rem 1.6rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.80rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(34,197,94,0.30);
+        }
+
+            .btn-nav-cta:hover {
+                transform: translateY(-3px) scale(1.05);
+                box-shadow: 0 6px 24px rgba(34,197,94,0.50);
+                color: var(--white) !important;
+            }
+
+        /* White outline secondary */
+        .btn-nav-outline {
+            background: transparent;
+            color: var(--white) !important;
+            border: 1.5px solid rgba(255,255,255,0.45);
+            padding: 0.52rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.80rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+            .btn-nav-outline:hover {
+                background: rgba(255,255,255,0.10);
+                border-color: var(--white);
+                transform: translateY(-2px);
+                color: var(--white) !important;
+            }
+
+        /* Danger logout */
+        .btn-nav-danger {
+            background: #DC2626;
+            color: var(--white) !important;
+            border: none;
+            padding: 0.52rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.80rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+            .btn-nav-danger:hover {
+                background: #B91C1C;
+                transform: translateY(-3px) scale(1.04);
+                box-shadow: 0 6px 20px rgba(220,38,38,0.40);
+                color: var(--white) !important;
+            }
+
+        /* Logged-in greeting badge */
+        .greeting-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(34,197,94,0.14);
+            border: 1px solid var(--border-green);
+            color: var(--white);
+            font-size: 0.80rem;
+            font-weight: 600;
+            padding: 0.42rem 1rem;
+            border-radius: 20px;
+        }
+
+        /* Status pulse dot */
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green-light);
+            display: inline-block;
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+        @@keyframes pulseDot {
+            0%,100%
+
+        {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.4;
+            transform: scale(0.7);
+        }
+
+        }
+
+        /* ========== MOBILE TOGGLER ========== */
+        .navbar-toggler {
+            border: 1px solid var(--border-green) !important;
+            background: rgba(34,197,94,0.08);
+            padding: 0.42rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+            .navbar-toggler:hover {
+                background: rgba(34,197,94,0.18);
+                transform: scale(1.08);
+            }
+
+            .navbar-toggler:focus {
+                box-shadow: none !important;
+            }
+
+        /* ========== MOBILE SIDEBAR ========== */
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background: linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-mid) 100%);
+            z-index: 2000;
+            padding: 2rem 1.5rem;
+            border-left: 1px solid var(--border-green);
+            transition: right 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);
+            box-shadow: -8px 0 40px rgba(6,23,16,0.45);
+            overflow-y: auto;
+        }
+
+            .mobile-sidebar.active {
+                right: 0;
+            }
+
+        .sidebar-close-btn {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: rgba(34,197,94,0.14);
+            border: 1px solid var(--border-green);
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .sidebar-close-btn:hover {
+                background: rgba(34,197,94,0.28);
+                transform: rotate(90deg) scale(1.1);
+            }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.75rem;
+        }
+
+            .sidebar-brand img {
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+                border: 2px solid var(--green);
+                object-fit: cover;
+            }
+
+            .sidebar-brand span {
+                font-weight: 800;
+                font-size: 1.05rem;
+                color: var(--white);
+            }
+
+        .sidebar-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.10);
+            margin: 0.85rem 0;
+        }
+
+        .sidebar-user-badge {
+            background: rgba(34,197,94,0.10);
+            border: 1px solid var(--border-green);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 0.75rem;
+        }
+
+            .sidebar-user-badge .bi {
+                font-size: 2.4rem;
+                color: var(--green-light);
+            }
+
+            .sidebar-user-badge p {
+                margin: 0.45rem 0 0;
+                font-weight: 700;
+                color: var(--white);
+                font-size: 0.92rem;
+            }
+
+        .mobile-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-sidebar li {
+            margin-bottom: 0.45rem;
+        }
+
+        .mobile-sidebar a:not(.btn-nav-cta):not(.btn-nav-outline):not(.btn-nav-danger) {
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.80rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.93rem;
+            transition: all 0.25s ease;
+        }
+
+            .mobile-sidebar a:not(.btn-nav-cta):not(.btn-nav-outline):not(.btn-nav-danger):hover {
+                background: rgba(34,197,94,0.12);
+                color: var(--white);
+                padding-left: 1.4rem;
+            }
+
+        /* ========== OVERLAY ========== */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6,23,16,0.65);
+            z-index: 1500;
+            opacity: 0;
+            visibility: hidden;
+            backdrop-filter: blur(3px);
+            transition: all 0.3s ease;
+        }
+
+            .overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        /* ========== MAIN ========== */
+        main {
+            position: relative;
+            z-index: 10;
+            min-height: calc(100vh - 250px);
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @@keyframes fadeInUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(22px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* ========== CARDS ========== */
+        .card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            background: var(--white);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-6px);
+                box-shadow: var(--shadow-lg);
+            }
+
+        .card-header {
+            background: var(--nav-gradient);
+            border: none;
+            border-radius: 14px 14px 0 0 !important;
+            color: var(--white);
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-green);
+        }
+
+        /* ========== HERO ========== */
+        .hero-section {
+            background: var(--nav-gradient);
+            color: var(--white);
+            padding: 4rem 0;
+            border-radius: 18px;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .hero-section::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, transparent, var(--green), var(--green-light), var(--green), transparent);
+            }
+
+        /* ========== FOOTER ========== */
+        .custom-footer {
+            background: var(--nav-gradient);
+            color: var(--white);
+            position: relative;
+            z-index: 10;
+            padding: 2rem 0;
+            box-shadow: 0 -4px 20px rgba(6,23,16,0.25);
+        }
+
+            .custom-footer::before {
+                content: '';
+                display: block;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, var(--green-dark), var(--green-light), var(--green-dark), transparent);
+                margin-bottom: 1.5rem;
+            }
+
+            .custom-footer p {
+                font-weight: 500;
+                font-size: 1rem;
+                color: rgba(255,255,255,0.82);
+            }
+
+            .custom-footer small {
+                color: rgba(255,255,255,0.45);
+            }
+
+        /* ========== BOOTSTRAP BUTTON OVERRIDES ========== */
+        .btn-success {
+            background: var(--green-gradient);
+            border: none;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            color: var(--white);
+        }
+
+            .btn-success:hover {
+                background: var(--green-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(34,197,94,0.35);
+                color: var(--white);
+            }
+
+        .btn-outline-success {
+            color: var(--green-dark);
+            border: 2px solid var(--green);
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .btn-outline-success:hover {
+                background: var(--green);
+                border-color: var(--green);
+                color: var(--white);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(34,197,94,0.35);
+            }
+
+        .btn-primary {
+            background: var(--navy-light);
+            border: none;
+            font-weight: 600;
+            border-radius: 10px;
+            color: var(--white);
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background: var(--navy-mid);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow);
+                color: var(--white);
+            }
+
+        /* ========== ALERTS ========== */
+        .alert {
+            border-radius: 12px;
+            border: none;
+            box-shadow: var(--shadow);
+            animation: slideDown 0.4s ease;
+        }
+        @@keyframes slideDown {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-16px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--off-white);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--green-light);
+            border-radius: 10px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--green);
+            }
+
+        /* ========== UTILITIES ========== */
+        .text-green {
+            color: var(--green) !important;
+        }
+
+        .text-green-light {
+            color: var(--green-light) !important;
+        }
+
+        .text-navy {
+            color: var(--navy) !important;
+        }
+
+        .bg-navy {
+            background: var(--navy) !important;
+        }
+
+        .bg-navy-gradient {
+            background: var(--nav-gradient) !important;
+        }
+
+        .bg-green {
+            background: var(--green) !important;
+        }
+
+        .bg-green-gradient {
+            background: var(--green-gradient) !important;
+        }
+
+        .border-green {
+            border-color: var(--green) !important;
+        }
+
+        .border-navy {
+            border-color: var(--navy) !important;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @@media (max-width: 991px) {
+            .floating-icons span
+
+        {
+            font-size: 2rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.3rem;
+        }
+
+        }
+        @@media (max-width: 576px) {
+            .navbar-brand
+
+        {
+            font-size: 1.1rem;
+        }
+
+        .nav-logo {
+            width: 40px;
+            height: 40px;
+        }
+
+        .mobile-sidebar {
+            width: 90%;
+            max-width: 300px;
+        }
+
+        .floating-icons span {
+            font-size: 1.5rem;
+        }
+
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating Background Icons -->
+    <div class="floating-icons">
+        <span><i class="bi bi-pencil-square"></i></span>
+        <span><i class="bi bi-book"></i></span>
+        <span><i class="bi bi-person-badge"></i></span>
+        <span><i class="bi bi-clipboard-check"></i></span>
+        <span><i class="bi bi-mortarboard"></i></span>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg custom-navbar">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+                <img src="~/Images/pataologo.jpg"
+                     alt="Patao Logo"
+                     class="nav-logo"
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/48/0B2B1A/22C55E?text=SQ';" />
+                PNHS
+            </a>
+
+            <button class="navbar-toggler" type="button" id="mobileMenuToggle" aria-label="Toggle navigation">
+                <i class="bi bi-list text-white fs-2"></i>
+            </button>
+
+            <!-- Desktop -->
+            <div class="d-none d-lg-flex ms-auto align-items-center gap-1">
+                <a class="nav-link @(currentAction == "Index" ? "active" : "")"
+                   asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-house-door me-1"></i> Home
+                </a>
+                <a class="nav-link @(currentAction == "Policy" ? "active" : "")"
+                   asp-controller="Home" asp-action="Policy">
+                    <i class="bi bi-shield-check me-1"></i> Policy
+                </a>
+                <a class="nav-link @(currentAction == "ProcessFlow" ? "active" : "")"
+                   asp-controller="Home" asp-action="ProcessFlow">
+                    <i class="bi bi-diagram-3 me-1"></i> Process Flow
+                </a>
+
+                <div class="ms-3 d-flex align-items-center gap-2">
+                    @if (!isLoggedIn)
+                    {
+                        <a class="btn-nav-cta" asp-controller="Account" asp-action="Login">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="greeting-badge">
+                            <i class="bi bi-person-circle"></i>
+                            @studentName
+                            <span class="status-dot ms-1"></span>
+                        </span>
+                        <a class="btn-nav-outline" asp-controller="Student" asp-action="Dashboard">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                        <a class="btn-nav-danger"
+                           asp-controller="Student" asp-action="Logout"
+                           onclick="return confirm('Are you sure you want to logout?');">
+                            <i class="bi bi-box-arrow-right me-1"></i> Logout
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar" id="mobileSidebar">
+        <button class="sidebar-close-btn" id="closeSidebar" aria-label="Close menu">
+            <i class="bi bi-x-lg"></i>
+        </button>
+
+        <div class="sidebar-brand">
+            <img src="~/Images/pataologo.jpg"
+                 alt="Patao Logo"
+                 onerror="this.onerror=null; this.src='https://via.placeholder.com/38/22C55E/FFFFFF?text=SQ';" />
+            <span>Smart Queuing</span>
+        </div>
+
+        @if (isLoggedIn)
+        {
+            <div class="sidebar-user-badge">
+                <i class="bi bi-person-circle"></i>
+                <p>@studentName</p>
+            </div>
+        }
+
+        <div class="sidebar-divider"></div>
+
+        <ul>
+            <li>
+                <a asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-house-door"></i> Home
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Home" asp-action="Policy">
+                    <i class="bi bi-shield-check"></i> Policy
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Home" asp-action="ProcessFlow">
+                    <i class="bi bi-diagram-3"></i> Process Flow
+                </a>
+            </li>
+
+            <div class="sidebar-divider"></div>
+
+            @if (!isLoggedIn)
+            {
+                <li>
+                    <a asp-controller="Account" asp-action="Login"
+                       class="btn-nav-cta d-block text-center w-100">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                    </a>
+                </li>
+                <li style="margin-top:0.5rem;">
+                    <a asp-controller="Account" asp-action="Register"
+                       class="btn-nav-outline d-block text-center w-100">
+                        <i class="bi bi-person-plus me-1"></i> Register
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li>
+                    <a asp-controller="Student" asp-action="Dashboard"
+                       class="btn-nav-cta d-block text-center w-100">
+                        <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                    </a>
+                </li>
+                <li style="margin-top:0.5rem;">
+                    <a asp-controller="Student" asp-action="Logout"
+                       class="btn-nav-danger d-block text-center w-100"
+                       onclick="return confirm('Are you sure you want to logout?');">
+                        <i class="bi bi-box-arrow-right me-1"></i> Logout
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Page Content -->
+    <div class="container mt-4">
+        <main role="main" class="pb-4">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center custom-footer">
+        <div class="container">
+            <p class="mb-2">
+                <i class="bi bi-c-circle me-1"></i> @DateTime.Now.Year &mdash; Patao Smart Queuing System
+            </p>
+            <small>
+                <i class="bi bi-building me-1"></i> Patao National High School
+            </small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@7.0.0/dist/browser/signalr.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // ── MOBILE SIDEBAR ──────────────────────────────
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileSidebar    = document.getElementById('mobileSidebar');
+        const closeSidebarBtn  = document.getElementById('closeSidebar');
+        const overlay          = document.getElementById('overlay');
+
+        function openSidebar()  {
+            mobileSidebar.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            mobileSidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', openSidebar);
+        if (closeSidebarBtn)  closeSidebarBtn.addEventListener('click', closeSidebar);
+        if (overlay)          overlay.addEventListener('click', closeSidebar);
+
+        document.querySelectorAll('.mobile-sidebar a').forEach(l =>
+            l.addEventListener('click', () => setTimeout(closeSidebar, 300)));
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && mobileSidebar.classList.contains('active')) closeSidebar();
+        });
+
+        // ── NAVBAR SCROLL SHRINK ────────────────────────
+        const navbar = document.querySelector('.custom-navbar');
+        window.addEventListener('scroll', () =>
+            navbar.classList.toggle('scrolled', window.scrollY > 50));
+
+        // ── SIGNALR ─────────────────────────────────────
+        @if (isLoggedIn)
+        {
+                <text>
+                const studentId = "@HttpContextAccessor.HttpContext.Session.GetInt32("StudentID")";
+                if (studentId && studentId !== "" && studentId !== "0") {
+                    const connection = new signalR.HubConnectionBuilder()
+                        .withUrl("/notificationHub?studentId=" + studentId)
+                        .withAutomaticReconnect()
+                        .build();
+
+                    connection.on("ReceiveNotification", (title, message) => {
+                        if (Notification.permission === "granted") {
+                            new Notification(title, { body: message, icon: '/Images/pataologo.jpg' });
+                        } else if (Notification.permission !== "denied") {
+                            Notification.requestPermission().then(p => {
+                                if (p === "granted")
+                                    new Notification(title, { body: message, icon: '/Images/pataologo.jpg' });
+                            });
+                        }
+                        showInPageNotification(title, message);
+                    });
+
+                    connection.start()
+                        .then(() => console.log('SignalR connected'))
+                        .catch(err => { console.error(err); setTimeout(() => connection.start(), 5000); });
+
+                    if (Notification.permission === "default") Notification.requestPermission();
+                }
+                </text>
+        }
+
+        // ── IN-PAGE TOAST ────────────────────────────────
+        function showInPageNotification(title, message) {
+            const el = document.createElement('div');
+            el.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+            el.style.cssText = 'z-index:9999; min-width:340px; box-shadow:0 10px 30px rgba(6,23,16,0.22);';
+            el.innerHTML = `
+                <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-bell-fill" style="font-size:1.4rem;color:#22C55E;flex-shrink:0;"></i>
+                    <div class="flex-grow-1">
+                        <strong class="d-block mb-1">${title}</strong>
+                        <small>${message}</small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 5000);
+        }
+
+        // ── AUTO-DISMISS ALERTS ──────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.alert:not(.position-fixed)').forEach(a => {
+                setTimeout(() => new bootstrap.Alert(a).close(), 5000);
+            });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

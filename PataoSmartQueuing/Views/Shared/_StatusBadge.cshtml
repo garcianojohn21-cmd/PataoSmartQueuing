@@ -1,0 +1,17 @@
+﻿@model string
+
+@switch (Model)
+{
+    case "Serving":
+        @:<span class="badge bg-warning text-dark">Serving</span>
+        break;
+    case "Done":
+        @:<span class="badge bg-success">Done</span>
+        break;
+    case "Unserved":
+        @:<span class="badge bg-danger">Unserved</span>
+        break;
+    default:
+        @:<span class="badge bg-secondary">Waiting</span>
+        break;
+}

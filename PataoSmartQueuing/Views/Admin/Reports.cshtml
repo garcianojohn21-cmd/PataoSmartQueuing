@@ -1,0 +1,858 @@
+﻿@model IEnumerable<PataoSmartQueuing.Models.Queue>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Queue Reports";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="container my-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <h2 class="fw-bold text-success mb-3">
+            <i class="bi bi-bar-chart-fill me-2"></i> Queue Reports & Analytics
+        </h2>
+        <div class="btn-group">
+            <button id="exportAllBtn" class="btn btn-success rounded-3 me-2">
+                <i class="bi bi-file-earmark-excel me-1"></i> Export All Reports
+            </button>
+            <a asp-action="ManageQueues" class="btn btn-outline-success rounded-3">
+                <i class="bi bi-arrow-left me-1"></i> Back to Queues
+            </a>
+        </div>
+    </div>
+
+    <!-- Overall Statistics -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3 bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-list-check fs-1"></i>
+                    <h3 class="mt-2 mb-0" id="totalQueues">@Model.Count()</h3>
+                    <p class="mb-0">Total Queues</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle-fill fs-1"></i>
+                    <h3 class="mt-2 mb-0" id="completedQueues">@Model.Count(q => q.IsDone)</h3>
+                    <p class="mb-0">Completed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3 bg-white border-success border-2">
+                <div class="card-body text-center">
+                    <i class="bi bi-people-fill fs-1 text-success"></i>
+                    <h3 class="mt-2 mb-0 text-success" id="totalStudents">@Model.SelectMany(q => q.QueueStudents ?? new List<PataoSmartQueuing.Models.QueueStudent>()).Count()</h3>
+                    <p class="mb-0 text-muted">Total Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-3" style="background: #20c997; color: white;">
+                <div class="card-body text-center">
+                    <i class="bi bi-broadcast fs-1"></i>
+                    <h3 class="mt-2 mb-0" id="activeQueues">@Model.Count(q => q.IsActive)</h3>
+                    <p class="mb-0">Active Now</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-4">
+            <input type="text" id="searchBox" class="form-control form-control-lg border-success" 
+                   placeholder="🔍 Search by queue name or creator...">
+        </div>
+        <div class="col-md-3">
+            <select id="statusFilter" class="form-select form-select-lg border-success">
+                <option value="">All Status</option>
+                <option value="Done">Completed</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="dateFilter" class="form-select form-select-lg border-success">
+                <option value="">All Dates</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button id="refreshBtn" class="btn btn-success btn-lg w-100">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Queue Reports List -->
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <h4 class="text-muted mt-3">No Queue Reports Available</h4>
+            <p class="text-muted">Queue reports will appear here once queues are created.</p>
+        </div>
+    }
+    else
+    {
+        <div id="reportsList">
+            @foreach (var queue in Model.OrderByDescending(q => q.DateCreated))
+            {
+                var totalStudents = queue.QueueStudents?.Count ?? 0;
+                var doneStudents = queue.QueueStudents?.Count(qs => qs.Status == "Done") ?? 0;
+                var unservedStudents = queue.QueueStudents?.Count(qs => qs.Status == "Unserved") ?? 0;
+                var servingStudents = queue.QueueStudents?.Count(qs => qs.Status == "Serving") ?? 0;
+                var pendingStudents = queue.QueueStudents?.Count(qs => qs.Status == "Pending") ?? 0;
+                
+                var successRate = totalStudents > 0 ? Math.Round((doneStudents * 100.0) / totalStudents, 1) : 0;
+                var statusBadge = queue.IsDone ? "bg-secondary" : (queue.IsActive ? "bg-success" : "bg-warning");
+                var statusText = queue.IsDone ? "Completed" : (queue.IsActive ? "Active" : "Pending");
+                var statusIcon = queue.IsDone ? "check-circle-fill" : (queue.IsActive ? "broadcast" : "hourglass-split");
+
+                <div class="card shadow-sm border-success border-2 rounded-3 mb-3 queue-report-card"
+                     data-queue-id="@queue.QueueID"
+                     data-name="@queue.QueueName.ToLower()"
+                     data-creator="@(queue.CreatedByAdmin.FirstName + " " + queue.CreatedByAdmin.LastName).ToLower()"
+                     data-status="@statusText"
+                     data-date="@queue.DateCreated.ToString("yyyy-MM-dd")">
+                    
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-1 text-success fw-bold">
+                                    @queue.QueueName
+                                    <span class="badge @statusBadge ms-2">
+                                        <i class="bi bi-@statusIcon me-1"></i>@statusText
+                                    </span>
+                                </h4>
+                                <p class="text-muted mb-0">@queue.Description</p>
+                                <small class="text-muted">
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    @queue.CreatedByAdmin.FirstName @queue.CreatedByAdmin.LastName |
+                                    <i class="bi bi-calendar-check ms-2 me-1"></i>
+                                    Created: @queue.DateCreated.ToString("MMM dd, yyyy hh:mm tt")
+                                    @if (queue.DateCompleted.HasValue)
+                                    {
+                                        <span class="ms-2">
+                                            | <i class="bi bi-check2-circle me-1"></i>
+                                            Completed: @queue.DateCompleted.Value.ToString("MMM dd, yyyy hh:mm tt")
+                                        </span>
+                                    }
+                                </small>
+                            </div>
+                            <button class="btn btn-success btn-sm toggle-details" 
+                                    data-queue-id="@queue.QueueID">
+                                <i class="bi bi-chevron-down"></i> Show Details
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Quick Stats -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-2 col-6">
+                                <div class="stat-box text-center p-3 bg-light rounded border border-success">
+                                    <div class="fs-3 fw-bold text-success">@totalStudents</div>
+                                    <small class="text-muted">Total Students</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="stat-box text-center p-3 rounded" style="background: #d4edda; border: 2px solid #28a745;">
+                                    <div class="fs-3 fw-bold text-success">@doneStudents</div>
+                                    <small class="text-success fw-bold">Completed</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="stat-box text-center p-3 bg-warning-subtle rounded border border-warning">
+                                    <div class="fs-3 fw-bold text-warning">@pendingStudents</div>
+                                    <small class="text-muted">Pending</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="stat-box text-center p-3 bg-info-subtle rounded border border-info">
+                                    <div class="fs-3 fw-bold text-info">@servingStudents</div>
+                                    <small class="text-muted">Serving</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="stat-box text-center p-3 bg-danger-subtle rounded border border-danger">
+                                    <div class="fs-3 fw-bold text-danger">@unservedStudents</div>
+                                    <small class="text-muted">Unserved</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="stat-box text-center p-3 rounded" style="background: #20c997; color: white;">
+                                    <div class="fs-3 fw-bold">@successRate%</div>
+                                    <small>Success Rate</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-success">Completion Progress</label>
+                            <div class="progress" style="height: 25px; border: 2px solid #28a745;">
+                                @if (totalStudents > 0)
+                                {
+                                    var donePercent = (doneStudents * 100.0) / totalStudents;
+                                    var servingPercent = (servingStudents * 100.0) / totalStudents;
+                                    var pendingPercent = (pendingStudents * 100.0) / totalStudents;
+                                    var unservedPercent = (unservedStudents * 100.0) / totalStudents;
+                                    
+                                    <div class="progress-bar bg-success" style="width: @donePercent%">
+                                        @if (donePercent > 5) { <span>@doneStudents Done</span> }
+                                    </div>
+                                    <div class="progress-bar bg-info" style="width: @servingPercent%">
+                                        @if (servingPercent > 5) { <span>@servingStudents Serving</span> }
+                                    </div>
+                                    <div class="progress-bar bg-warning" style="width: @pendingPercent%">
+                                        @if (pendingPercent > 5) { <span>@pendingStudents Pending</span> }
+                                    </div>
+                                    <div class="progress-bar bg-danger" style="width: @unservedPercent%">
+                                        @if (unservedPercent > 5) { <span>@unservedStudents Unserved</span> }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="progress-bar bg-secondary" style="width: 100%">No Students</div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Detailed Student List (Hidden by default) -->
+                        <div class="student-details mt-4" id="details-@queue.QueueID" style="display: none;">
+                            <hr class="my-3 border-success">
+                            <!-- NEW CODE with Search Bar -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0 text-success">
+                                    <i class="bi bi-people-fill me-2"></i>Student List
+                                </h5>
+                                <div class="input-group" style="max-width: 300px;">
+                                    <span class="input-group-text bg-white border-success">
+                                        <i class="bi bi-search text-success"></i>
+                                    </span>
+                                    <input type="text"
+                                           class="form-control border-success student-search-box"
+                                           placeholder="Search students..."
+                                           data-queue-id="@queue.QueueID">
+                                </div>
+                            </div>
+
+                            @if (queue.QueueStudents != null && queue.QueueStudents.Any())
+                            {
+                                <!-- Filter Tabs -->
+                                <ul class="nav nav-pills mb-3" id="pills-tab-@queue.QueueID" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" data-bs-toggle="pill" 
+                                                data-bs-target="#all-@queue.QueueID" type="button">
+                                            All (@totalStudents)
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link text-success" data-bs-toggle="pill" 
+                                                data-bs-target="#done-@queue.QueueID" type="button">
+                                            Completed (@doneStudents)
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link text-warning" data-bs-toggle="pill" 
+                                                data-bs-target="#pending-@queue.QueueID" type="button">
+                                            Pending (@pendingStudents)
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link text-info" data-bs-toggle="pill" 
+                                                data-bs-target="#serving-@queue.QueueID" type="button">
+                                            Serving (@servingStudents)
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link text-danger" data-bs-toggle="pill" 
+                                                data-bs-target="#unserved-@queue.QueueID" type="button">
+                                            Unserved (@unservedStudents)
+                                        </button>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content border border-success rounded p-3" id="pills-tabContent-@queue.QueueID">
+                                    <!-- All Students Tab -->
+                                    <div class="tab-pane fade show active" id="all-@queue.QueueID">
+                                        @{
+                                            var allStudents = queue.QueueStudents.OrderBy(qs => qs.QueueNumber).ToList();
+                                            if (allStudents.Any())
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover align-middle table-sm">
+                                                        <thead style="background: #28a745; color: white;">
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Queue #</th>
+                                                                <th>Name</th>
+                                                                <th>Email</th>
+                                                                <th>Joined</th>
+                                                                <th>Status</th>
+                                                                <th>PIN</th>
+                                                                <th>Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < allStudents.Count; i++)
+                                                            {
+                                                                var qs = allStudents[i];
+                                                                var badge = qs.Status == "Done" ? "bg-success" : 
+                                                                           qs.Status == "Serving" ? "bg-info" : 
+                                                                           qs.Status == "Pending" ? "bg-warning text-dark" : "bg-danger";
+                                                                var icon = qs.Status == "Done" ? "check-circle-fill" :
+                                                                          qs.Status == "Serving" ? "person-check-fill" :
+                                                                          qs.Status == "Pending" ? "hourglass-split" : "x-circle-fill";
+                                                                <tr>
+                                                                    <td class="fw-bold text-muted">@(i + 1)</td>
+                                                                    <td><span class="badge bg-success">#@qs.QueueNumber</span></td>
+                                                                    <td>
+                                                                        <div class="d-flex align-items-center">
+                                                                            <img src="@(string.IsNullOrEmpty(qs.Student.ProfilePhoto) ? "/Images/ProfilePic.jfif" : qs.Student.ProfilePhoto)" alt="Profile" class="rounded-circle me-2 border border-success"
+                                                                                 style="width: 30px; height: 30px; object-fit: cover;">
+                                                                            <small class="fw-bold">@qs.Student.FirstName @qs.Student.MiddleName @qs.Student.LastName</small>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td><small>@qs.Student.Email</small></td>
+                                                                    <td><small class="text-muted">@qs.JoinedAt.ToString("MMM dd, hh:mm tt")</small></td>
+                                                                    <td><span class="badge @badge"><i class="bi bi-@icon"></i> @qs.Status</span></td>
+                                                                    <td><code class="small bg-light border border-success">@qs.PinCode</code></td>
+                                                                    <td>
+                                                                        @if (qs.Status == "Unserved")
+                                                                        {
+                                                                            <a href="/Admin/UnservedList?queueId=@qs.QueueID" 
+                                                                               class="btn btn-sm btn-outline-danger"
+                                                                               title="Complete service">
+                                                                                <i class="bi bi-check-circle"></i>
+                                                                            </a>
+                                                                        }
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                    <div class="text-end mt-2">
+                                                        <small class="text-success fw-bold">Total: @allStudents.Count</small>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="alert alert-info text-center">
+                                                    <i class="bi bi-inbox me-2"></i>No students yet.
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                    
+                                    <!-- Done Students Tab -->
+                                    <div class="tab-pane fade" id="done-@queue.QueueID">
+                                        @{
+                                            var doneList = queue.QueueStudents.Where(qs => qs.Status == "Done").OrderBy(qs => qs.QueueNumber).ToList();
+                                            if (doneList.Any())
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover align-middle table-sm">
+                                                        <thead style="background: #28a745; color: white;">
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Queue #</th>
+                                                                <th>Name</th>
+                                                                <th>Email</th>
+                                                                <th>Joined</th>
+                                                                <th>Status</th>
+                                                                <th>PIN</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < doneList.Count; i++)
+                                                            {
+                                                                var qs = doneList[i];
+                                                                <tr class="table-success">
+                                                                    <td class="fw-bold">@(i + 1)</td>
+                                                                    <td><span class="badge bg-success">#@qs.QueueNumber</span></td>
+                                                                    <td><small class="fw-bold">@qs.Student.FirstName @qs.Student.MiddleName @qs.Student.LastName</small></td>
+                                                                    <td><small>@qs.Student.Email</small></td>
+                                                                    <td><small>@qs.JoinedAt.ToString("MMM dd, hh:mm tt")</small></td>
+                                                                    <td><span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Done</span></td>
+                                                                    <td><code class="small">@qs.PinCode</code></td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                    <div class="text-end mt-2">
+                                                        <small class="text-success fw-bold">Total Completed: @doneList.Count</small>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="alert alert-info text-center">
+                                                    <i class="bi bi-inbox me-2"></i>No completed students.
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                    
+                                    <!-- Pending, Serving, Unserved tabs -->
+                                    <div class="tab-pane fade" id="pending-@queue.QueueID">
+                                        @{
+                                            var pendingList = queue.QueueStudents.Where(qs => qs.Status == "Pending").OrderBy(qs => qs.QueueNumber).ToList();
+                                        }
+                                        @if (pendingList.Any())
+                                        {
+                                            <div class="alert alert-warning">
+                                                <i class="bi bi-hourglass-split me-2"></i>@pendingList.Count student(s) waiting
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-info text-center">
+                                                <i class="bi bi-inbox me-2"></i>No pending students.
+                                            </div>
+                                        }
+                                    </div>
+                                    
+                                    <div class="tab-pane fade" id="serving-@queue.QueueID">
+                                        @{
+                                            var servingList = queue.QueueStudents.Where(qs => qs.Status == "Serving").OrderBy(qs => qs.QueueNumber).ToList();
+                                        }
+                                        @if (servingList.Any())
+                                        {
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-person-check-fill me-2"></i>@servingList.Count student(s) being served
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-info text-center">
+                                                <i class="bi bi-inbox me-2"></i>No students being served.
+                                            </div>
+                                        }
+                                    </div>
+                                    
+                                    <div class="tab-pane fade" id="unserved-@queue.QueueID">
+                                        @{
+                                            var unservedList = queue.QueueStudents.Where(qs => qs.Status == "Unserved").OrderBy(qs => qs.QueueNumber).ToList();
+                                        }
+                                        @if (unservedList.Any())
+                                        {
+                                            <div class="alert alert-danger">
+                                                <i class="bi bi-x-circle-fill me-2"></i>@unservedList.Count student(s) unserved
+                                            </div>
+                                            <a href="/Admin/UnservedList?queueId=@queue.QueueID" class="btn btn-danger">
+                                                <i class="bi bi-arrow-right me-1"></i> Go to Unserved List
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-success text-center">
+                                                <i class="bi bi-check-circle-fill me-2"></i>No unserved students - Great job!
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info text-center border-success">
+                                    <i class="bi bi-info-circle me-2 text-success"></i>
+                                    No students joined this queue yet.
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2 mt-3">
+                            <button class="btn btn-sm btn-success export-queue-btn"
+                                    data-queue-id="@queue.QueueID"
+                                    data-queue-name="@queue.QueueName">
+                                <i class="bi bi-download me-1"></i> Export Report
+                            </button>
+                            @if (unservedStudents > 0)
+                            {
+                                <a asp-action="UnservedList" asp-route-queueId="@queue.QueueID"
+                                   class="btn btn-sm btn-danger">
+                                    <i class="bi bi-x-circle me-1"></i> View Unserved (@unservedStudents)
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                Showing <strong id="visibleCount" class="text-success">@Model.Count()</strong> of <strong class="text-success">@Model.Count()</strong> queue reports
+            </small>
+        </div>
+    }
+</div>
+
+<style>
+    .queue-report-card {
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .queue-report-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3) !important;
+    }
+
+    .stat-box {
+        transition: all 0.2s ease;
+    }
+
+    .stat-box:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    }
+
+    .progress {
+        box-shadow: inset 0 2px 4px rgba(0,0,0,.1);
+        background: #f8f9fa;
+    }
+
+    .progress-bar {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .nav-pills .nav-link {
+        border-radius: 20px;
+        font-weight: 500;
+        border: 2px solid transparent;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .nav-pills .nav-link:hover {
+        border-color: #28a745;
+    }
+
+    .toggle-details i {
+        transition: transform 0.3s ease;
+    }
+
+    .toggle-details.active i {
+        transform: rotate(180deg);
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .student-details {
+        animation: fadeIn 0.4s ease;
+    }
+
+    .table thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: #d4edda !important;
+        transform: scale(1.01);
+    }
+
+    code {
+        padding: 3px 8px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .spinner { 
+        animation: spin 1s linear infinite;
+        display: inline-block;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        console.log('📊 Reports page initialized - Parakeet Green Theme');
+
+        function showToast(message, type = 'success') {
+            const icon = type === 'success' ? 'check-circle-fill' :
+                        type === 'danger' ? 'x-circle-fill' :
+                        type === 'warning' ? 'exclamation-triangle-fill' : 'info-circle-fill';
+            
+            const bgColor = type === 'success' ? '#28a745' : 
+                           type === 'danger' ? '#dc3545' :
+                           type === 'warning' ? '#ffc107' : '#17a2b8';
+
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg';
+            toast.style.cssText = `z-index: 9999; min-width: 350px; background: ${bgColor}; color: white; padding: 15px 20px; border-radius: 10px;`;
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-${icon} me-2 fs-4"></i>
+                    <div>${message}</div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.transition = 'all 0.3s ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Toggle Details - FIXED
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM loaded, attaching event handlers...');
+            
+            // Toggle Details Buttons
+            document.querySelectorAll('.toggle-details').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const queueId = this.getAttribute('data-queue-id');
+                    const details = document.getElementById(`details-${queueId}`);
+                    
+                    console.log('Toggle clicked for queue:', queueId);
+                    
+                    if (details.style.display === 'none' || details.style.display === '') {
+                        details.style.display = 'block';
+                        this.innerHTML = '<i class="bi bi-chevron-up"></i> Hide Details';
+                        this.classList.add('active');
+                    } else {
+                        details.style.display = 'none';
+                        this.innerHTML = '<i class="bi bi-chevron-down"></i> Show Details';
+                        this.classList.remove('active');
+                    }
+                });
+            });
+
+            // Export Queue Buttons - FIXED
+            document.querySelectorAll('.export-queue-btn').forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const queueId = this.getAttribute('data-queue-id');
+                    const queueName = this.getAttribute('data-queue-name');
+                    
+                    console.log('Export clicked for queue:', queueId, queueName);
+                    
+                    try {
+                        this.disabled = true;
+                        const originalHtml = this.innerHTML;
+                        this.innerHTML = '<i class="bi bi-hourglass-split spinner me-1"></i> Exporting...';
+                        
+                        showToast(`Downloading report for "${queueName}"...`, 'info');
+                        
+                        // Download CSV report
+                        window.location.href = `/Admin/DownloadQueueReportCsv?queueId=${queueId}`;
+                        
+                        setTimeout(() => {
+                            this.disabled = false;
+                            this.innerHTML = originalHtml;
+                            showToast('Report downloaded successfully!', 'success');
+                        }, 2000);
+                    } catch (error) {
+                        console.error('Export error:', error);
+                        showToast('Error exporting report', 'danger');
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-download me-1"></i> Export Report';
+                    }
+                });
+            });
+
+            // Export All Button - FIXED
+            const exportAllBtn = document.getElementById('exportAllBtn');
+            if (exportAllBtn) {
+                exportAllBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    if (!confirm('Export all visible queue reports? This may take a moment for large datasets.')) {
+                        return;
+                    }
+                    
+                    showToast('Exporting all reports...', 'info');
+                    
+                    // Get all visible queue IDs
+                    const visibleCards = Array.from(document.querySelectorAll('.queue-report-card'))
+                        .filter(card => card.style.display !== 'none');
+                    
+                    if (visibleCards.length === 0) {
+                        showToast('No queues to export', 'warning');
+                        return;
+                    }
+                    
+                    // Export each queue sequentially with delay
+                    for (let i = 0; i < visibleCards.length; i++) {
+                        const queueId = visibleCards[i].getAttribute('data-queue-id');
+                        window.location.href = `/Admin/DownloadQueueReportCsv?queueId=${queueId}`;
+                        
+                        // Wait between downloads to avoid browser blocking
+                        if (i < visibleCards.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        }
+                    }
+                    
+                    setTimeout(() => {
+                        showToast(`✅ ${visibleCards.length} report(s) exported successfully!`, 'success');
+                    }, 1000);
+                });
+            }
+
+            // Refresh Button - FIXED
+            const refreshBtn = document.getElementById('refreshBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showToast('Refreshing reports...', 'info');
+                    location.reload();
+                });
+            }
+
+            console.log('✅ All event handlers attached successfully!');
+        });
+
+        // Search and Filter Functions
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const cards = document.querySelectorAll('.queue-report-card');
+            let visibleCount = 0;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                const creator = card.getAttribute('data-creator');
+                const status = card.getAttribute('data-status');
+                const dateStr = card.getAttribute('data-date');
+                const cardDate = new Date(dateStr);
+
+                const matchesSearch = name.includes(searchTerm) || creator.includes(searchTerm);
+                const matchesStatus = !statusFilter || status === statusFilter;
+                
+                let matchesDate = true;
+                if (dateFilter === 'today') {
+                    matchesDate = cardDate.toDateString() === today.toDateString();
+                } else if (dateFilter === 'week') {
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    matchesDate = cardDate >= weekAgo;
+                } else if (dateFilter === 'month') {
+                    const monthAgo = new Date(today);
+                    monthAgo.setMonth(monthAgo.getMonth() - 1);
+                    matchesDate = cardDate >= monthAgo;
+                } else if (dateFilter === 'year') {
+                    const yearAgo = new Date(today);
+                    yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+                    matchesDate = cardDate >= yearAgo;
+                }
+
+                if (matchesSearch && matchesStatus && matchesDate) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            document.getElementById('visibleCount').textContent = visibleCount;
+        }
+
+        // Attach filter listeners
+        document.getElementById('searchBox').addEventListener('input', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('dateFilter').addEventListener('change', applyFilters);
+        applyFilters();
+
+        console.log('✅ All filters and event listeners initialized successfully!');
+
+                document.querySelectorAll('.student-search-box').forEach(searchBox => {
+            searchBox.addEventListener('input', function() {
+                const queueId = this.getAttribute('data-queue-id');
+                const searchTerm = this.value.toLowerCase().trim();
+
+                // Find the parent tab content for this queue
+                const tabContent = document.getElementById(`pills-tabContent-${queueId}`);
+                if (!tabContent) return;
+
+                // Get all active tab tables
+                const activeTab = tabContent.querySelector('.tab-pane.active');
+                if (!activeTab) return;
+
+                const table = activeTab.querySelector('table tbody');
+                if (!table) return;
+
+                const rows = table.querySelectorAll('tr');
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const name = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+                    const email = row.querySelector('td:nth-child(4)')?.textContent.toLowerCase() || '';
+                    const queueNum = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+
+                    const matches = name.includes(searchTerm) ||
+                                  email.includes(searchTerm) ||
+                                  queueNum.includes(searchTerm);
+
+                    if (matches) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Optional: Show "no results" message
+                const noResultsMsg = activeTab.querySelector('.no-search-results');
+                if (visibleCount === 0 && searchTerm !== '') {
+                    if (!noResultsMsg) {
+                        const msg = document.createElement('div');
+                        msg.className = 'alert alert-info text-center no-search-results mt-3';
+                        msg.innerHTML = '<i class="bi bi-search me-2"></i>No students found matching your search.';
+                        activeTab.appendChild(msg);
+                    }
+                } else if (noResultsMsg) {
+                    noResultsMsg.remove();
+                }
+            });
+        });
+    </script>
+}

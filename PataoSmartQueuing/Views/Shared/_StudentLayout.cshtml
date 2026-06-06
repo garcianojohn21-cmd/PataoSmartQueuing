@@ -1,0 +1,864 @@
+﻿@using PataoSmartQueuing.Models
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    Layout = null;
+    var studentName = HttpContextAccessor.HttpContext.Session.GetString("StudentName") ?? "Student";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Patao Smart Queuing</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            /* ── NAVY ── */
+            --navy: #0B2B1A;
+            --navy-deep: #061710;
+            --navy-mid: #123D24;
+            --navy-light: #1A5233;
+            /* ── GREEN ── */
+            --green: #22C55E;
+            --green-dark: #16A34A;
+            --green-mid: #4ADE80;
+            --green-light: #86EFAC;
+            --green-pale: #DCFCE7;
+            --green-hover: rgba(34, 197, 94, 0.10);
+            /* ── NEUTRALS ── */
+            --white: #FFFFFF;
+            --off-white: #F0FAF4;
+            --gray-50: #F9FAFB;
+            --gray-100: #F1F5F9;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-400: #94A3B8;
+            --gray-600: #475569;
+            --gray-800: #1E293B;
+            /* ── MISC ── */
+            --border-dim: rgba(255, 255, 255, 0.12);
+            --border-green: rgba(34, 197, 94, 0.30);
+            --shadow-sm: 0 1px 2px rgba(6, 23, 16, 0.06);
+            --shadow: 0 4px 6px rgba(6, 23, 16, 0.10);
+            --shadow-lg: 0 10px 25px rgba(6, 23, 16, 0.18);
+            /* ── GRADIENTS ── */
+            --nav-gradient: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-mid) 100%);
+            --green-gradient: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(160deg, var(--off-white) 0%, var(--white) 50%, var(--green-pale) 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ========== NAVBAR ========== */
+        .navbar-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 62px;
+            background: var(--nav-gradient);
+            border-bottom: 2px solid rgba(34,197,94,0.35);
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            transition: box-shadow 0.3s ease;
+        }
+
+            .navbar-top::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, var(--green-dark), var(--green-light), var(--green-dark), transparent);
+            }
+
+            .navbar-top.scrolled {
+                box-shadow: 0 10px 40px rgba(6,23,16,0.35);
+            }
+
+        /* Hamburger toggle */
+        .toggle-btn {
+            background: rgba(34,197,94,0.15);
+            border: 1px solid var(--border-green);
+            font-size: 1.3rem;
+            color: var(--white);
+            cursor: pointer;
+            padding: 0.4rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+
+            .toggle-btn:hover {
+                background: rgba(34,197,94,0.28);
+                transform: scale(1.08);
+            }
+
+            .toggle-btn:active {
+                transform: scale(0.95);
+            }
+
+        /* Brand */
+        .brand {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--white);
+            text-decoration: none;
+            margin-left: 0.9rem;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            letter-spacing: 0.5px;
+        }
+
+            .brand:hover {
+                color: var(--white);
+                transform: scale(1.04);
+            }
+
+        /* Desktop nav icons */
+        .nav-icons {
+            display: flex;
+            gap: 0.35rem;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .nav-icon {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.45rem 0.9rem;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.25s ease;
+            position: relative;
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+            .nav-icon i {
+                font-size: 1.1rem;
+            }
+
+            .nav-icon:hover {
+                background: rgba(34,197,94,0.15);
+                color: var(--white);
+                transform: translateY(-2px);
+            }
+
+            .nav-icon.active {
+                background: rgba(34,197,94,0.20);
+                color: var(--white);
+            }
+
+                .nav-icon.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: var(--green-light);
+                    border-radius: 3px 3px 0 0;
+                }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar-panel {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: var(--white);
+            border-right: 3px solid var(--green);
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            padding: 1.5rem 0;
+            transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+            overflow-y: auto;
+        }
+
+            .sidebar-panel.active {
+                left: 0;
+            }
+
+        /* Sidebar brand row */
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0 1.5rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .sidebar-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--green);
+            box-shadow: var(--shadow);
+            transition: all 0.4s ease;
+        }
+
+        .sidebar-brand:hover .sidebar-logo {
+            transform: rotate(360deg) scale(1.1);
+        }
+
+        .brand-text {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--navy);
+            margin: 0;
+        }
+
+        /* Section label */
+        .sidebar-section-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0.5rem 1.5rem 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Menu items */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            padding: 0.85rem 1.5rem;
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.90rem;
+            transition: all 0.25s ease;
+            position: relative;
+            margin: 0.2rem 0.65rem;
+            border-radius: 10px;
+        }
+
+            .menu-item i {
+                font-size: 1.1rem;
+                width: 22px;
+                text-align: center;
+                flex-shrink: 0;
+            }
+
+            .menu-item:hover {
+                background: var(--green-hover);
+                color: var(--navy);
+                transform: translateX(4px);
+            }
+
+            .menu-item.active {
+                background: var(--nav-gradient);
+                color: var(--white);
+                font-weight: 700;
+                box-shadow: var(--shadow);
+            }
+
+                .menu-item.active::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 0;
+                    width: 4px;
+                    background: var(--green);
+                    border-radius: 0 4px 4px 0;
+                }
+
+                .menu-item.active i {
+                    color: var(--green-light);
+                }
+
+        /* Sidebar divider */
+        .sidebar-divider {
+            height: 1px;
+            background: var(--gray-200);
+            margin: 0.6rem 1rem;
+        }
+
+        /* Danger / logout item */
+        .menu-item.danger {
+            color: #DC2626;
+        }
+
+            .menu-item.danger:hover {
+                background: rgba(220,38,38,0.08);
+                color: #B91C1C;
+                transform: translateX(4px);
+            }
+
+        /* Sidebar scrollbar */
+        .sidebar-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-panel::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+
+        .sidebar-panel::-webkit-scrollbar-thumb {
+            background: var(--green-light);
+            border-radius: 6px;
+        }
+
+            .sidebar-panel::-webkit-scrollbar-thumb:hover {
+                background: var(--green);
+            }
+
+        /* ========== OVERLAY ========== */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6,23,16,0.60);
+            z-index: 1500;
+            opacity: 0;
+            visibility: hidden;
+            backdrop-filter: blur(3px);
+            transition: all 0.3s ease;
+        }
+
+            .overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        /* ========== PAGE CONTENT ========== */
+        .page-content {
+            margin-top: 62px;
+            padding: 2rem 1rem;
+            min-height: calc(100vh - 120px);
+            opacity: 0;
+            transform: translateY(18px);
+            transition: all 0.5s ease;
+        }
+
+            .page-content.show {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        /* ========== FOOTER ========== */
+        .footer-bottom {
+            background: var(--nav-gradient);
+            padding: 1.5rem;
+            text-align: center;
+            color: rgba(255,255,255,0.75);
+            border-top: 2px solid rgba(34,197,94,0.30);
+            margin-top: auto;
+        }
+
+            .footer-bottom::before {
+                content: '';
+                display: block;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, var(--green-dark), var(--green-light), var(--green-dark), transparent);
+                margin-bottom: 1.25rem;
+            }
+
+            .footer-bottom small {
+                font-weight: 500;
+            }
+
+        /* ========== CARDS ========== */
+        .card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            background: var(--white);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--shadow-lg);
+            }
+
+        .card-header {
+            background: var(--nav-gradient);
+            color: var(--white);
+            border: none;
+            border-bottom: 2px solid rgba(34,197,94,0.35);
+            padding: 1.15rem;
+            font-weight: 700;
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn-success {
+            background: var(--green-gradient);
+            border: none;
+            font-weight: 600;
+            border-radius: 10px;
+            color: var(--white);
+            transition: all 0.3s ease;
+        }
+
+            .btn-success:hover {
+                background: var(--green-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(34,197,94,0.35);
+                color: var(--white);
+            }
+
+        .btn-outline-success {
+            color: var(--green-dark);
+            border: 2px solid var(--green);
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .btn-outline-success:hover {
+                background: var(--green);
+                border-color: var(--green);
+                color: var(--white);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(34,197,94,0.35);
+            }
+
+        .btn-primary {
+            background: var(--navy-light);
+            border: none;
+            font-weight: 600;
+            border-radius: 10px;
+            color: var(--white);
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background: var(--navy-mid);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow);
+                color: var(--white);
+            }
+
+        .btn-danger {
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(220,38,38,0.35);
+            }
+
+        /* ========== ALERTS ========== */
+        .alert {
+            border-radius: 12px;
+            border: none;
+            box-shadow: var(--shadow);
+            animation: slideDown 0.4s ease;
+        }
+        @@keyframes slideDown {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* ========== BADGES ========== */
+        .badge {
+            border-radius: 20px;
+            padding: 0.38rem 0.75rem;
+            font-weight: 600;
+        }
+
+        /* ========== NOTIFICATION TOAST ========== */
+        .notification-toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            max-width: 340px;
+            background: var(--white);
+            border-left: 4px solid var(--green);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: 1rem;
+            z-index: 9999;
+            animation: slideInRight 0.4s ease;
+        }
+        @@keyframes slideInRight {
+            from
+
+        {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        }
+        @@keyframes slideOutRight {
+            from
+
+        {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+
+        }
+
+        /* ========== LOADING SPINNER ========== */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(34,197,94,0.25);
+            border-radius: 50%;
+            border-top-color: var(--green);
+            animation: spin 1s linear infinite;
+        }
+        @@keyframes spin {
+            to
+
+        {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        /* ========== UTILITIES ========== */
+        .text-green {
+            color: var(--green) !important;
+        }
+
+        .text-green-light {
+            color: var(--green-light) !important;
+        }
+
+        .text-navy {
+            color: var(--navy) !important;
+        }
+
+        .bg-navy {
+            background: var(--navy) !important;
+        }
+
+        .bg-navy-gradient {
+            background: var(--nav-gradient) !important;
+        }
+
+        .bg-green {
+            background: var(--green) !important;
+        }
+
+        .border-green {
+            border-color: var(--green) !important;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @@media (max-width: 768px) {
+            .nav-icons
+
+        {
+            display: none;
+        }
+
+        .brand {
+            font-size: 1.2rem;
+        }
+
+        .page-content {
+            padding: 1rem 0.5rem;
+        }
+
+        }
+
+        @@media (min-width: 769px) {
+            .toggle-btn
+
+        {
+            display: none;
+        }
+
+        .sidebar-panel {
+            left: 0;
+            width: 255px;
+            box-shadow: var(--shadow);
+        }
+
+        .page-content {
+            margin-left: 255px;
+        }
+
+        .footer-bottom {
+            margin-left: 255px;
+        }
+
+        }
+
+        @@media (max-width: 576px) {
+            .sidebar-panel
+
+        {
+            width: 85%;
+            max-width: 280px;
+        }
+
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar-top" id="navbar">
+        <button class="toggle-btn" id="menuToggle" aria-label="Toggle sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <a href="@Url.Action("Dashboard", "Student")" class="brand">
+            <i class="bi bi-collection-fill me-2"></i>
+            SmartQueuing
+        </a>
+
+        <!-- Desktop nav icons -->
+        <div class="nav-icons ms-auto d-none d-md-flex">
+            <a href="@Url.Action("JoinQueue", "Student")"
+               class="nav-icon @(currentAction == "JoinQueue" ? "active" : "")"
+               title="Join Queue">
+                <i class="fas fa-list-ol"></i>
+            </a>
+            <a href="@Url.Action("Dashboard", "Student")"
+               class="nav-icon @(currentAction == "Dashboard" ? "active" : "")"
+               title="Dashboard">
+                <i class="fas fa-home"></i>
+            </a>
+            <a href="@Url.Action("History", "Student")"
+               class="nav-icon @(currentAction == "History" ? "active" : "")"
+               title="History">
+                <i class="fas fa-clock"></i>
+            </a>
+            <a href="@Url.Action("Profile", "Student")"
+               class="nav-icon @(currentAction == "Profile" ? "active" : "")"
+               title="Profile">
+                <i class="fas fa-user me-1"></i>
+                <span>@studentName</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ========== SIDEBAR ========== -->
+    <div class="sidebar-panel" id="sidebar">
+
+        <div class="sidebar-brand">
+            <img src="~/Images/pataologo.jpg" alt="Logo" class="sidebar-logo"
+                 onerror="this.onerror=null; this.src='https://via.placeholder.com/48/22C55E/FFFFFF?text=SQ';" />
+            <h4 class="brand-text">SmartQueuing</h4>
+        </div>
+
+        <div class="sidebar-section-label">Main Menu</div>
+
+        <a href="@Url.Action("Dashboard", "Student")"
+           class="menu-item @(currentAction == "Dashboard" ? "active" : "")">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="@Url.Action("JoinQueue", "Student")"
+           class="menu-item @(currentAction == "JoinQueue" ? "active" : "")">
+            <i class="fas fa-list-ol"></i> Join Queue
+        </a>
+        <a href="@Url.Action("History", "Student")"
+           class="menu-item @(currentAction == "History" ? "active" : "")">
+            <i class="fas fa-clock-rotate-left"></i> History
+        </a>
+
+        <div class="sidebar-section-label">Account</div>
+
+        <a href="@Url.Action("Profile", "Student")"
+           class="menu-item @(currentAction == "Profile" ? "active" : "")">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="@Url.Action("Settings", "Student")"
+           class="menu-item @(currentAction == "Settings" ? "active" : "")">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+
+        <div class="sidebar-divider"></div>
+
+        <a href="@Url.Action("Logout", "Student")"
+           class="menu-item danger"
+           onclick="return confirm('Are you sure you want to logout?');">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <!-- ========== OVERLAY ========== -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ========== PAGE CONTENT ========== -->
+    <div class="page-content" id="pageContent">
+        @RenderBody()
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer-bottom">
+        <small>
+            <i class="fas fa-copyright me-1"></i>
+            @DateTime.Now.Year Patao Smart Queuing &mdash; Streamlining Your Queue Experience
+        </small>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+
+    <script>
+        // ── SIDEBAR ─────────────────────────────────────────
+        const sidebar    = document.getElementById('sidebar');
+        const overlay    = document.getElementById('overlay');
+        const menuToggle = document.getElementById('menuToggle');
+        const pageContent = document.getElementById('pageContent');
+
+        function openSidebar() {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (menuToggle) menuToggle.addEventListener('click', openSidebar);
+        if (overlay)    overlay.addEventListener('click', closeSidebar);
+
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth < 769) closeSidebar();
+            });
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && sidebar.classList.contains('active')) closeSidebar();
+        });
+
+        // ── NAVBAR SCROLL ────────────────────────────────────
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () =>
+            navbar.classList.toggle('scrolled', window.scrollY > 10));
+
+        // ── PAGE FADE-IN ─────────────────────────────────────
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => pageContent.classList.add('show'), 100);
+        });
+
+        // ── SIGNALR ──────────────────────────────────────────
+        const studentId = '@(Context.Session.GetInt32("StudentID") ?? 0)';
+
+        if (studentId && studentId !== '0') {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl('/notificationHub?studentId=' + studentId)
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on('ReceiveNotification', (title, message) => {
+                if (Notification.permission === 'granted') {
+                    new Notification(title, { body: message, icon: '/Images/pataologo.jpg' });
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission().then(p => {
+                        if (p === 'granted')
+                            new Notification(title, { body: message, icon: '/Images/pataologo.jpg' });
+                    });
+                }
+                showToastNotification(title, message);
+            });
+
+            connection.start()
+                .then(() => console.log('SignalR connected — student ' + studentId))
+                .catch(err => { console.error(err); setTimeout(() => connection.start(), 5000); });
+
+            if (Notification.permission === 'default') Notification.requestPermission();
+        }
+
+        // ── TOAST ────────────────────────────────────────────
+        function showToastNotification(title, message) {
+            const toast = document.createElement('div');
+            toast.className = 'notification-toast';
+            toast.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <i class="fas fa-bell me-3 mt-1"
+                       style="font-size:1.4rem; color:var(--green); flex-shrink:0;"></i>
+                    <div class="flex-grow-1">
+                        <strong class="d-block mb-1" style="color:var(--navy);">${title}</strong>
+                        <p class="mb-0 small" style="color:var(--gray-600);">${message}</p>
+                    </div>
+                    <button class="btn-close btn-sm ms-2"
+                            onclick="this.closest('.notification-toast').remove()"></button>
+                </div>`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.4s ease';
+                setTimeout(() => toast.remove(), 400);
+            }, 5000);
+        }
+
+        // ── AUTO-DISMISS ALERTS ──────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.alert').forEach(a => {
+                setTimeout(() => new bootstrap.Alert(a).close(), 5000);
+            });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

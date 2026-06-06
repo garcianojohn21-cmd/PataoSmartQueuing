@@ -1,0 +1,708 @@
+﻿@model PataoSmartQueuing.ViewModels.AdminRegisterViewModel
+@{
+    ViewData["Title"] = "Admin Registration";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --navy: #0F172A;
+        --navy2: #1E293B;
+        --g: #22C55E;
+        --gd: #16A34A;
+        --gl: #4ADE80;
+        --gp: #F0FDF4;
+        --border: rgba(34,197,94,.22);
+        --slate: #64748B;
+        --grad: linear-gradient(135deg,#22C55E 0%,#16A34A 100%);
+        --sh: 0 4px 24px rgba(34,197,94,.18);
+        --sh-sm: 0 2px 10px rgba(34,197,94,.10);
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: #F1F5F9;
+        color: var(--navy2);
+    }
+
+    /* ── PAGE WRAP ── */
+    .reg-wrap {
+        min-height: 100vh;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 40px 16px 60px;
+    }
+
+    /* ── CARD ── */
+    .reg-card {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 20px;
+        box-shadow: var(--sh);
+        width: 100%;
+        max-width: 720px;
+        overflow: hidden;
+    }
+
+    /* ── CARD HEADER ── */
+    .reg-header {
+        background: var(--grad);
+        padding: 28px 36px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .reg-header::before {
+            content: '';
+            position: absolute;
+            right: -30px;
+            top: -30px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+
+        .reg-header::after {
+            content: '';
+            position: absolute;
+            right: 80px;
+            bottom: -50px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.06);
+            pointer-events: none;
+        }
+
+    .reg-header-inner {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .reg-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: rgba(255,255,255,.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    .reg-title {
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin: 0 0 3px;
+        letter-spacing: -.3px;
+    }
+
+    .reg-sub {
+        color: rgba(255,255,255,.82);
+        font-size: 13px;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    /* ── FORM BODY ── */
+    .reg-body {
+        padding: 32px 36px 36px;
+    }
+
+    /* ── VALIDATION SUMMARY ── */
+    .val-summary {
+        background: #FEF2F2;
+        border: 1.5px solid #FCA5A5;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: #DC2626;
+    }
+
+    /* ── SECTION DIVIDER ── */
+    .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        color: var(--g);
+        margin: 20px 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+    /* ── FORM FIELDS ── */
+    .field-wrap {
+        position: relative;
+        margin-bottom: 16px;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .4px;
+        text-transform: uppercase;
+        color: var(--navy2);
+        margin-bottom: 7px;
+    }
+
+    .field-input {
+        width: 100%;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 11px 40px 11px 14px;
+        font-size: 13.5px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: var(--navy2);
+        background: #fff;
+        outline: none;
+        transition: all .2s;
+        box-shadow: var(--sh-sm);
+    }
+
+        .field-input:focus {
+            border-color: var(--g);
+            box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+        }
+
+        .field-input.is-valid {
+            border-color: var(--g);
+            background: var(--gp);
+        }
+
+        .field-input.is-invalid {
+            border-color: #EF4444;
+            background: #FEF2F2;
+        }
+
+    .field-hint {
+        font-size: 11.5px;
+        color: var(--slate);
+        margin-top: 5px;
+        font-weight: 500;
+    }
+
+    /* checkmark icon inside field */
+    .field-check {
+        position: absolute;
+        right: 14px;
+        bottom: 11px;
+        font-size: 15px;
+        color: var(--g);
+        display: none;
+        pointer-events: none;
+    }
+
+    /* input-group (input + button side by side) */
+    .input-group {
+        display: flex;
+        gap: 0;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--sh-sm);
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+        .input-group:focus-within {
+            border-color: var(--g);
+            box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+        }
+
+        .input-group .field-input {
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            flex: 1;
+            padding-right: 14px;
+        }
+
+            .input-group .field-input:focus {
+                box-shadow: none;
+            }
+
+    .input-group-btn {
+        flex-shrink: 0;
+        border: none;
+        border-left: 1.5px solid var(--border);
+        background: var(--gp);
+        color: var(--gd);
+        font-weight: 700;
+        font-size: 12.5px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        padding: 0 18px;
+        cursor: pointer;
+        transition: all .2s;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .input-group-btn:hover {
+            background: var(--g);
+            color: #fff;
+        }
+
+        .input-group-btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+    /* verify status */
+    .verify-status {
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 5px;
+        min-height: 18px;
+    }
+
+    /* ── FIELD ROW ── */
+    .field-row {
+        display: grid;
+        gap: 14px;
+    }
+
+    .field-row-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .field-row-3 {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    /* ── SELECT ── */
+    .field-select {
+        width: 100%;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 11px 36px 11px 14px;
+        font-size: 13.5px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: var(--navy2);
+        background: #fff;
+        outline: none;
+        box-shadow: var(--sh-sm);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 12px;
+        cursor: pointer;
+        transition: all .2s;
+    }
+
+        .field-select:focus {
+            border-color: var(--g);
+            box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+        }
+
+    /* ── SUBMIT ── */
+    .btn-register {
+        width: 100%;
+        padding: 14px;
+        background: var(--grad);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 15px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        cursor: pointer;
+        transition: all .25s;
+        box-shadow: var(--sh-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        margin-top: 24px;
+        letter-spacing: .2px;
+    }
+
+        .btn-register:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: var(--sh);
+        }
+
+        .btn-register:disabled {
+            background: #E2E8F0;
+            color: #94A3B8;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+    /* progress bar at bottom of card */
+    .reg-progress {
+        height: 4px;
+        background: #E2E8F0;
+        border-radius: 0 0 20px 20px;
+        overflow: hidden;
+    }
+
+    .reg-progress-bar {
+        height: 100%;
+        background: var(--grad);
+        border-radius: 0 0 20px 20px;
+        transition: width .4s ease;
+        width: 0%;
+    }
+
+    /* ── BOUNCE ANIM ── */
+    @@keyframes bounce {
+        0% {
+            transform: scale(.5);
+            opacity: 0;
+        }
+
+        50% {
+            transform: scale(1.25);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .checkmark-bounce {
+        animation: bounce .3s ease forwards;
+    }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 640px) {
+        .reg-body {
+            padding: 24px 20px 28px;
+        }
+
+        .reg-header {
+            padding: 22px 20px 18px;
+        }
+
+        .field-row-2, .field-row-3 {
+            grid-template-columns: 1fr;
+        }
+
+        .reg-title {
+            font-size: 1.25rem;
+        }
+    }
+</style>
+
+<div class="reg-wrap">
+    <div class="reg-card">
+
+        <!-- ── HEADER ── -->
+        <div class="reg-header">
+            <div class="reg-header-inner">
+                <div class="reg-icon">
+                    <i class="bi bi-shield-fill-check"></i>
+                </div>
+                <div>
+                    <h1 class="reg-title">Admin Registration</h1>
+                    <p class="reg-sub">Create a new admin account with verification</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── BODY ── -->
+        <div class="reg-body">
+            <form asp-action="Register" method="post" id="adminRegisterForm" novalidate>
+
+                <div asp-validation-summary="All" class="val-summary"></div>
+
+                <!-- EMAIL -->
+                <div class="section-label"><i class="bi bi-envelope-fill"></i> Email Verification</div>
+
+                <div class="field-wrap">
+                    <label class="field-label">Email Address</label>
+                    <div class="input-group" id="emailGroup">
+                        <input asp-for="Email" class="field-input" id="emailInput" placeholder="admin@school.edu" autocomplete="off" />
+                        <button type="button" class="input-group-btn" id="getCodeBtn">
+                            <i class="bi bi-send-fill"></i> Get Code
+                        </button>
+                    </div>
+                    <span asp-validation-for="Email" class="field-hint" style="color:#DC2626"></span>
+                </div>
+
+                <div class="field-wrap">
+                    <label class="field-label">Verification Code</label>
+                    <div class="input-group" id="codeGroup">
+                        <input type="text" class="field-input" id="VerificationCode"
+                               name="VerificationCode" maxlength="6"
+                               placeholder="6-digit code"
+                               style="letter-spacing:.25em;font-family:'Courier New',monospace" />
+                        <button type="button" class="input-group-btn" id="verifyCodeBtn">
+                            <i class="bi bi-patch-check-fill"></i> Verify
+                        </button>
+                    </div>
+                    <div class="verify-status" id="verifyStatus"></div>
+                </div>
+
+                <!-- PASSWORDS -->
+                <div class="section-label"><i class="bi bi-lock-fill"></i> Password</div>
+
+                <div class="field-row field-row-2">
+                    <div class="field-wrap">
+                        <label class="field-label">Password</label>
+                        <input asp-for="Password" type="password" class="field-input" id="passwordInput" placeholder="Min 8 chars" />
+                        <i class="bi bi-check-circle-fill field-check" id="passwordCheck"></i>
+                        <div class="field-hint">Min 8 chars · 1 uppercase · 1 number</div>
+                        <span asp-validation-for="Password" class="field-hint" style="color:#DC2626"></span>
+                    </div>
+                    <div class="field-wrap">
+                        <label class="field-label">Confirm Password</label>
+                        <input asp-for="ConfirmPassword" type="password" class="field-input" id="confirmPasswordInput" placeholder="Repeat password" />
+                        <i class="bi bi-check-circle-fill field-check" id="confirmPasswordCheck"></i>
+                        <span asp-validation-for="ConfirmPassword" class="field-hint" style="color:#DC2626"></span>
+                    </div>
+                </div>
+
+                <!-- NAMES -->
+                <div class="section-label"><i class="bi bi-person-fill"></i> Personal Info</div>
+
+                <div class="field-row field-row-3">
+                    <div class="field-wrap">
+                        <label class="field-label">First Name</label>
+                        <input asp-for="FirstName" class="field-input" id="firstNameInput" placeholder="Juan" />
+                        <i class="bi bi-check-circle-fill field-check" id="firstNameCheck"></i>
+                        <span asp-validation-for="FirstName" class="field-hint" style="color:#DC2626"></span>
+                    </div>
+                    <div class="field-wrap">
+                        <label class="field-label">Middle Name</label>
+                        <input asp-for="MiddleName" class="field-input" id="middleNameInput" placeholder="Santos" />
+                        <i class="bi bi-check-circle-fill field-check" id="middleNameCheck"></i>
+                    </div>
+                    <div class="field-wrap">
+                        <label class="field-label">Last Name</label>
+                        <input asp-for="LastName" class="field-input" id="lastNameInput" placeholder="dela Cruz" />
+                        <i class="bi bi-check-circle-fill field-check" id="lastNameCheck"></i>
+                        <span asp-validation-for="LastName" class="field-hint" style="color:#DC2626"></span>
+                    </div>
+                </div>
+
+                <!-- ROLE -->
+                <div class="section-label"><i class="bi bi-briefcase-fill"></i> Role</div>
+
+                <div class="field-wrap">
+                    <label class="field-label">Assign Role</label>
+                    <select asp-for="Role" class="field-select">
+                        <option value="">— Select a Role —</option>
+                        <option value="SuperAdmin">Super Admin</option>
+                        <option value="Registrar">Registrar</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                    <span asp-validation-for="Role" class="field-hint" style="color:#DC2626"></span>
+                </div>
+
+                <!-- SUBMIT -->
+                <button type="submit" class="btn-register" id="registerBtn" disabled>
+                    <i class="bi bi-shield-fill-plus"></i> Create Admin Account
+                </button>
+
+            </form>
+        </div>
+
+        <!-- progress bar -->
+        <div class="reg-progress">
+            <div class="reg-progress-bar" id="progressBar"></div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            'use strict';
+
+            let countdown;
+            let emailVerified = false;
+
+            const registerBtn          = document.getElementById('registerBtn');
+            const progressBar          = document.getElementById('progressBar');
+            const emailInput           = document.getElementById('emailInput');
+            const emailGroup           = document.getElementById('emailGroup');
+            const getCodeBtn           = document.getElementById('getCodeBtn');
+            const verifyCodeInput      = document.getElementById('VerificationCode');
+            const verifyCodeBtn        = document.getElementById('verifyCodeBtn');
+            const verifyStatus         = document.getElementById('verifyStatus');
+            const firstNameInput       = document.getElementById('firstNameInput');
+            const middleNameInput      = document.getElementById('middleNameInput');
+            const lastNameInput        = document.getElementById('lastNameInput');
+            const passwordInput        = document.getElementById('passwordInput');
+            const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+
+            const firstNameCheck       = document.getElementById('firstNameCheck');
+            const middleNameCheck      = document.getElementById('middleNameCheck');
+            const lastNameCheck        = document.getElementById('lastNameCheck');
+            const passwordCheck        = document.getElementById('passwordCheck');
+            const confirmPasswordCheck = document.getElementById('confirmPasswordCheck');
+
+            /* ── CHECKMARK ── */
+            function showCheck(el, show) {
+                if (show) {
+                    el.style.display = 'inline';
+                    el.classList.remove('checkmark-bounce');
+                    void el.offsetWidth;
+                    el.classList.add('checkmark-bounce');
+                } else {
+                    el.style.display = 'none';
+                }
+            }
+
+            /* ── PROGRESS ── */
+            function updateProgress() {
+                const steps = [
+                    emailVerified,
+                    firstNameInput.value.trim().length > 0,
+                    middleNameInput.value.trim().length > 0,
+                    lastNameInput.value.trim().length > 0,
+                    /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(passwordInput.value),
+                    confirmPasswordInput.value === passwordInput.value && passwordInput.value.length > 0,
+                ];
+                const pct = Math.round((steps.filter(Boolean).length / steps.length) * 100);
+                progressBar.style.width = pct + '%';
+                return steps.every(Boolean);
+            }
+
+            /* ── CHECK FORM READY ── */
+            function checkFormReady() {
+                const ready = updateProgress();
+                registerBtn.disabled = !ready;
+            }
+
+            /* ── EMAIL: GET CODE ── */
+            getCodeBtn.addEventListener('click', async () => {
+                const email = emailInput.value.trim();
+                if (!email) { alert('Please enter an email address.'); return; }
+                try {
+                    const fd = new FormData();
+                    fd.append('email', email);
+                    const res  = await fetch('/Admin/GetVerificationCode', { method: 'POST', body: fd });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        verifyStatus.textContent = '📨 Code sent to ' + email;
+                        verifyStatus.style.color = 'var(--gd)';
+                        startCountdown();
+                    } else {
+                        alert(data.message || 'Failed to send code.');
+                    }
+                } catch (e) { alert('Error: ' + e); }
+            });
+
+            function startCountdown() {
+                let t = 60;
+                getCodeBtn.disabled = true;
+                countdown = setInterval(() => {
+                    getCodeBtn.innerHTML = `<i class="bi bi-clock"></i> ${t}s`;
+                    t--;
+                    if (t < 0) {
+                        clearInterval(countdown);
+                        getCodeBtn.disabled = false;
+                        getCodeBtn.innerHTML = '<i class="bi bi-send-fill"></i> Resend';
+                    }
+                }, 1000);
+            }
+
+            /* ── EMAIL: VERIFY CODE ── */
+            verifyCodeBtn.addEventListener('click', async () => {
+                const code = verifyCodeInput.value.trim();
+                if (!code) {
+                    verifyStatus.textContent = 'Please enter the verification code.';
+                    verifyStatus.style.color = '#DC2626';
+                    return;
+                }
+                try {
+                    const fd = new FormData();
+                    fd.append('code', code);
+                    const res  = await fetch('/Admin/VerifyCode', { method: 'POST', body: fd });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        verifyStatus.textContent = '✅ ' + data.message;
+                        verifyStatus.style.color = 'var(--gd)';
+                        emailVerified = true;
+                        emailGroup.style.borderColor = 'var(--g)';
+                        emailGroup.style.background  = 'var(--gp)';
+                    } else {
+                        verifyStatus.textContent = '❌ ' + (data.message || 'Invalid code');
+                        verifyStatus.style.color = '#DC2626';
+                        emailVerified = false;
+                    }
+                } catch {
+                    verifyStatus.textContent = '❌ Error verifying code.';
+                    verifyStatus.style.color = '#DC2626';
+                    emailVerified = false;
+                }
+                checkFormReady();
+            });
+
+            /* ── FIELD LISTENERS ── */
+            function onField(input, checkEl) {
+                input.addEventListener('input', () => {
+                    const ok = input.value.trim().length > 0;
+                    showCheck(checkEl, ok);
+                    checkFormReady();
+                });
+            }
+
+            onField(firstNameInput,  firstNameCheck);
+            onField(middleNameInput, middleNameCheck);
+            onField(lastNameInput,   lastNameCheck);
+
+            function onPassword() {
+                const val   = passwordInput.value;
+                const valid = /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(val);
+                showCheck(passwordCheck, valid);
+                const match = confirmPasswordInput.value === val && val.length > 0;
+                showCheck(confirmPasswordCheck, match);
+                checkFormReady();
+            }
+
+            passwordInput.addEventListener('input', onPassword);
+            confirmPasswordInput.addEventListener('input', onPassword);
+
+            /* ── RESET ON EMAIL CHANGE ── */
+            emailInput.addEventListener('input', () => {
+                verifyCodeInput.value = '';
+                verifyStatus.textContent = '';
+                emailVerified = false;
+                emailGroup.style.borderColor = '';
+                emailGroup.style.background  = '';
+                registerBtn.disabled = true;
+                if (countdown) { clearInterval(countdown); countdown = null; }
+                getCodeBtn.disabled = false;
+                getCodeBtn.innerHTML = '<i class="bi bi-send-fill"></i> Get Code';
+                updateProgress();
+            });
+        })();
+    </script>
+}

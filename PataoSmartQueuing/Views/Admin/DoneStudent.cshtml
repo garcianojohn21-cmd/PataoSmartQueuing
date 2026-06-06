@@ -1,0 +1,884 @@
+﻿@model IEnumerable<PataoSmartQueuing.Models.QueueStudent>
+@{
+    ViewData["Title"] = "Completed Students";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    :root {
+        --g: #22C55E;
+        --gd: #16A34A;
+        --gl: #4ADE80;
+        --gp: #F0FDF4;
+        --gb: rgba(34,197,94,.25);
+        --navy: #0F172A;
+        --navy2: #1E293B;
+        --slate: #64748B;
+        --border: rgba(34,197,94,.22);
+        --grad: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        --sh: 0 4px 20px rgba(34,197,94,.18);
+        --sh-sm: 0 2px 10px rgba(34,197,94,.10);
+        --sh-card: 0 2px 16px rgba(15,23,42,.07);
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: #F1F5F9;
+        color: var(--navy2);
+    }
+
+    /* ── PAGE WRAPPER ── */
+    .cs-wrap {
+        padding: 28px;
+    }
+
+    /* ── HEADER ── */
+    .cs-header {
+        background: var(--grad);
+        border-radius: 18px;
+        padding: 24px 30px;
+        margin-bottom: 22px;
+        box-shadow: var(--sh);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .cs-header::before {
+            content: '';
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+
+        .cs-header::after {
+            content: '';
+            position: absolute;
+            right: 60px;
+            bottom: -60px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.06);
+            pointer-events: none;
+        }
+
+    .cs-header-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cs-page-title {
+        color: #fff;
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin: 0 0 4px;
+        letter-spacing: -.3px;
+    }
+
+    .cs-page-sub {
+        color: rgba(255,255,255,.82);
+        font-size: 13.5px;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .btn-back {
+        background: #fff;
+        color: var(--gd);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: all .25s;
+        box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+
+        .btn-back:hover {
+            background: var(--gp);
+            color: var(--gd);
+            transform: translateY(-2px);
+        }
+
+    /* ── QUEUE INFO BAR ── */
+    .cs-queue-bar {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 22px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: var(--sh-card);
+    }
+
+        .cs-queue-bar .bar-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: var(--gp);
+            color: var(--gd);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .cs-queue-bar .bar-label {
+            font-size: 12px;
+            color: var(--slate);
+            font-weight: 600;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .cs-queue-bar .bar-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--navy2);
+        }
+
+    /* ── STAT CARDS ── */
+    .cs-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 20px 22px;
+        border-left: 4px solid var(--g);
+        box-shadow: var(--sh-card);
+        transition: transform .25s, box-shadow .25s;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--sh);
+        }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: var(--gp);
+        color: var(--gd);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        margin-bottom: 12px;
+    }
+
+    .stat-value {
+        font-size: 1.65rem;
+        font-weight: 800;
+        color: var(--navy2);
+        margin: 0 0 4px;
+        letter-spacing: -.5px;
+    }
+
+    .stat-label {
+        font-size: 12.5px;
+        color: var(--slate);
+        margin: 0;
+        font-weight: 500;
+    }
+
+    /* ── SEARCH / EXPORT BAR ── */
+    .cs-toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        margin-bottom: 18px;
+        align-items: center;
+    }
+
+    .search-wrapper {
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--slate);
+        font-size: 15px;
+        pointer-events: none;
+    }
+
+    #searchBox {
+        width: 100%;
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 11px 14px 11px 40px;
+        font-size: 13.5px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: var(--navy2);
+        background: #fff;
+        transition: all .25s;
+        box-shadow: var(--sh-sm);
+        outline: none;
+    }
+
+        #searchBox:focus {
+            border-color: var(--g);
+            box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+        }
+
+    .btn-export {
+        background: var(--grad);
+        color: #fff;
+        border: none;
+        padding: 11px 22px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: all .25s;
+        box-shadow: var(--sh-sm);
+        white-space: nowrap;
+    }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--sh);
+        }
+
+    /* ── TABLE CONTAINER ── */
+    .table-container {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--sh-card);
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+        .table thead {
+            background: var(--grad);
+        }
+
+            .table thead th {
+                color: #fff;
+                font-weight: 700;
+                font-size: 12.5px;
+                letter-spacing: .4px;
+                text-transform: uppercase;
+                padding: 14px 16px;
+                border: none;
+            }
+
+        .table tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--gp);
+            font-size: 13px;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tbody tr {
+            transition: background .15s;
+        }
+
+            .table tbody tr:hover {
+                background: var(--gp);
+            }
+
+    /* ── CELL ATOMS ── */
+    .q-badge {
+        background: var(--grad);
+        color: #fff;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 12px;
+        display: inline-block;
+        letter-spacing: .3px;
+    }
+
+    .avatar-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 2px solid var(--g);
+        object-fit: cover;
+        flex-shrink: 0;
+        background: var(--gp);
+    }
+
+    .avatar-init {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 2px solid var(--g);
+        background: var(--gp);
+        color: var(--gd);
+        font-weight: 800;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .s-name {
+        font-weight: 700;
+        color: var(--navy2);
+        font-size: 13px;
+        margin-bottom: 2px;
+    }
+
+    .s-mid {
+        font-size: 11px;
+        color: var(--slate);
+    }
+
+    .lrn-val {
+        font-weight: 700;
+        color: var(--navy2);
+        font-family: 'Courier New', monospace;
+        font-size: 12.5px;
+    }
+
+    .email-val {
+        color: var(--slate);
+        font-size: 12px;
+    }
+
+    .pin-badge {
+        background: var(--gp);
+        color: var(--gd);
+        border: 1.5px solid var(--border);
+        padding: 4px 11px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-family: 'Courier New', monospace;
+        letter-spacing: .1em;
+    }
+
+    .time-primary {
+        font-weight: 600;
+        color: var(--navy2);
+        font-size: 12.5px;
+    }
+
+    .time-secondary {
+        font-size: 11.5px;
+        color: var(--slate);
+        margin-top: 2px;
+    }
+
+    .done-badge {
+        background: var(--grad);
+        color: #fff;
+        padding: 5px 13px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* ── MOBILE CARDS ── */
+    .mobile-cards {
+        display: none;
+    }
+
+    .student-card {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 12px;
+        box-shadow: var(--sh-card);
+        transition: transform .25s, box-shadow .25s;
+    }
+
+        .student-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--sh);
+            border-color: var(--g);
+        }
+
+    .card-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .card-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        border: 2.5px solid var(--g);
+        object-fit: cover;
+        background: var(--gp);
+    }
+
+    .card-name {
+        font-weight: 800;
+        color: var(--navy2);
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .card-queue {
+        font-size: 12px;
+        color: var(--slate);
+    }
+
+    .card-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .card-field {
+    }
+
+    .card-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--slate);
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .card-val {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--navy2);
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 70px 28px;
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--sh-card);
+    }
+
+        .empty-state .ei {
+            font-size: 3.5rem;
+            color: #CBD5E1;
+            margin-bottom: 14px;
+        }
+
+        .empty-state h4 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--navy2);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--slate);
+            font-size: 14px;
+        }
+
+    /* ── RESULTS COUNTER ── */
+    .results-counter {
+        text-align: center;
+        margin-top: 16px;
+        color: var(--slate);
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+        .results-counter strong {
+            color: var(--gd);
+            font-weight: 700;
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 900px) {
+        .cs-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .cs-wrap {
+            padding: 16px;
+        }
+
+        .cs-page-title {
+            font-size: 1.3rem;
+        }
+
+        .cs-stats {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .cs-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .desktop-table {
+            display: none !important;
+        }
+
+        .mobile-cards {
+            display: block;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .cs-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div style="zoom:0.8; transform-origin: top left;">
+    <div class="cs-wrap">
+
+        <!-- ── HEADER ── -->
+        <div class="cs-header">
+            <div class="cs-header-inner">
+                <div>
+                    <h1 class="cs-page-title">
+                        <i class="bi bi-check-circle-fill me-2"></i>Completed Students
+                    </h1>
+                    <p class="cs-page-sub">Students who have been successfully served</p>
+                </div>
+                <a asp-action="StudentInQueue" asp-route-queueId="@ViewBag.QueueId" class="btn-back">
+                    <i class="bi bi-arrow-left"></i> Back to Active Queue
+                </a>
+            </div>
+        </div>
+
+        <!-- ── QUEUE INFO BAR ── -->
+        <div class="cs-queue-bar">
+            <div class="bar-icon"><i class="bi bi-folder2-open"></i></div>
+            <div>
+                <div class="bar-label">Current Queue</div>
+                <div class="bar-value">@ViewBag.QueueName</div>
+            </div>
+        </div>
+
+        <!-- ── STATS ── -->
+        <div class="cs-stats">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                <h3 class="stat-value">@Model.Count()</h3>
+                <p class="stat-label">Total Completed</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+                <h3 class="stat-value">
+                    @(Model.Any()
+                                        ? Model.OrderByDescending(s => s.JoinedAt).First().JoinedAt.ToString("hh:mm tt")
+                                        : "N/A")
+                </h3>
+                <p class="stat-label">Latest Completion</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-trophy-fill"></i></div>
+                <h3 class="stat-value">
+                    @(Model.Any() ? "#" + Model.Min(s => s.QueueNumber) : "—")
+                </h3>
+                <p class="stat-label">First Student Served</p>
+            </div>
+        </div>
+
+        <!-- ── TOOLBAR ── -->
+        <div class="cs-toolbar">
+            <div class="search-wrapper">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text"
+                       id="searchBox"
+                       placeholder="Search by name, LRN, or queue number…" />
+            </div>
+            <button id="exportBtn" class="btn-export">
+                <i class="bi bi-download"></i> Export to CSV
+            </button>
+        </div>
+
+        <!-- ── CONTENT ── -->
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="ei"><i class="bi bi-inbox"></i></div>
+                <h4>No Students Completed Yet</h4>
+                <p>Completed students will appear here once they've been served.</p>
+            </div>
+        }
+        else
+        {
+            <!-- DESKTOP TABLE -->
+            <div class="table-container desktop-table">
+                <div class="table-responsive">
+                    <table class="table mb-0" id="studentTable">
+                        <colgroup>
+                            <col style="width:80px">
+                            <col style="width:190px">
+                            <col style="width:130px">
+                            <col style="width:185px">
+                            <col style="width:115px">
+                            <col style="width:130px">
+                            <col style="width:110px">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Queue #</th>
+                                <th>Student</th>
+                                <th>LRN</th>
+                                <th>Email</th>
+                                <th>PIN Code</th>
+                                <th>Completed At</th>
+                                <th style="text-align:center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model.OrderBy(s => s.QueueNumber))
+                            {
+                                var fullName = s.Student.FirstName + " " + s.Student.LastName;
+                                var initials = (s.Student.FirstName?.Length > 0 ? s.Student.FirstName[0].ToString() : "")
+                                + (s.Student.LastName?.Length > 0 ? s.Student.LastName[0].ToString() : "");
+                                <tr class="student-row"
+                                    data-name="@fullName.ToLower()"
+                                    data-lrn="@s.Student.LRN"
+                                    data-queue="@s.QueueNumber">
+                                    <td>
+                                        <span class="q-badge">#@s.QueueNumber</span>
+                                    </td>
+                                    <td>
+                                        <div class="avatar-cell">
+                                            @if (!string.IsNullOrEmpty(s.Student.ProfilePhoto))
+                                            {
+                                                <img src="@s.Student.ProfilePhoto"
+                                                     alt="@fullName"
+                                                     class="avatar"
+                                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                                <div class="avatar-init" style="display:none">@initials</div>
+                                            }
+                                            else
+                                            {
+                                                <div class="avatar-init">@initials</div>
+                                            }
+                                            <div>
+                                                <div class="s-name">@fullName</div>
+                                                @if (!string.IsNullOrEmpty(s.Student.MiddleName))
+                                                {
+                                                    <div class="s-mid">@s.Student.MiddleName</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="lrn-val">@s.Student.LRN</span></td>
+                                    <td><span class="email-val">@s.Student.Email</span></td>
+                                    <td>
+                                        <span class="pin-badge">
+                                            <i class="bi bi-lock-fill"></i>@s.PinCode
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="time-primary">
+                                            <i class="bi bi-calendar3 me-1" style="color:var(--g)"></i>@s.JoinedAt.ToString("MMM dd, yyyy")
+                                        </div>
+                                        <div class="time-secondary">
+                                            <i class="bi bi-clock me-1"></i>@s.JoinedAt.ToString("hh:mm tt")
+                                        </div>
+                                    </td>
+                                    <td style="text-align:center">
+                                        <span class="done-badge">
+                                            <i class="bi bi-check-circle-fill"></i> Done
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MOBILE CARDS -->
+            <div class="mobile-cards">
+                @foreach (var s in Model.OrderBy(s => s.QueueNumber))
+                {
+                    var fullName = s.Student.FirstName + " " + s.Student.LastName;
+                    var initials = (s.Student.FirstName?.Length > 0 ? s.Student.FirstName[0].ToString() : "")
+                    + (s.Student.LastName?.Length > 0 ? s.Student.LastName[0].ToString() : "");
+                    <div class="student-card"
+                         data-name="@fullName.ToLower()"
+                         data-lrn="@s.Student.LRN"
+                         data-queue="@s.QueueNumber">
+                        <div class="card-head">
+                            @if (!string.IsNullOrEmpty(s.Student.ProfilePhoto))
+                            {
+                                <img src="@s.Student.ProfilePhoto"
+                                     class="card-avatar"
+                                     alt="@fullName"
+                                     onerror="this.outerHTML='<div class=\'avatar-init\' style=\'width:52px;height:52px;font-size:15px;\'>@initials</div>'">
+                            }
+                            else
+                            {
+                                <div class="avatar-init" style="width:52px;height:52px;font-size:15px">@initials</div>
+                            }
+                            <div class="flex-grow-1">
+                                <div class="card-name">@fullName</div>
+                                <div class="card-queue">
+                                    <span class="q-badge" style="font-size:11px;padding:3px 9px">#@s.QueueNumber</span>
+                                </div>
+                            </div>
+                            <span class="done-badge">
+                                <i class="bi bi-check-circle-fill"></i> Done
+                            </span>
+                        </div>
+                        <div class="card-grid">
+                            <div class="card-field">
+                                <div class="card-label">LRN</div>
+                                <div class="card-val" style="font-family:monospace;font-size:12px">@s.Student.LRN</div>
+                            </div>
+                            <div class="card-field">
+                                <div class="card-label">Email</div>
+                                <div class="card-val" style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@s.Student.Email</div>
+                            </div>
+                            <div class="card-field">
+                                <div class="card-label">PIN Code</div>
+                                <span class="pin-badge"><i class="bi bi-lock-fill"></i>@s.PinCode</span>
+                            </div>
+                            <div class="card-field">
+                                <div class="card-label">Completed At</div>
+                                <div class="card-val" style="font-size:12px">
+                                    @s.JoinedAt.ToString("MMM dd")<br>
+                                    <span style="color:var(--slate);font-weight:500">@s.JoinedAt.ToString("hh:mm tt")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="results-counter">
+                Showing <strong id="visibleCount">@Model.Count()</strong> of <strong>@Model.Count()</strong> students
+            </div>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            /* ── SEARCH ── */
+            const searchBox   = document.getElementById('searchBox');
+            const visibleEl   = document.getElementById('visibleCount');
+            const tableRows   = document.querySelectorAll('.student-row');
+            const mobileCards = document.querySelectorAll('.mobile-cards .student-card');
+
+            function countVisible() {
+                const rows  = [...tableRows].filter(r => r.style.display !== 'none').length;
+                const cards = [...mobileCards].filter(c => c.style.display !== 'none').length;
+                return Math.max(rows, cards);
+            }
+
+            searchBox?.addEventListener('input', function () {
+                const q = this.value.trim().toLowerCase();
+
+                function matches(el) {
+                    return el.dataset.name.includes(q)
+                        || (el.dataset.lrn || '').toLowerCase().includes(q)
+                        || (el.dataset.queue || '').includes(q);
+                }
+
+                tableRows.forEach(r   => r.style.display   = matches(r) ? '' : 'none');
+                mobileCards.forEach(c => c.style.display = matches(c) ? '' : 'none');
+
+                if (visibleEl) visibleEl.textContent = countVisible();
+            });
+
+            /* ── EXPORT CSV ── */
+            document.getElementById('exportBtn')?.addEventListener('click', function () {
+                const table = document.getElementById('studentTable');
+                if (!table) { alert('No data to export.'); return; }
+
+                const rows = [...table.querySelectorAll('tr')];
+                const csv  = rows.map(row =>
+                    [...row.querySelectorAll('th, td')]
+                        .map(cell => '"' + cell.innerText.trim().replace(/\s+/g, ' ').replace(/"/g, '""') + '"')
+                        .join(',')
+                ).join('\n');
+
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url  = URL.createObjectURL(blob);
+                const a    = Object.assign(document.createElement('a'), {
+                    href:     url,
+                    download: 'completed_students_' + new Date().toISOString().slice(0, 10) + '.csv'
+                });
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            /* ── SIGNALR ── */
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl('/notificationHub')
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on('RefreshQueue', () => location.reload());
+
+            connection.start().catch(err => console.error('SignalR Error:', err));
+        })();
+    </script>
+}

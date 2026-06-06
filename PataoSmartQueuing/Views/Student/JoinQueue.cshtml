@@ -1,0 +1,530 @@
+﻿@{
+    ViewData["Title"] = "Join Queue";
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+}
+
+<style>
+    /* Uses layout's existing CSS variables — no conflicts */
+
+    .join-wrap {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 0 4px 40px;
+    }
+
+    /* ── ALERTS ── */
+    .sq-alert {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 13px 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        font-size: 13.5px;
+        font-weight: 500;
+        line-height: 1.5;
+        border: none;
+        box-shadow: var(--shadow-sm);
+        animation: slideDown 0.3s ease;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .sq-alert i {
+        font-size: 16px;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .sq-alert.ok {
+        background: var(--green-pale);
+        color: var(--navy);
+        border-left: 4px solid var(--green);
+    }
+
+    .sq-alert.err {
+        background: #FEE2E2;
+        color: #7F1D1D;
+        border-left: 4px solid #EF4444;
+    }
+
+    .sq-alert.info {
+        background: #E0F2FE;
+        color: #075985;
+        border-left: 4px solid #0EA5E9;
+    }
+
+    /* ── CARD ── */
+    .join-card {
+        background: var(--white);
+        border-radius: 18px;
+        border: 1.5px solid var(--border-green);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .join-card-header {
+        background: var(--nav-gradient);
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: var(--white);
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid rgba(34, 197, 94, 0.35);
+        text-align: center;
+    }
+
+        .join-card-header i {
+            font-size: 22px;
+        }
+
+    .join-card-body {
+        padding: 32px 24px;
+    }
+
+    /* ── ICON ── */
+    .queue-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--green-gradient);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        color: var(--white);
+        margin: 0 auto 24px;
+        box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+        animation: bounce 2.5s ease-in-out infinite;
+    }
+
+    @@keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    /* ── FORM ── */
+    .form-label-sq {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .form-label-sq i {
+            color: var(--green-dark);
+            font-size: 14px;
+        }
+
+    .input-group-sq {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid var(--border-green);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.25s;
+        margin-bottom: 8px;
+    }
+
+        .input-group-sq:focus-within {
+            border-color: var(--green);
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+    .input-group-text-sq {
+        background: var(--green-gradient);
+        color: var(--white);
+        border: none;
+        padding: 14px 16px;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .form-control-sq {
+        border: none;
+        padding: 14px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        background: var(--white);
+        color: var(--navy);
+        flex: 1;
+        outline: none;
+    }
+
+        .form-control-sq:focus {
+            box-shadow: none;
+            background: var(--white);
+        }
+
+        .form-control-sq::placeholder {
+            color: var(--gray-400);
+            font-weight: 500;
+        }
+
+    .form-hint {
+        font-size: 12px;
+        color: var(--gray-600);
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .form-hint i {
+            color: var(--gray-400);
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+    /* ── QUEUE FOUND DISPLAY ── */
+    .queue-found {
+        background: var(--green-pale);
+        border: 1.5px solid var(--border-green);
+        border-radius: 12px;
+        padding: 14px 16px;
+        text-align: center;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--navy);
+        animation: slideDown 0.3s ease;
+    }
+
+        .queue-found i {
+            color: var(--green-dark);
+            font-size: 16px;
+        }
+
+        .queue-found strong {
+            color: var(--green-dark);
+        }
+
+    /* ── BUTTONS ── */
+    .sq-btn-primary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 15px;
+        background: var(--green-gradient);
+        color: var(--white);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s;
+        box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+
+        .sq-btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .sq-btn-primary:hover::before {
+            width: 250px;
+            height: 250px;
+        }
+
+        .sq-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+            color: var(--white);
+        }
+
+        .sq-btn-primary:active {
+            transform: translateY(0);
+        }
+
+    .sq-btn-link {
+        text-align: center;
+        text-decoration: none;
+        color: var(--green-dark);
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.25s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+        justify-content: center;
+        padding: 10px;
+    }
+
+        .sq-btn-link:hover {
+            color: var(--green);
+            transform: translateX(-3px);
+        }
+
+    /* ── INSTRUCTIONS ── */
+    .instruction-card {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .instruction-title {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--navy);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .instruction-title i {
+            color: var(--green);
+            font-size: 16px;
+        }
+
+    .instruction-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 14px;
+        padding: 12px;
+        background: var(--green-pale);
+        border-radius: 10px;
+        transition: all 0.25s;
+    }
+
+        .instruction-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .instruction-step:hover {
+            background: #D0F5E3;
+            transform: translateX(4px);
+        }
+
+    .step-number {
+        width: 32px;
+        height: 32px;
+        background: var(--green-gradient);
+        color: var(--white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 13px;
+        flex-shrink: 0;
+        box-shadow: 0 3px 10px rgba(34, 197, 94, 0.3);
+    }
+
+    .step-content {
+        flex: 1;
+        padding-top: 2px;
+    }
+
+        .step-content strong {
+            color: var(--navy);
+            font-size: 13px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            font-size: 12px;
+            color: var(--gray-600);
+            line-height: 1.4;
+            margin: 0;
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 576px) {
+        .join-card-body
+
+    {
+        padding: 20px 16px;
+    }
+
+    .join-card-header {
+        padding: 14px 16px;
+        font-size: 16px;
+    }
+
+        .join-card-header i {
+            font-size: 18px;
+        }
+
+    .queue-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 30px;
+        margin-bottom: 18px;
+    }
+
+    .instruction-card {
+        padding: 14px;
+        margin-top: 18px;
+    }
+
+    .instruction-step {
+        gap: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .step-number {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    }
+</style>
+
+<div class="join-wrap">
+
+    @* ══ ALERTS ══ *@
+    @if (TempData["Error"] != null)
+    {
+        <div class="sq-alert err mb-3">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="sq-alert ok mb-3">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    @* ══ JOIN CARD ══ *@
+    <div class="join-card">
+        <div class="join-card-header">
+            <i class="bi bi-qr-code"></i> Join a Queue
+        </div>
+
+        <div class="join-card-body">
+            <!-- Icon -->
+            <div class="queue-icon">
+                <i class="bi bi-link-45deg"></i>
+            </div>
+
+            <!-- Form -->
+            <form asp-action="JoinQueue" method="post" class="needs-validation" novalidate>
+                <div class="mb-4">
+                    <label class="form-label-sq">
+                        <i class="bi bi-key-fill"></i> Queue Code
+                    </label>
+                    <div class="input-group-sq">
+                        <span class="input-group-text-sq">
+                            <i class="bi bi-key-fill"></i>
+                        </span>
+                        <input type="text" name="code" class="form-control-sq"
+                               placeholder="Enter or paste queue code"
+                               value="@ViewBag.QueueCode" required />
+                    </div>
+                    <div class="form-hint">
+                        <i class="bi bi-info-circle"></i>
+                        <span>Enter the code provided by your administrator</span>
+                    </div>
+                </div>
+
+                @if (ViewBag.QueueName != null)
+                {
+                    <div class="queue-found">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span><strong>@ViewBag.QueueName</strong></span>
+                    </div>
+                }
+
+                <button type="submit" class="sq-btn-primary">
+                    <i class="bi bi-box-arrow-in-right"></i> Join Queue
+                </button>
+
+                <a asp-action="Dashboard" class="sq-btn-link">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </form>
+
+            <!-- Instructions -->
+            <div class="instruction-card">
+                <div class="instruction-title">
+                    <i class="bi bi-lightbulb-fill"></i> How to Join
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <strong>Get the Code</strong>
+                        <p>Obtain the queue code from your administrator or scan a QR code</p>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Enter Code</strong>
+                        <p>Type or paste the code in the field above</p>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <strong>Join & Wait</strong>
+                        <p>Click join and you'll receive your priority number instantly</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,1243 @@
+﻿@model IEnumerable<PataoSmartQueuing.Models.ViewModels.QueueStudentViewModel>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Students in Queue";
+}
+
+@Html.AntiForgeryToken()
+
+@* Google Fonts *@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    /* ── TOKENS ── */
+    :root {
+        --navy: #0F172A;
+        --navy2: #1E293B;
+        --navy3: #243447;
+        --g: #22C55E;
+        --gd: #16A34A;
+        --gl: #4ADE80;
+        --gp: #F0FDF4;
+        --gb: rgba(34,197,94,.22);
+        --slate: #64748B;
+        --border: rgba(34,197,94,.2);
+        --grad: linear-gradient(135deg,#22C55E 0%,#16A34A 100%);
+        --sh: 0 4px 20px rgba(34,197,94,.18);
+        --sh-sm: 0 2px 10px rgba(34,197,94,.10);
+        --sh-card: 0 2px 16px rgba(15,23,42,.07);
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: #F1F5F9;
+        color: var(--navy2);
+    }
+
+    /* ── PAGE WRAP ── */
+    .siq-wrap {
+        padding: 28px;
+    }
+
+    /* ── HEADER ── */
+    .siq-header {
+        background: var(--grad);
+        border-radius: 18px;
+        padding: 22px 30px;
+        margin-bottom: 22px;
+        box-shadow: var(--sh);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .siq-header::before {
+            content: '';
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.07);
+            pointer-events: none;
+        }
+
+        .siq-header::after {
+            content: '';
+            position: absolute;
+            right: 80px;
+            bottom: -55px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.05);
+            pointer-events: none;
+        }
+
+    .siq-header-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .siq-title {
+        color: #fff;
+        font-size: 1.65rem;
+        font-weight: 800;
+        margin: 0 0 4px;
+        letter-spacing: -.3px;
+    }
+
+    .siq-sub {
+        color: rgba(255,255,255,.82);
+        font-size: 13px;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .hdr-btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-hdr-solid {
+        background: #fff;
+        color: var(--gd);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: all .2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,.12);
+        cursor: pointer;
+    }
+
+        .btn-hdr-solid:hover {
+            background: var(--gp);
+            color: var(--gd);
+            transform: translateY(-2px);
+        }
+
+    .btn-hdr-outline {
+        background: rgba(255,255,255,.15);
+        color: #fff;
+        border: 1.5px solid rgba(255,255,255,.5);
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: all .2s;
+        cursor: pointer;
+    }
+
+        .btn-hdr-outline:hover {
+            background: #fff;
+            color: var(--gd);
+            border-color: #fff;
+            transform: translateY(-2px);
+        }
+
+    /* ── ALERT (no queue) ── */
+    .no-queue-alert {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 16px;
+        padding: 60px 28px;
+        text-align: center;
+        box-shadow: var(--sh-card);
+    }
+
+        .no-queue-alert .nq-icon {
+            font-size: 4rem;
+            color: #CBD5E1;
+            margin-bottom: 16px;
+        }
+
+        .no-queue-alert h3 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--navy2);
+            margin-bottom: 8px;
+        }
+
+        .no-queue-alert p {
+            color: var(--slate);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+    .btn-go {
+        background: var(--grad);
+        color: #fff;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all .2s;
+        box-shadow: var(--sh-sm);
+        cursor: pointer;
+    }
+
+        .btn-go:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--sh);
+            color: #fff;
+        }
+
+    /* ── STAT CARDS ── */
+    .siq-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 20px 18px;
+        border-left: 4px solid var(--g);
+        box-shadow: var(--sh-card);
+        transition: transform .25s, box-shadow .25s;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--sh);
+        }
+
+        .stat-card.c-total {
+            border-left-color: #3B82F6;
+        }
+
+        .stat-card.c-pending {
+            border-left-color: #F59E0B;
+        }
+
+        .stat-card.c-serving {
+            border-left-color: var(--g);
+        }
+
+        .stat-card.c-unserved {
+            border-left-color: #EF4444;
+        }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .c-total .stat-icon {
+        background: #EFF6FF;
+        color: #3B82F6;
+    }
+
+    .c-pending .stat-icon {
+        background: #FFFBEB;
+        color: #F59E0B;
+    }
+
+    .c-serving .stat-icon {
+        background: var(--gp);
+        color: var(--gd);
+    }
+
+    .c-unserved .stat-icon {
+        background: #FEF2F2;
+        color: #EF4444;
+    }
+
+    .stat-val {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: var(--navy2);
+        margin: 0 0 2px;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: var(--slate);
+        font-weight: 600;
+        margin: 0;
+    }
+
+    /* ── TOOLBAR ── */
+    .siq-toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 12px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+
+    .search-wrap {
+        position: relative;
+    }
+
+    .search-ico {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--slate);
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    #searchBox {
+        width: 100%;
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 11px 14px 11px 40px;
+        font-size: 13.5px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: var(--navy2);
+        background: #fff;
+        outline: none;
+        transition: all .2s;
+        box-shadow: var(--sh-sm);
+    }
+
+        #searchBox:focus {
+            border-color: var(--g);
+            box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+        }
+
+    #statusFilter {
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 11px 36px 11px 14px;
+        font-size: 13.5px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: var(--navy2);
+        background: #fff;
+        outline: none;
+        box-shadow: var(--sh-sm);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 12px;
+        min-width: 160px;
+        cursor: pointer;
+        transition: all .2s;
+    }
+
+        #statusFilter:focus {
+            border-color: var(--g);
+            box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+        }
+
+    .btn-refresh {
+        background: var(--grad);
+        color: #fff;
+        border: none;
+        padding: 11px 22px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: all .2s;
+        box-shadow: var(--sh-sm);
+        white-space: nowrap;
+    }
+
+        .btn-refresh:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--sh);
+        }
+
+    /* ── STUDENT CARDS ── */
+    .siq-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+
+    .student-card-wrap {
+        transition: transform .25s;
+    }
+
+        .student-card-wrap:hover {
+            transform: translateY(-4px);
+        }
+
+    .s-card {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: var(--sh-card);
+        transition: box-shadow .25s, border-color .25s;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+    }
+
+    .student-card-wrap:hover .s-card {
+        box-shadow: var(--sh);
+        border-color: var(--g);
+    }
+
+    /* status badge top-right */
+    .s-status {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11.5px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .s-status.pending {
+            background: #FFFBEB;
+            color: #92400E;
+            border: 1.5px solid #F59E0B;
+        }
+
+        .s-status.serving {
+            background: var(--gp);
+            color: var(--gd);
+            border: 1.5px solid var(--border);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        .s-status.unserved {
+            background: #FEF2F2;
+            color: #991B1B;
+            border: 1.5px solid #EF4444;
+        }
+
+    @@keyframes statusPulse {
+        0%, 100% {
+            box-shadow: none;
+        }
+
+        50% {
+            box-shadow: 0 0 0 4px rgba(34,197,94,.15);
+        }
+    }
+
+    /* avatar + name row */
+    .s-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 16px;
+        padding-right: 80px;
+    }
+
+    .s-avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        border: 2.5px solid var(--border);
+        object-fit: cover;
+        background: var(--gp);
+        flex-shrink: 0;
+    }
+
+    .s-avatar-init {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        border: 2.5px solid var(--border);
+        background: var(--gp);
+        color: var(--gd);
+        font-weight: 800;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .s-name {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--navy2);
+        margin: 0 0 6px;
+    }
+
+    .q-badge {
+        background: var(--grad);
+        color: #fff;
+        padding: 3px 11px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    /* detail rows */
+    .s-detail {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--slate);
+        margin-bottom: 6px;
+    }
+
+        .s-detail i {
+            color: var(--g);
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+    /* PIN section */
+    .pin-section {
+        margin: 14px 0;
+    }
+
+    .pin-label {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--navy2);
+        letter-spacing: .4px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .pin-input-wrap {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: var(--sh-sm);
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+        .pin-input-wrap:focus-within {
+            border-color: var(--g);
+            box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+        }
+
+        .pin-input-wrap.is-valid {
+            border-color: var(--g);
+            background: var(--gp);
+        }
+
+        .pin-input-wrap.is-invalid {
+            border-color: #EF4444;
+            background: #FEF2F2;
+        }
+
+    .pin-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 11px 14px;
+        font-family: 'Courier New', monospace;
+        font-size: 1rem;
+        letter-spacing: .25em;
+        background: transparent;
+        color: var(--navy2);
+        min-width: 0;
+    }
+
+    .pin-toggle {
+        flex-shrink: 0;
+        width: 42px;
+        border: none;
+        border-left: 1.5px solid var(--border);
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gd);
+        font-size: 15px;
+        min-height: 44px;
+        transition: background .2s;
+    }
+
+        .pin-toggle:hover {
+            background: var(--gp);
+        }
+
+    .pin-feedback {
+        margin-top: 6px;
+        font-size: 12px;
+        min-height: 18px;
+        font-weight: 600;
+    }
+
+        .pin-feedback.valid {
+            color: var(--gd);
+        }
+
+        .pin-feedback.invalid {
+            color: #DC2626;
+        }
+
+    /* action buttons */
+    .s-actions {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-top: 14px;
+    }
+
+    .btn-serve {
+        width: 100%;
+        padding: 11px;
+        background: linear-gradient(135deg,#F59E0B,#D97706);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 13px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        transition: all .2s;
+        box-shadow: 0 2px 8px rgba(245,158,11,.3);
+    }
+
+        .btn-serve:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(245,158,11,.4);
+        }
+
+    .btn-done {
+        width: 100%;
+        padding: 11px;
+        background: var(--grad);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 13px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        transition: all .2s;
+        box-shadow: var(--sh-sm);
+    }
+
+        .btn-done:disabled {
+            background: #F1F5F9;
+            color: #94A3B8;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-done:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: var(--sh);
+        }
+
+    .btn-unserve {
+        width: 100%;
+        padding: 10px;
+        background: transparent;
+        color: #DC2626;
+        border: 1.5px solid #FCA5A5;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 13px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        transition: all .2s;
+    }
+
+        .btn-unserve:hover {
+            background: #FEF2F2;
+            border-color: #EF4444;
+            transform: translateY(-2px);
+        }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 70px 28px;
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--sh-card);
+    }
+
+        .empty-state .ei {
+            font-size: 4rem;
+            color: #CBD5E1;
+            margin-bottom: 14px;
+        }
+
+        .empty-state h4 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--navy2);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--slate);
+            font-size: 14px;
+        }
+
+    /* ── RESULTS ── */
+    .results-line {
+        text-align: center;
+        margin-top: 18px;
+        font-size: 13px;
+        color: var(--slate);
+        font-weight: 500;
+    }
+
+        .results-line strong {
+            color: var(--gd);
+            font-weight: 700;
+        }
+
+    /* ── SPINNER ── */
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .spinner {
+        animation: spin 1s linear infinite;
+        display: inline-block;
+    }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 1100px) {
+        .siq-grid {
+            grid-template-columns: repeat(2,1fr);
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .siq-stats {
+            grid-template-columns: repeat(2,1fr);
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .siq-wrap {
+            padding: 16px;
+        }
+
+        .siq-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .siq-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .siq-title {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+
+<div class="siq-wrap">
+
+    <!-- ── HEADER ── -->
+    <div class="siq-header">
+        <div class="siq-header-inner">
+            <div>
+                <h1 class="siq-title">
+                    <i class="bi bi-people-fill me-2"></i>Active Queue Management
+                </h1>
+                <p class="siq-sub">Manage and serve students in real-time</p>
+            </div>
+            <div class="hdr-btn-group">
+                <a asp-action="DoneStudent" asp-route-queueId="@ViewBag.QueueId" class="btn-hdr-solid">
+                    <i class="bi bi-check-circle-fill"></i> View Completed
+                </a>
+                <a asp-action="ManageQueues" class="btn-hdr-outline">
+                    <i class="bi bi-arrow-left"></i> Back to Queues
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.QueueId == 0)
+    {
+        <!-- No Queue Selected -->
+        <div class="no-queue-alert">
+            <div class="nq-icon"><i class="bi bi-exclamation-triangle"></i></div>
+            <h3>No Active Queue</h3>
+            <p>Please activate a queue from the Manage Queues page to start serving students.</p>
+            <a asp-action="ManageQueues" class="btn-go">
+                <i class="bi bi-list-task"></i> Go to Manage Queues
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- ── STATS ── -->
+        <div class="siq-stats">
+            <div class="stat-card c-total">
+                <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                <div>
+                    <div class="stat-val" id="totalCount">@Model.Count()</div>
+                    <div class="stat-label">Total in Queue</div>
+                </div>
+            </div>
+            <div class="stat-card c-pending">
+                <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+                <div>
+                    <div class="stat-val" id="pendingCount">@Model.Count(s => s.Status == "Pending")</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+            <div class="stat-card c-serving">
+                <div class="stat-icon"><i class="bi bi-person-check-fill"></i></div>
+                <div>
+                    <div class="stat-val" id="servingCount">@Model.Count(s => s.Status == "Serving")</div>
+                    <div class="stat-label">Serving</div>
+                </div>
+            </div>
+            <div class="stat-card c-unserved">
+                <div class="stat-icon"><i class="bi bi-x-circle-fill"></i></div>
+                <div>
+                    <div class="stat-val" id="unservedCount">@Model.Count(s => s.Status == "Unserved")</div>
+                    <div class="stat-label">Unserved</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TOOLBAR ── -->
+        <div class="siq-toolbar">
+            <div class="search-wrap">
+                <i class="bi bi-search search-ico"></i>
+                <input type="text" id="searchBox" placeholder="Search by name, queue number, or email…">
+            </div>
+            <select id="statusFilter">
+                <option value="">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Serving">Serving</option>
+                <option value="Unserved">Unserved</option>
+            </select>
+            <button id="refreshBtn" class="btn-refresh">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+
+        <!-- ── STUDENTS GRID ── -->
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="ei"><i class="bi bi-inbox"></i></div>
+                <h4>No Students in Queue</h4>
+                <p>Students will appear here when they join the queue.</p>
+            </div>
+        }
+        else
+        {
+            <div id="queueContainer" class="siq-grid">
+                @foreach (var s in Model)
+                {
+                    var statusClass = s.Status switch
+                    {
+                        "Pending" => "pending",
+                        "Serving" => "serving",
+                        "Unserved" => "unserved",
+                        _ => "pending"
+                    };
+
+                    var statusIcon = s.Status switch
+                    {
+                        "Pending" => "hourglass-split",
+                        "Serving" => "person-check-fill",
+                        "Unserved" => "x-circle-fill",
+                        _ => "question-circle"
+                    };
+
+                    var nameParts = s.StudentName?.Split(' ') ?? new[] { "?" };
+                    var initials = (nameParts[0].Length > 0 ? nameParts[0][0].ToString() : "")
+                    + (nameParts.Length > 1 && nameParts[^1].Length > 0 ? nameParts[^1][0].ToString() : "");
+
+                    <div class="student-card-wrap"
+                         data-id="@s.QueueStudentID"
+                         data-name="@s.StudentName.ToLower()"
+                         data-email="@s.Email.ToLower()"
+                         data-queue="@s.QueueNumber"
+                         data-status="@s.Status">
+                        <div class="s-card">
+
+                            <!-- Status Badge -->
+                            <span class="s-status @statusClass">
+                                <i class="bi bi-@statusIcon"></i>@s.Status
+                            </span>
+
+                            <!-- Avatar + Name -->
+                            <div class="s-head">
+                                @if (!string.IsNullOrEmpty(s.ProfilePhoto))
+                                {
+                                    <img src="@Url.Content(s.ProfilePhoto)"
+                                         alt="@s.StudentName"
+                                         class="s-avatar"
+                                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                    <div class="s-avatar-init" style="display:none">@initials</div>
+                                }
+                                else
+                                {
+                                    <div class="s-avatar-init">@initials</div>
+                                }
+                                <div>
+                                    <div class="s-name">@s.StudentName</div>
+                                    <span class="q-badge"><i class="bi bi-hash"></i>@s.QueueNumber</span>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="s-detail">
+                                <i class="bi bi-envelope-fill"></i>
+                                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@s.Email</span>
+                            </div>
+
+                            <!-- PIN (only when Serving) -->
+                            @if (s.Status == "Serving")
+                            {
+                                <div class="pin-section">
+                                    <span class="pin-label">
+                                        <i class="bi bi-shield-lock-fill me-1"></i>Student PIN to Mark Done
+                                    </span>
+                                    <div class="pin-input-wrap">
+                                        <input type="password"
+                                               class="pin-input"
+                                               placeholder="Enter 6-digit PIN"
+                                               maxlength="6"
+                                               data-id="@s.QueueStudentID"
+                                               autocomplete="off">
+                                        <button class="pin-toggle toggle-pin" type="button" aria-label="Toggle PIN visibility">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="pin-feedback"></div>
+                                </div>
+                            }
+
+                            <!-- Actions -->
+                            <div class="s-actions">
+                                @if (s.Status == "Pending")
+                                {
+                                    <button class="btn-serve serve-btn"
+                                            data-id="@s.QueueStudentID"
+                                            data-name="@s.StudentName">
+                                        <i class="bi bi-play-fill"></i> Start Serving
+                                    </button>
+                                }
+
+                                @if (s.Status == "Serving")
+                                {
+                                    <button class="btn-done done-btn"
+                                            data-id="@s.QueueStudentID"
+                                            data-name="@s.StudentName"
+                                            disabled>
+                                        <i class="bi bi-check-circle-fill"></i> Mark as Done
+                                    </button>
+                                }
+
+                                @if (s.Status != "Unserved")
+                                {
+                                    <button class="btn-unserve unserve-btn"
+                                            data-id="@s.QueueStudentID"
+                                            data-name="@s.StudentName">
+                                        <i class="bi bi-x-circle-fill"></i> Mark as Unserved
+                                    </button>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="results-line">
+                Showing <strong id="visibleCount">@Model.Count()</strong> of <strong>@Model.Count()</strong> students
+            </div>
+        }
+    }
+
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            /* ── HELPERS ── */
+            function getToken() {
+                return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            }
+
+            function showToast(message, type = 'success') {
+                const icons = { success:'check-circle-fill', danger:'x-circle-fill', warning:'exclamation-triangle-fill', info:'info-circle-fill' };
+                const t = document.createElement('div');
+                t.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg`;
+                t.style.cssText = 'z-index:9999;min-width:350px;border-radius:14px;';
+                t.innerHTML = `<div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-${icons[type]||icons.info} fs-5"></i>
+                    <div class="flex-grow-1">${message}</div></div>`;
+                document.body.appendChild(t);
+                setTimeout(() => {
+                    t.style.transition = 'all .3s';
+                    t.style.opacity = '0';
+                    setTimeout(() => t.remove(), 300);
+                }, 4000);
+            }
+
+            async function sendRequest(url, data) {
+                const fd = new FormData();
+                for (const [k, v] of Object.entries(data)) fd.append(k, v);
+                fd.append('__RequestVerificationToken', getToken());
+                const r = await fetch(url, { method:'POST', body:fd, credentials:'same-origin' });
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                return r.json();
+            }
+
+            function setLoading(btn, loading, original) {
+                if (loading) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="bi bi-hourglass-split spinner"></i> Processing…';
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = original;
+                }
+            }
+
+            /* ── SERVE BUTTONS ── */
+            function attachServeButtons() {
+                document.querySelectorAll('.serve-btn').forEach(btn => {
+                    const nb = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(nb, btn);
+                    nb.onclick = async function (e) {
+                        e.preventDefault();
+                        const id = this.dataset.id, name = this.dataset.name;
+                        if (!confirm(`Start serving ${name}?`)) return;
+                        const orig = this.innerHTML;
+                        setLoading(this, true);
+                        try {
+                            const r = await sendRequest('/Admin/ServeStudent', { id });
+                            if (r.success) { showToast(r.message, 'success'); setTimeout(() => location.reload(), 1500); }
+                            else { showToast(r.message || 'Failed', 'danger'); setLoading(this, false, orig); }
+                        } catch (err) { showToast('Error: ' + err.message, 'danger'); setLoading(this, false, orig); }
+                    };
+                });
+            }
+
+            /* ── UNSERVE BUTTONS ── */
+            function attachUnserveButtons() {
+                document.querySelectorAll('.unserve-btn').forEach(btn => {
+                    const nb = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(nb, btn);
+                    nb.onclick = async function (e) {
+                        e.preventDefault();
+                        const id = this.dataset.id, name = this.dataset.name;
+                        if (!confirm(`Mark ${name} as unserved?`)) return;
+                        const orig = this.innerHTML;
+                        setLoading(this, true);
+                        try {
+                            const r = await sendRequest('/Admin/UnserveStudent', { id });
+                            if (r.success) { showToast(r.message, 'warning'); setTimeout(() => location.reload(), 1500); }
+                            else { showToast(r.message || 'Failed', 'danger'); setLoading(this, false, orig); }
+                        } catch (err) { showToast('Error: ' + err.message, 'danger'); setLoading(this, false, orig); }
+                    };
+                });
+            }
+
+            /* ── PIN INPUTS ── */
+            function attachPinInputs() {
+                document.querySelectorAll('.pin-input').forEach(input => {
+                    let tmr;
+                    input.addEventListener('keypress', e => { if (!/\d/.test(e.key) && e.key !== 'Enter') e.preventDefault(); });
+                    input.addEventListener('input', async function () {
+                        const pin = this.value.trim(), id = this.dataset.id;
+                        const wrap = this.closest('.pin-input-wrap');
+                        const fb   = this.closest('.pin-section').querySelector('.pin-feedback');
+                        const done = this.closest('.s-card').querySelector('.done-btn');
+
+                        wrap.classList.remove('is-valid','is-invalid');
+                        fb.className = 'pin-feedback';
+                        fb.textContent = '';
+                        if (done) done.disabled = true;
+                        if (pin.length !== 6) return;
+
+                        clearTimeout(tmr);
+                        fb.textContent = '🔍 Validating…';
+                        fb.style.color = '#64748B';
+
+                        tmr = setTimeout(async () => {
+                            try {
+                                const r = await sendRequest('/Admin/ValidatePinOnly', { id, pinCode: pin });
+                                if (r.success) {
+                                    wrap.classList.add('is-valid');
+                                    fb.textContent = '✅ ' + r.message;
+                                    fb.classList.add('valid');
+                                    if (done) done.disabled = false;
+                                } else {
+                                    wrap.classList.add('is-invalid');
+                                    fb.textContent = '❌ ' + r.message;
+                                    fb.classList.add('invalid');
+                                }
+                            } catch {
+                                wrap.classList.add('is-invalid');
+                                fb.textContent = '❌ Error validating PIN';
+                                fb.classList.add('invalid');
+                            }
+                        }, 500);
+                    });
+                });
+
+                document.querySelectorAll('.toggle-pin').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const inp  = this.parentElement.querySelector('.pin-input');
+                        const icon = this.querySelector('i');
+                        const isPass = inp.type === 'password';
+                        inp.type = isPass ? 'text' : 'password';
+                        icon.className = `bi bi-eye${isPass ? '-slash' : ''}`;
+                    });
+                });
+            }
+
+            /* ── DONE BUTTONS ── */
+            function attachDoneButtons() {
+                document.querySelectorAll('.done-btn').forEach(btn => {
+                    const nb = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(nb, btn);
+                    nb.onclick = async function (e) {
+                        e.preventDefault();
+                        const id = this.dataset.id, name = this.dataset.name;
+                        const pin = this.closest('.s-card').querySelector('.pin-input')?.value.trim();
+                        if (!pin || pin.length !== 6) { alert('Please enter a valid 6-digit PIN.'); return; }
+                        if (!confirm(`Confirm: Mark ${name} as done?`)) return;
+                        const orig = this.innerHTML;
+                        setLoading(this, true);
+                        try {
+                            const r = await sendRequest('/Admin/MarkDoneWithPin', { id, pinCode: pin });
+                            if (r.success) { showToast(r.message, 'success'); setTimeout(() => location.reload(), 1500); }
+                            else { showToast(r.message || 'Failed', 'danger'); setLoading(this, false, orig); }
+                        } catch (err) { showToast('Error: ' + err.message, 'danger'); setLoading(this, false, orig); }
+                    };
+                });
+            }
+
+            /* ── SEARCH + FILTER ── */
+            function attachSearchFilter() {
+                const sb = document.getElementById('searchBox');
+                const sf = document.getElementById('statusFilter');
+                const vc = document.getElementById('visibleCount');
+
+                function filter() {
+                    const q = sb?.value.toLowerCase() || '';
+                    const s = sf?.value || '';
+                    let count = 0;
+                    document.querySelectorAll('.student-card-wrap').forEach(card => {
+                        const match = (card.dataset.name.includes(q) || card.dataset.email.includes(q) || card.dataset.queue.includes(q))
+                                   && (!s || card.dataset.status === s);
+                        card.style.display = match ? '' : 'none';
+                        if (match) count++;
+                    });
+                    if (vc) vc.textContent = count;
+                }
+
+                sb?.addEventListener('input', filter);
+                sf?.addEventListener('change', filter);
+            }
+
+            /* ── SIGNALR ── */
+            async function initSignalR() {
+                try {
+                    if (typeof signalR === 'undefined') {
+                        await new Promise(res => {
+                            const t = setInterval(() => { if (typeof signalR !== 'undefined') { clearInterval(t); res(); } }, 100);
+                        });
+                    }
+                    const conn = new signalR.HubConnectionBuilder()
+                        .withUrl('/notificationHub')
+                        .withAutomaticReconnect()
+                        .build();
+                    conn.on('RefreshQueue', () => { showToast('Queue updated! Refreshing…', 'info'); setTimeout(() => location.reload(), 1000); });
+                    await conn.start();
+                } catch (err) { console.error('SignalR:', err); }
+            }
+
+            /* ── BOOT ── */
+            function init() {
+                attachServeButtons();
+                attachUnserveButtons();
+                attachPinInputs();
+                attachDoneButtons();
+                attachSearchFilter();
+                initSignalR();
+                document.getElementById('refreshBtn')?.addEventListener('click', () => location.reload());
+            }
+
+            document.readyState === 'loading'
+                ? document.addEventListener('DOMContentLoaded', init)
+                : init();
+        })();
+    </script>
+}

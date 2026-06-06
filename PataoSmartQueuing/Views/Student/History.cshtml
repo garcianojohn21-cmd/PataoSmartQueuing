@@ -1,0 +1,759 @@
+﻿@model IEnumerable<PataoSmartQueuing.Models.QueueStudent>
+@{
+    ViewData["Title"] = "Queue History";
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+}
+
+<style>
+    /* Uses layout's existing CSS variables — no conflicts */
+
+    .history-wrap {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 4px 40px;
+    }
+
+    /* ── HEADER ── */
+    .history-header {
+        background: var(--nav-gradient);
+        padding: 28px 24px;
+        border-radius: 16px;
+        margin-bottom: 28px;
+        box-shadow: var(--shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+        .history-header h2 {
+            color: var(--white);
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-header i {
+            font-size: 26px;
+        }
+
+    .sq-btn-secondary {
+        background: var(--white);
+        color: var(--green);
+        border: none;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        transition: all 0.25s;
+        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .sq-btn-secondary:hover {
+            background: var(--green-pale);
+            color: var(--green-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+    /* ── ALERTS ── */
+    .sq-alert {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 13px 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-size: 13.5px;
+        font-weight: 500;
+        line-height: 1.5;
+        border: none;
+        box-shadow: var(--shadow-sm);
+        animation: slideDown 0.3s ease;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .sq-alert i {
+        font-size: 16px;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .sq-alert.ok {
+        background: var(--green-pale);
+        color: var(--navy);
+        border-left: 4px solid var(--green);
+    }
+
+    .sq-alert.info {
+        background: #E0F2FE;
+        color: #075985;
+        border-left: 4px solid #0EA5E9;
+    }
+
+    .sq-alert .btn-close {
+        padding: 0;
+        opacity: 0.5;
+    }
+
+        .sq-alert .btn-close:hover {
+            opacity: 1;
+        }
+
+    /* ── STAT CARDS ── */
+    .stat-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 16px;
+        padding: 24px 20px;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.25s;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card.total {
+            background: var(--nav-gradient);
+            color: var(--white);
+            border-color: var(--green);
+        }
+
+        .stat-card.completed {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: var(--white);
+            border-color: #059669;
+        }
+
+        .stat-card.unserved {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: var(--white);
+            border-color: #D97706;
+        }
+
+        .stat-card.days {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            color: var(--white);
+            border-color: #2563EB;
+        }
+
+        .stat-card i {
+            font-size: 28px;
+            margin-bottom: 10px;
+            opacity: 0.95;
+            display: block;
+        }
+
+        .stat-card h3 {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 8px 0;
+            line-height: 1;
+        }
+
+        .stat-card p {
+            margin: 0;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.95;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+    /* ── TABLE ── */
+    .history-table-card {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        margin-bottom: 28px;
+    }
+
+    .sq-table {
+        margin: 0;
+    }
+
+        .sq-table thead {
+            background: var(--nav-gradient);
+            color: var(--white);
+        }
+
+            .sq-table thead th {
+                border: none;
+                padding: 16px 18px;
+                font-weight: 700;
+                font-size: 11px;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+
+        .sq-table tbody td {
+            padding: 16px 18px;
+            vertical-align: middle;
+            border-color: var(--gray-200);
+            font-size: 14px;
+        }
+
+        .sq-table tbody tr {
+            transition: all 0.2s;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+            .sq-table tbody tr:hover {
+                background: var(--green-pale);
+            }
+
+            .sq-table tbody tr:last-child {
+                border-bottom: none;
+            }
+
+    /* ── BADGES ── */
+    .badge-number {
+        background: var(--green-gradient);
+        color: var(--white);
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.25);
+        display: inline-block;
+    }
+
+    .badge-pin {
+        background: var(--off-white);
+        color: var(--green-dark);
+        border: 1px solid var(--border-green);
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .badge-pin i {
+            font-size: 12px;
+        }
+
+    .badge-done {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: var(--white);
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    }
+
+    .badge-unserved {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        color: var(--white);
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+    }
+
+    .queue-name-cell {
+        color: var(--green-dark);
+        font-weight: 700;
+    }
+
+    .queue-desc {
+        font-size: 12px;
+        color: var(--gray-600);
+        margin-top: 4px;
+    }
+
+    /* ── MOBILE CARDS ── */
+    .mobile-history-card {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 12px;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.25s;
+    }
+
+        .mobile-history-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+    .mobile-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+
+    .mobile-card-title {
+        flex: 1;
+    }
+
+        .mobile-card-title h5 {
+            color: var(--green-dark);
+            font-weight: 700;
+            font-size: 14px;
+            margin: 0 0 3px 0;
+        }
+
+        .mobile-card-title small {
+            color: var(--gray-600);
+            font-size: 12px;
+        }
+
+    .mobile-card-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .mobile-card-field {
+        background: var(--green-pale);
+        padding: 10px 12px;
+        border-radius: 10px;
+    }
+
+        .mobile-card-field small {
+            display: block;
+            color: var(--gray-600);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+
+        .mobile-card-field strong {
+            display: block;
+            color: var(--navy);
+            font-size: 13px;
+        }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        background: var(--white);
+        border: 1.5px solid var(--border-green);
+        border-radius: 16px;
+        padding: 48px 28px;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .empty-icon {
+        font-size: 64px;
+        color: var(--green-pale);
+        margin-bottom: 20px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @@keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-12px);
+        }
+    }
+
+    .empty-state h3 {
+        color: var(--navy);
+        font-weight: 800;
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+
+    .empty-state p {
+        color: var(--gray-600);
+        font-size: 14px;
+        margin-bottom: 24px;
+        line-height: 1.6;
+    }
+
+    .sq-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 28px;
+        background: var(--green-gradient);
+        color: var(--white);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s;
+        box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .sq-btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .sq-btn-primary:hover::before {
+            width: 250px;
+            height: 250px;
+        }
+
+        .sq-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+    /* ── RESULTS COUNTER ── */
+    .results-summary {
+        background: var(--green-pale);
+        border: 1.5px solid var(--border-green);
+        border-radius: 12px;
+        padding: 14px 18px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--navy);
+        margin-top: 20px;
+    }
+
+        .results-summary strong {
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+    .results-count {
+        display: inline;
+        color: #10B981;
+        font-weight: 700;
+    }
+
+    .results-unserved {
+        display: inline;
+        color: #F59E0B;
+        font-weight: 700;
+    }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 768px) {
+        .history-header
+
+    {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .history-header h2 {
+        justify-content: center;
+    }
+
+    .sq-btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .stat-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 18px 14px;
+    }
+
+        .stat-card h3 {
+            font-size: 24px;
+        }
+
+        .stat-card i {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .stat-card p {
+            font-size: 11px;
+        }
+
+    .empty-state {
+        padding: 36px 20px;
+    }
+
+    .empty-icon {
+        font-size: 48px;
+    }
+
+    .empty-state h3 {
+        font-size: 18px;
+    }
+
+    }
+
+    @@media (max-width: 576px) {
+        .stat-row
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .mobile-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .results-summary {
+        font-size: 11px;
+    }
+
+    .history-wrap {
+        padding: 0 4px 24px;
+    }
+
+    }
+</style>
+
+<div class="history-wrap">
+
+    <!-- Header -->
+    <div class="history-header">
+        <h2>
+            <i class="bi bi-clock-history"></i> Queue History
+        </h2>
+        <a asp-action="JoinQueue" class="sq-btn-secondary">
+            <i class="bi bi-plus-circle"></i> Join New Queue
+        </a>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="sq-alert ok alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@TempData["Success"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Info"] != null)
+    {
+        <div class="sq-alert info alert-dismissible fade show" role="alert">
+            <i class="bi bi-info-circle-fill"></i>
+            <span>@TempData["Info"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Content -->
+    @if (!Model.Any())
+    {
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>No Queue History Yet</h3>
+            <p>You haven't completed any queues yet. Join a queue to get started!</p>
+            <a asp-action="JoinQueue" class="sq-btn-primary">
+                <i class="bi bi-qr-code"></i> Join Your First Queue
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Statistics -->
+        <div class="stat-row">
+            <div class="stat-card total">
+                <i class="bi bi-list-check"></i>
+                <h3>@Model.Count()</h3>
+                <p>Total Records</p>
+            </div>
+            <div class="stat-card completed">
+                <i class="bi bi-check-circle-fill"></i>
+                <h3>@Model.Count(q => q.Status == "Done")</h3>
+                <p>Completed</p>
+            </div>
+            <div class="stat-card unserved">
+                <i class="bi bi-x-circle-fill"></i>
+                <h3>@Model.Count(q => q.Status == "Unserved")</h3>
+                <p>Unserved</p>
+            </div>
+            <div class="stat-card days">
+                <i class="bi bi-calendar-check"></i>
+                <h3>@Model.GroupBy(m => m.JoinedAt.Date).Count()</h3>
+                <p>Different Days</p>
+            </div>
+        </div>
+
+        <!-- Desktop Table -->
+        <div class="history-table-card d-none d-md-block">
+            <div class="table-responsive">
+                <table class="sq-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Queue #</th>
+                            <th>Queue Name</th>
+                            <th>Pin Code</th>
+                            <th>Date Joined</th>
+                            <th>Time</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="badge-number">#@item.QueueNumber</span>
+                                </td>
+                                <td>
+                                    <div class="queue-name-cell">@item.Queue.QueueName</div>
+                                    @if (!string.IsNullOrEmpty(item.Queue.Description))
+                                    {
+                                        <div class="queue-desc">@item.Queue.Description</div>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge-pin">
+                                        <i class="bi bi-lock-fill"></i>@item.PinCode
+                                    </span>
+                                </td>
+                                <td>
+                                    <i class="bi bi-calendar3" style="color: var(--green); margin-right: 6px;"></i>
+                                    @item.JoinedAt.ToString("MMM dd, yyyy")
+                                </td>
+                                <td>
+                                    <i class="bi bi-clock" style="color: var(--green); margin-right: 6px;"></i>
+                                    @item.JoinedAt.ToString("hh:mm tt")
+                                </td>
+                                <td class="text-center">
+                                    @if (item.Status == "Done")
+                                    {
+                                        <span class="badge-done">
+                                            <i class="bi bi-check-circle-fill"></i> Completed
+                                        </span>
+                                    }
+                                    else if (item.Status == "Unserved")
+                                    {
+                                        <span class="badge-unserved">
+                                            <i class="bi bi-x-circle-fill"></i> Unserved
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="d-md-none">
+            @foreach (var item in Model)
+            {
+                <div class="mobile-history-card">
+                    <div class="mobile-card-header">
+                        <div class="mobile-card-title">
+                            <h5>@item.Queue.QueueName</h5>
+                            @if (!string.IsNullOrEmpty(item.Queue.Description))
+                            {
+                                <small>@item.Queue.Description</small>
+                            }
+                        </div>
+                        @if (item.Status == "Done")
+                        {
+                            <span class="badge-done">
+                                <i class="bi bi-check-circle-fill"></i> Done
+                            </span>
+                        }
+                        else if (item.Status == "Unserved")
+                        {
+                            <span class="badge-unserved">
+                                <i class="bi bi-x-circle-fill"></i> Unserved
+                            </span>
+                        }
+                    </div>
+
+                    <div class="mobile-card-grid">
+                        <div class="mobile-card-field">
+                            <small>Queue Number</small>
+                            <strong>#@item.QueueNumber</strong>
+                        </div>
+                        <div class="mobile-card-field">
+                            <small>Pin Code</small>
+                            <strong>
+                                <i class="bi bi-lock-fill" style="font-size: 10px;"></i> @item.PinCode
+                            </strong>
+                        </div>
+                        <div class="mobile-card-field">
+                            <small>Date</small>
+                            <strong>@item.JoinedAt.ToString("MMM dd, yyyy")</strong>
+                        </div>
+                        <div class="mobile-card-field">
+                            <small>Time</small>
+                            <strong>@item.JoinedAt.ToString("hh:mm tt")</strong>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Results Summary -->
+        <div class="results-summary">
+            <i class="bi bi-list-ul"></i>
+            Showing <strong>@Model.Count()</strong> record@(Model.Count() != 1 ? "s" : "")
+            (<span class="results-count">@Model.Count(q => q.Status == "Done")</span> completed,
+            <span class="results-unserved">@Model.Count(q => q.Status == "Unserved")</span> unserved)
+        </div>
+    }
+
+</div>

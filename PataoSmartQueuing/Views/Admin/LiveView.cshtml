@@ -1,0 +1,674 @@
+﻿@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Live Queue Display";
+
+    var servingStudents = ViewBag.ServingStudents as List<PataoSmartQueuing.Models.QueueStudent>;
+    var nextInLine = ViewBag.NextInLine as List<PataoSmartQueuing.Models.QueueStudent>;
+}
+
+@* Google Font — Syne for display numerals + DM Sans for labels *@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* ── TOKENS ── */
+    :root {
+        --navy: #0B1320;
+        --navy2: #111D2E;
+        --navy3: #162236;
+        --navy4: #1E2F45;
+        --g: #22C55E;
+        --gd: #16A34A;
+        --gl: #4ADE80;
+        --gp: rgba(34,197,94,.08);
+        --gb: rgba(34,197,94,.22);
+        --white: #FFFFFF;
+        --offwhite: #F0FDF4;
+        --slate: #94A3B8;
+        --border: rgba(34,197,94,.18);
+        --grad: linear-gradient(135deg,#22C55E 0%,#16A34A 100%);
+        --sh-g: 0 0 40px rgba(34,197,94,.25);
+        --sh-g2: 0 0 80px rgba(34,197,94,.12);
+        --font-d: 'Syne', sans-serif;
+        --font-b: 'DM Sans', sans-serif;
+    }
+
+    /* ── RESET FOR LIVE PAGE ── */
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: var(--font-b);
+        background: var(--navy);
+        overflow: hidden;
+        height: 100vh;
+    }
+
+    /* ── FLOATING CONTROLS ── */
+    .live-controls {
+        position: fixed;
+        top: 18px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        gap: 10px;
+    }
+
+    .ctrl-btn {
+        font-family: var(--font-b);
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: 1.5px solid var(--border);
+        background: rgba(11,19,32,.85);
+        color: var(--g);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: all .2s;
+        backdrop-filter: blur(12px);
+    }
+
+        .ctrl-btn:hover,
+        .ctrl-btn.active {
+            background: var(--grad);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: var(--sh-g);
+        }
+
+    /* ── OUTER WRAPPER (the thing we zoom) ── */
+    #liveRoot {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+        background: var(--navy);
+        transition: none;
+    }
+
+    /* ── TOP HEADER BAR ── */
+    .live-header {
+        flex-shrink: 0;
+        background: var(--navy2);
+        border-bottom: 1px solid var(--border);
+        padding: 18px 36px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+
+        /* animated green sweep */
+        .live-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34,197,94,.06), transparent);
+            animation: sweep 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+    @@keyframes sweep {
+        0% {
+            left: -60%;
+        }
+
+        100% {
+            left: 160%;
+        }
+    }
+
+    .hdr-name {
+        font-family: var(--font-d);
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: var(--white);
+        letter-spacing: .5px;
+    }
+
+    .hdr-live {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--gp);
+        border: 1.5px solid var(--border);
+        color: var(--gl);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        padding: 7px 18px;
+        border-radius: 30px;
+    }
+
+        .hdr-live .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--g);
+            animation: blink 1.2s ease-in-out infinite;
+        }
+
+    @@keyframes blink {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: .35;
+            transform: scale(.7);
+        }
+    }
+
+    /* ── MAIN PANELS ── */
+    .live-body {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        min-height: 0;
+    }
+
+    /* ── NOW SERVING PANEL ── */
+    .panel-serving {
+        background: var(--navy2);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        /* radial glow behind number */
+        .panel-serving::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 55%;
+            transform: translate(-50%,-50%);
+            width: 520px;
+            height: 520px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,.14) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* subtle grid texture */
+        .panel-serving::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(34,197,94,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+
+    .panel-label {
+        font-family: var(--font-b);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--g);
+        margin-bottom: 24px;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .panel-label::before,
+        .panel-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border));
+        }
+
+        .panel-label::after {
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+
+    .serve-number {
+        font-family: var(--font-d);
+        font-size: clamp(7rem, 18vw, 14rem);
+        font-weight: 800;
+        color: var(--white);
+        line-height: .9;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 0 80px rgba(34,197,94,.4), 0 0 20px rgba(34,197,94,.2);
+        animation: numPulse 3s ease-in-out infinite;
+    }
+
+        .serve-number .hash {
+            color: var(--g);
+            font-size: .6em;
+            vertical-align: super;
+            margin-right: 4px;
+        }
+
+    @@keyframes numPulse {
+        0%, 100% {
+            text-shadow: 0 0 80px rgba(34,197,94,.4), 0 0 20px rgba(34,197,94,.2);
+        }
+
+        50% {
+            text-shadow: 0 0 120px rgba(34,197,94,.6), 0 0 40px rgba(34,197,94,.3);
+        }
+    }
+
+    .serve-idle {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .idle-icon {
+        font-size: 5rem;
+        color: var(--navy4);
+        animation: floatIdle 3s ease-in-out infinite;
+    }
+
+    @@keyframes floatIdle {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-16px);
+        }
+    }
+
+    .idle-text {
+        font-family: var(--font-d);
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--navy4);
+        text-align: center;
+        letter-spacing: 1px;
+    }
+
+    /* ── NEXT IN LINE PANEL ── */
+    .panel-next {
+        background: var(--navy);
+        display: flex;
+        flex-direction: column;
+        padding: 40px;
+        overflow: hidden;
+    }
+
+    .next-list {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 14px;
+    }
+
+    /* each row */
+    .next-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        background: var(--navy3);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px 24px;
+        transition: all .25s;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .next-row::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--grad);
+            border-radius: 4px 0 0 4px;
+        }
+
+        .next-row:first-child {
+            border-color: rgba(34,197,94,.45);
+            background: rgba(22,35,54,.9);
+            box-shadow: 0 0 30px rgba(34,197,94,.1);
+        }
+
+        .next-row:hover {
+            border-color: rgba(34,197,94,.5);
+            transform: translateX(6px);
+        }
+
+    .row-pos {
+        font-family: var(--font-d);
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--slate);
+        width: 24px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .next-row:first-child .row-pos {
+        color: var(--g);
+    }
+
+    .row-num {
+        font-family: var(--font-d);
+        font-size: 2.6rem;
+        font-weight: 800;
+        color: var(--white);
+        line-height: 1;
+        flex: 1;
+    }
+
+    .next-row:first-child .row-num {
+        color: var(--gl);
+        text-shadow: 0 0 20px rgba(74,222,128,.3);
+    }
+
+    .row-arrow {
+        color: var(--navy4);
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        transition: color .2s;
+    }
+
+    .next-row:first-child .row-arrow {
+        color: var(--g);
+    }
+
+    .next-row:hover .row-arrow {
+        color: var(--g);
+    }
+
+    .next-idle {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .next-idle-icon {
+        font-size: 4rem;
+        color: var(--navy4);
+    }
+
+    .next-idle-text {
+        font-family: var(--font-d);
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--navy4);
+        text-align: center;
+    }
+
+    /* ── FULLSCREEN: hide sidebar/navbar, expand content ── */
+    :fullscreen #liveRoot,
+    :-webkit-full-screen #liveRoot,
+    :-moz-full-screen #liveRoot {
+        height: 100vh !important;
+        width: 100vw !important;
+    }
+
+    :fullscreen .sidebar,
+    :fullscreen .navbar,
+    :fullscreen .live-controls,
+    :-webkit-full-screen .sidebar,
+    :-webkit-full-screen .navbar,
+    :-webkit-full-screen .live-controls,
+    :-moz-full-screen .sidebar,
+    :-moz-full-screen .navbar,
+    :-moz-full-screen .live-controls {
+        display: none !important;
+    }
+
+    :fullscreen .main-content,
+    :-webkit-full-screen .main-content,
+    :-moz-full-screen .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* ── ZOOM: fills entire viewport ── */
+    #liveRoot.zoomed {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 8888 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        overflow: hidden;
+    }
+</style>
+
+<!-- FLOATING CONTROLS (outside liveRoot so always visible) -->
+<div class="live-controls">
+    <button class="ctrl-btn active" id="voiceToggle" onclick="toggleVoice()">
+        <i class="bi bi-volume-up-fill"></i>
+        <span id="voiceText">Voice On</span>
+    </button>
+    <button class="ctrl-btn" id="zoomToggle" onclick="toggleZoom()">
+        <i class="bi bi-fullscreen" id="zoomIcon"></i>
+        <span id="zoomText">Zoom Full</span>
+    </button>
+    <button class="ctrl-btn" onclick="toggleFullScreen()">
+        <i class="bi bi-arrows-fullscreen"></i>
+        Full Screen
+    </button>
+</div>
+
+<!-- ── LIVE ROOT (everything that zooms) ── -->
+<div id="liveRoot">
+
+    <!-- HEADER -->
+    <div class="live-header">
+        <div class="hdr-name">
+            <i class="bi bi-broadcast me-2" style="color:var(--g)"></i>@ViewBag.QueueName
+        </div>
+        <div class="hdr-live">
+            <span class="dot"></span> Live Queue Display
+        </div>
+    </div>
+
+    <!-- BODY PANELS -->
+    <div class="live-body" id="queueContainer">
+
+        <!-- NOW SERVING -->
+        <div class="panel-serving">
+            <div class="panel-label">
+                <i class="bi bi-broadcast-pin"></i>&nbsp;Now Serving
+            </div>
+
+            @if (servingStudents != null && servingStudents.Any())
+            {
+                foreach (var student in servingStudents)
+                {
+                    <div class="serve-number" data-serving="@student.QueueNumber">
+                        <span class="hash">#</span>@student.QueueNumber
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="serve-idle">
+                    <i class="bi bi-hourglass-split idle-icon"></i>
+                    <div class="idle-text">Waiting for<br>Next Customer</div>
+                </div>
+            }
+        </div>
+
+        <!-- NEXT IN LINE -->
+        <div class="panel-next">
+            <div class="panel-label" style="color:var(--gl)">
+                <i class="bi bi-list-ol"></i>&nbsp;Next in Line
+            </div>
+
+            @if (nextInLine != null && nextInLine.Any())
+            {
+                <div class="next-list">
+                    @for (int i = 0; i < Math.Min(nextInLine.Count, 5); i++)
+                    {
+                        var student = nextInLine[i];
+                        <div class="next-row" data-next="@student.QueueNumber" data-position="@(i + 1)">
+                            <div class="row-pos">@(i + 1)</div>
+                            <div class="row-num"><span style="color:var(--g);font-size:.55em;vertical-align:super">#</span>@student.QueueNumber</div>
+                            <i class="bi bi-chevron-right row-arrow"></i>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="next-idle">
+                    <i class="bi bi-inbox next-idle-icon"></i>
+                    <div class="next-idle-text">No students<br>in queue</div>
+                </div>
+            }
+        </div>
+
+    </div><!-- /live-body -->
+</div><!-- /liveRoot -->
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            /* ── VOICE ── */
+            let voiceEnabled    = true;
+            let lastServing     = [];
+            let lastNext        = [];
+            let speaking        = false;
+
+            function speak(text, priority) {
+                if (!voiceEnabled || !('speechSynthesis' in window)) return;
+                if (priority) window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.rate = 0.88; u.pitch = 1; u.volume = 1;
+                const voices = window.speechSynthesis.getVoices();
+                const pick = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Microsoft')))
+                          || voices.find(v => v.lang.startsWith('en'));
+                if (pick) u.voice = pick;
+                u.onstart = () => speaking = true;
+                u.onend   = () => speaking = false;
+                u.onerror = () => speaking = false;
+                window.speechSynthesis.speak(u);
+            }
+
+            function announceChanges() {
+                if (!voiceEnabled) return;
+                const nowS = [...document.querySelectorAll('[data-serving]')].map(e => e.dataset.serving);
+                const nowN = [...document.querySelectorAll('[data-next]')].map(e => e.dataset.next);
+                nowS.filter(n => !lastServing.includes(n)).forEach(n => speak(`Now serving number ${n}`, true));
+                if (nowN[0] && nowN[0] !== lastNext[0]) setTimeout(() => speak(`Next in line, number ${nowN[0]}`), 2200);
+                lastServing = nowS;
+                lastNext    = nowN;
+            }
+
+            window.toggleVoice = function () {
+                voiceEnabled = !voiceEnabled;
+                const btn  = document.getElementById('voiceToggle');
+                const text = document.getElementById('voiceText');
+                if (voiceEnabled) {
+                    btn.classList.add('active');
+                    text.textContent = 'Voice On';
+                    speak('Voice announcements enabled');
+                } else {
+                    btn.classList.remove('active');
+                    text.textContent = 'Voice Off';
+                    window.speechSynthesis.cancel();
+                }
+            };
+
+            /* ── ZOOM (fills entire screen without leaving page) ── */
+            let zoomed = false;
+            window.toggleZoom = function () {
+                const root = document.getElementById('liveRoot');
+                const icon = document.getElementById('zoomIcon');
+                const text = document.getElementById('zoomText');
+                zoomed = !zoomed;
+                if (zoomed) {
+                    root.classList.add('zoomed');
+                    document.getElementById('zoomToggle').classList.add('active');
+                    icon.className = 'bi bi-fullscreen-exit';
+                    text.textContent = 'Exit Zoom';
+                } else {
+                    root.classList.remove('zoomed');
+                    document.getElementById('zoomToggle').classList.remove('active');
+                    icon.className = 'bi bi-fullscreen';
+                    text.textContent = 'Zoom Full';
+                }
+            };
+
+            /* ── FULLSCREEN ── */
+            window.toggleFullScreen = function () {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(e => console.error(e));
+                } else {
+                    document.exitFullscreen();
+                }
+            };
+
+            /* ── QUEUE REFRESH ── */
+            function refreshQueue() {
+                fetch('/Admin/LiveView?queueId=@ViewBag.QueueId')
+                    .then(r => r.text())
+                    .then(html => {
+                        const doc = new DOMParser().parseFromString(html, 'text/html');
+                        const fresh = doc.getElementById('queueContainer');
+                        if (fresh) {
+                            document.getElementById('queueContainer').innerHTML = fresh.innerHTML;
+                            setTimeout(announceChanges, 500);
+                        }
+                    })
+                    .catch(e => console.error('Refresh error:', e));
+            }
+
+            setInterval(refreshQueue, 2000);
+            setTimeout(announceChanges, 1000);
+
+            /* ── SIGNALR ── */
+            const conn = new signalR.HubConnectionBuilder()
+                .withUrl('/notificationHub')
+                .withAutomaticReconnect()
+                .build();
+            conn.on('RefreshQueue', refreshQueue);
+            conn.start().catch(e => console.error('SignalR:', e));
+
+            /* ── KEYBOARD SHORTCUTS ── */
+            document.addEventListener('keydown', e => {
+                if (e.key === 'f' || e.key === 'F') toggleFullScreen();
+                if (e.key === 'v' || e.key === 'V') toggleVoice();
+                if (e.key === 'z' || e.key === 'Z') toggleZoom();
+                if (e.key === 'Escape' && zoomed)   toggleZoom();
+            });
+
+        })();
+    </script>
+}

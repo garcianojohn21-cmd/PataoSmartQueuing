@@ -1,0 +1,554 @@
+﻿@model IEnumerable<PataoSmartQueuing.Models.Admin>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Administrators";
+}
+
+@Html.AntiForgeryToken()
+
+<style>
+    :root {
+        --parakeet-green: #3DDC84;
+        --parakeet-dark: #2AB366;
+        --parakeet-light: #6FFFB0;
+        --parakeet-pale: #E8FFF3;
+    }
+
+    .parakeet-header {
+        background: linear-gradient(135deg, var(--parakeet-pale) 0%, #ffffff 100%);
+        border-left: 4px solid var(--parakeet-green);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(61, 220, 132, 0.1);
+    }
+
+    .parakeet-title {
+        color: var(--parakeet-dark);
+        font-weight: 700;
+    }
+
+    .parakeet-card {
+        background: linear-gradient(135deg, var(--parakeet-pale) 0%, #ffffff 100%);
+        border: 2px solid var(--parakeet-green);
+        box-shadow: 0 4px 16px rgba(61, 220, 132, 0.2);
+        border-radius: 8px;
+    }
+
+    .stat-card {
+        background: white;
+        border: 2px solid var(--parakeet-green);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(61, 220, 132, 0.3);
+        }
+
+    .stat-icon {
+        background: linear-gradient(135deg, var(--parakeet-green) 0%, var(--parakeet-dark) 100%);
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-parakeet {
+        background-color: var(--parakeet-green);
+        border-color: var(--parakeet-dark);
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-parakeet:hover {
+            background-color: var(--parakeet-dark);
+            border-color: var(--parakeet-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61, 220, 132, 0.4);
+            color: white;
+        }
+
+    .btn-outline-parakeet {
+        border-color: var(--parakeet-green);
+        color: var(--parakeet-dark);
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-outline-parakeet:hover {
+            background-color: var(--parakeet-green);
+            border-color: var(--parakeet-dark);
+            color: white;
+        }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--parakeet-green);
+        box-shadow: 0 0 0 0.2rem rgba(61, 220, 132, 0.25);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: var(--parakeet-pale);
+    }
+
+    .table thead {
+        background: linear-gradient(135deg, var(--parakeet-green) 0%, var(--parakeet-dark) 100%);
+        color: white;
+    }
+
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--parakeet-green) 0%, var(--parakeet-dark) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+        border: 2px solid white;
+        box-shadow: 0 2px 8px rgba(61, 220, 132, 0.3);
+    }
+
+    .role-badge {
+        font-size: 0.85rem;
+        padding: 5px 10px;
+        cursor: default;
+        border-radius: 20px;
+    }
+
+    .modal-header.parakeet-modal-header {
+        background: linear-gradient(135deg, var(--parakeet-green) 0%, var(--parakeet-dark) 100%);
+        color: white;
+    }
+
+    .parakeet-link {
+        color: var(--parakeet-dark);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+        .parakeet-link:hover {
+            color: var(--parakeet-green);
+            text-decoration: none;
+        }
+
+    .form-label {
+        color: var(--parakeet-dark);
+        font-weight: 600;
+    }
+
+    .badge.bg-danger {
+        background-color: #dc3545 !important;
+    }
+
+    .badge.bg-info {
+        background-color: #0dcaf0 !important;
+    }
+
+    .badge.bg-warning {
+        background-color: #ffc107 !important;
+    }
+
+    .badge.bg-secondary {
+        background-color: #6c757d !important;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="parakeet-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="parakeet-title mb-1">
+                    <i class="bi bi-people-fill"></i> Manage Administrators
+                </h2>
+                <p class="text-muted mb-0">View and manage system administrators</p>
+            </div>
+            <div>
+                <a href="@Url.Action("Register")" class="btn btn-parakeet">
+                    <i class="bi bi-person-plus"></i> Add New Admin
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon me-3">
+                            <i class="bi bi-people-fill" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted mb-0">Total Admins</h6>
+                            <h3 class="mb-0 parakeet-title">@ViewBag.TotalAdmins</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon me-3">
+                            <i class="bi bi-shield-fill-check" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted mb-0">Super Admins</h6>
+                            <h3 class="mb-0 parakeet-title">@ViewBag.SuperAdminCount</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon me-3">
+                            <i class="bi bi-file-earmark-text" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted mb-0">Registrars</h6>
+                            <h3 class="mb-0 parakeet-title">@ViewBag.RegistrarCount</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon me-3">
+                            <i class="bi bi-person-badge" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted mb-0">Staff</h6>
+                            <h3 class="mb-0 parakeet-title">@ViewBag.StaffCount</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card parakeet-card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="ManageAdmins" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Search</label>
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               placeholder="Name or email..."
+                               value="@ViewBag.SearchTerm">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Role Filter</label>
+                        <select name="roleFilter" class="form-select">
+                            @{
+                                var roleFilter = ViewBag.RoleFilter as string;
+                            }
+                            <option value="">All Roles</option>
+                            <option value="SuperAdmin" selected="@(roleFilter == "SuperAdmin")">Super Admin</option>
+                            <option value="Registrar" selected="@(roleFilter == "Registrar")">Registrar</option>
+                            <option value="Staff" selected="@(roleFilter == "Staff")">Staff</option>
+                            <option value="Advance" selected="@(roleFilter == "Advance")">Advance</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Sort By</label>
+                        <select name="sortBy" class="form-select">
+                            @{
+                                var sortBy = ViewBag.SortBy as string ?? "recent";
+                            }
+                            <option value="recent" selected="@(sortBy == "recent")">Most Recent</option>
+                            <option value="oldest" selected="@(sortBy == "oldest")">Oldest First</option>
+                            <option value="name" selected="@(sortBy == "name")">Name (A-Z)</option>
+                            <option value="email" selected="@(sortBy == "email")">Email (A-Z)</option>
+                            <option value="role" selected="@(sortBy == "role")">Role</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-parakeet">
+                                <i class="bi bi-filter"></i> Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="@Url.Action("ManageAdmins")" class="parakeet-link">
+                        <i class="bi bi-x-circle"></i> Clear Filters
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin List -->
+    <div class="card parakeet-card">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-people" style="font-size: 4rem; color: var(--parakeet-green);"></i>
+                    <h5 class="mt-3 parakeet-title">No Administrators Found</h5>
+                    <p class="text-muted">
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm) || !string.IsNullOrEmpty(ViewBag.RoleFilter))
+                        {
+                            <text>Try adjusting your filters</text>
+                        }
+                        else
+                        {
+                            <text>Add your first administrator</text>
+                        }
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Administrator</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th width="200">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var admin in Model)
+                            {
+                                var roleBadgeClass = admin.Role switch
+                                {
+                                    "SuperAdmin" => "bg-danger",
+                                    "Registrar" => "bg-info",
+                                    "Advance" => "bg-warning text-dark",
+                                    _ => "bg-secondary"
+                                };
+
+                                <tr data-admin-id="@admin.AdminID">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-2">
+                                                @admin.FirstName.Substring(0, 1)@admin.LastName.Substring(0, 1)
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">
+                                                    @admin.FirstName @admin.MiddleName @admin.LastName
+                                                </h6>
+                                                <small class="text-muted">ID: @admin.AdminID</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-envelope me-1" style="color: var(--parakeet-green);"></i>
+                                        <small>@admin.Email</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge @roleBadgeClass role-badge"
+                                              data-admin-id="@admin.AdminID"
+                                              data-current-role="@admin.Role">
+                                            @admin.Role
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            @admin.CreatedAt.ToString("MMM dd, yyyy")
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="@Url.Action("AdminDetails", new { id = admin.AdminID })"
+                                               class="btn btn-outline-parakeet"
+                                               title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <button class="btn btn-outline-parakeet change-role-btn"
+                                                    data-admin-id="@admin.AdminID"
+                                                    data-admin-name="@admin.FirstName @admin.LastName"
+                                                    data-current-role="@admin.Role"
+                                                    title="Change Role">
+                                                <i class="bi bi-person-gear"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger remove-admin-btn"
+                                                    data-admin-id="@admin.AdminID"
+                                                    data-admin-name="@admin.FirstName @admin.LastName"
+                                                    data-admin-email="@admin.Email"
+                                                    title="Remove Admin">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Change Role Modal -->
+<div class="modal fade" id="changeRoleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header parakeet-modal-header">
+                <h5 class="modal-title">Change Administrator Role</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Change role for <strong id="roleAdminName"></strong>?</p>
+                <div class="mb-3">
+                    <label class="form-label">Current Role:</label>
+                    <p><span class="badge bg-secondary" id="currentRoleBadge"></span></p>
+                </div>
+                <div class="mb-3">
+                    <label for="newRoleSelect" class="form-label">New Role:</label>
+                    <select class="form-select" id="newRoleSelect">
+                        <option value="SuperAdmin">Super Admin</option>
+                        <option value="Registrar">Registrar</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-parakeet" id="confirmRoleChangeBtn">Update Role</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Admin Modal -->
+<div class="modal fade" id="removeAdminModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Remove Administrator</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Warning: This action cannot be undone!</strong>
+                </div>
+                <p>Are you sure you want to remove this administrator?</p>
+                <div class="mb-2">
+                    <strong>Name:</strong> <span id="removeAdminName"></span>
+                </div>
+                <div class="mb-2">
+                    <strong>Email:</strong> <span id="removeAdminEmail"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmRemoveBtn">Remove Administrator</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const token = $('input[name="__RequestVerificationToken"]').val();
+            let currentAdminId = null;
+
+            // Change Role Modal
+            const changeRoleModal = new bootstrap.Modal($('#changeRoleModal')[0]);
+            $('.change-role-btn').click(function() {
+                currentAdminId = $(this).data('admin-id');
+                const adminName = $(this).data('admin-name');
+                const currentRole = $(this).data('current-role');
+
+                $('#roleAdminName').text(adminName);
+                $('#currentRoleBadge').text(currentRole);
+                $('#newRoleSelect').val(currentRole);
+
+                changeRoleModal.show();
+            });
+
+            $('#confirmRoleChangeBtn').click(function() {
+                const newRole = $('#newRoleSelect').val();
+
+                $.ajax({
+                    url: '@Url.Action("UpdateAdminRoleAjax")',
+                    type: 'POST',
+                    data: {
+                        id: currentAdminId,
+                        newRole: newRole,
+                        __RequestVerificationToken: token
+                    },
+                    success: function(response) {
+                        changeRoleModal.hide();
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function() {
+                        changeRoleModal.hide();
+                        toastr.error('Error updating role');
+                    }
+                });
+            });
+
+            // Remove Admin Modal
+            const removeAdminModal = new bootstrap.Modal($('#removeAdminModal')[0]);
+            $('.remove-admin-btn').click(function() {
+                currentAdminId = $(this).data('admin-id');
+                const adminName = $(this).data('admin-name');
+                const adminEmail = $(this).data('admin-email');
+
+                $('#removeAdminName').text(adminName);
+                $('#removeAdminEmail').text(adminEmail);
+
+                removeAdminModal.show();
+            });
+
+            $('#confirmRemoveBtn').click(function() {
+                $.ajax({
+                    url: '@Url.Action("RemoveAdminAjax")',
+                    type: 'POST',
+                    data: {
+                        id: currentAdminId,
+                        __RequestVerificationToken: token
+                    },
+                    success: function(response) {
+                        removeAdminModal.hide();
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function() {
+                        removeAdminModal.hide();
+                        toastr.error('Error removing administrator');
+                    }
+                });
+            });
+        });
+    </script>
+}

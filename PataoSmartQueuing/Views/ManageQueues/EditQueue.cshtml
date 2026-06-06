@@ -1,0 +1,69 @@
+﻿@model PataoSmartQueuing.Models.Queue
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Edit Queue";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header text-white text-center py-3" style="background: linear-gradient(90deg, #ffc107, #ffcd39);">
+                    <h4 class="mb-0 fw-bold">
+                        <i class="bi bi-pencil-square me-2"></i> Edit Queue
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Validation Errors -->
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <form asp-action="EditQueue" method="post">
+                        <input type="hidden" asp-for="QueueID" />
+
+                        <!-- Queue Name -->
+                        <div class="mb-3">
+                            <label asp-for="QueueName" class="form-label fw-semibold"></label>
+                            <input asp-for="QueueName" class="form-control" placeholder="Enter queue name" />
+                            <span asp-validation-for="QueueName" class="text-danger"></span>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter queue description..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Max Students -->
+                        <div class="mb-3">
+                            <label asp-for="MaxStudents" class="form-label fw-semibold"></label>
+                            <input asp-for="MaxStudents" type="number" class="form-control" placeholder="Enter maximum students" />
+                            <span asp-validation-for="MaxStudents" class="text-danger"></span>
+                        </div>
+
+                        <!-- Queue Code (read-only, cannot edit) -->
+                        <div class="mb-3">
+                            <label asp-for="QueueCode" class="form-label fw-semibold"></label>
+                            <input asp-for="QueueCode" class="form-control bg-light" readonly />
+                            <small class="text-muted"><i class="bi bi-info-circle"></i> Queue code cannot be changed.</small>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-between mt-4 flex-wrap">
+                            <a asp-action="ManageQueues" class="btn btn-outline-secondary px-4 py-2 rounded-3 mb-2">
+                                <i class="bi bi-arrow-left-circle me-1"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-warning px-4 py-2 rounded-3 mb-2">
+                                <i class="bi bi-save me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

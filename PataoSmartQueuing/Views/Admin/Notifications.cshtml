@@ -1,0 +1,1341 @@
+﻿@model IEnumerable<PataoSmartQueuing.Models.QueueStudent>
+@{
+    ViewData["Title"] = "Notification Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+<style>
+    :root {
+        --navy: #0D1B2A;
+        --navy-mid: #1B2E44;
+        --navy-light: #243A52;
+        --green: #22C55E;
+        --green-dark: #16A34A;
+        --green-light: #4ADE80;
+        --green-pale: #F0FDF4;
+        --green-gradient: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        --navy-gradient: linear-gradient(135deg, #0D1B2A 0%, #1B2E44 100%);
+        --white: #FFFFFF;
+        --border: rgba(34, 197, 94, 0.25);
+        --shadow: 0 8px 32px rgba(13, 27, 42, 0.18);
+        --shadow-sm: 0 2px 8px rgba(13, 27, 42, 0.08);
+        --shadow-green: 0 6px 24px rgba(34, 197, 94, 0.25);
+    }
+
+    /* ── PAGE HEADER ── */
+    .notif-page-header {
+        background: var(--navy-gradient);
+        border-radius: 22px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+        .notif-page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .notif-page-header::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+        }
+
+        .notif-page-header h2 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            margin: 0 0 4px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .notif-page-header h2 i {
+                color: var(--green-light);
+            }
+
+        .notif-page-header p {
+            color: rgba(255,255,255,0.55);
+            font-size: 13px;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            padding-left: 34px;
+        }
+
+    /* ── SHARED CARD ── */
+    .cq-card {
+        background: var(--white);
+        border-radius: 22px;
+        border: 2px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+    }
+
+        .cq-card:hover {
+            transform: translateY(-2px);
+        }
+
+    .cq-card-header {
+        background: var(--navy-gradient);
+        padding: 20px 28px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .cq-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .cq-card-header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%);
+        }
+
+        .cq-card-header h5 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.4px;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .cq-card-header h5 i {
+                color: var(--green-light);
+            }
+
+    .cq-card-body {
+        padding: 28px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    /* ── QUEUE SELECTOR ── */
+    .queue-selector-wrap {
+        background: var(--white);
+        border-radius: 22px;
+        border: 2px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        padding: 24px 28px;
+        margin-bottom: 24px;
+    }
+
+    .form-label-cq {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .form-label-cq i {
+            color: var(--green-dark);
+            font-size: 14px;
+        }
+
+    .form-control-cq,
+    .form-select-cq {
+        border: 2px solid rgba(34,197,94,0.3);
+        border-radius: 12px;
+        padding: 13px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--navy);
+        background: var(--white);
+        transition: all 0.25s;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+        appearance: auto;
+    }
+
+        .form-control-cq:focus,
+        .form-select-cq:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+        }
+
+    /* ── ACTION CARDS ── */
+    .action-card {
+        background: var(--white);
+        border-radius: 22px;
+        border: 2px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        height: 100%;
+        transition: all 0.25s;
+    }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-green);
+            border-color: var(--green);
+        }
+
+    .action-card-header {
+        background: var(--navy-gradient);
+        padding: 18px 22px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .action-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .action-card-header::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+        }
+
+    /* Green variant */
+    .action-card.green .action-card-header::after {
+        background: var(--green-gradient);
+    }
+
+    .action-card.green .action-card-header::before {
+        background: radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%);
+    }
+
+    .action-card.green .action-icon {
+        background: rgba(34,197,94,0.15);
+        color: var(--green-light);
+    }
+
+    /* Blue variant */
+    .action-card.blue .action-card-header {
+        background: linear-gradient(135deg, #1E3A5F 0%, #1E40AF 100%);
+    }
+
+        .action-card.blue .action-card-header::after {
+            background: linear-gradient(135deg, #93C5FD 0%, #3B82F6 100%);
+        }
+
+        .action-card.blue .action-card-header::before {
+            background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+        }
+
+    .action-card.blue .action-icon {
+        background: rgba(59,130,246,0.15);
+        color: #93C5FD;
+    }
+
+    .action-card.blue:hover {
+        border-color: #3B82F6;
+        box-shadow: 0 6px 24px rgba(59,130,246,0.25);
+    }
+
+    /* Red variant */
+    .action-card.red .action-card-header {
+        background: linear-gradient(135deg, #7F1D1D 0%, #B91C1C 100%);
+    }
+
+        .action-card.red .action-card-header::after {
+            background: linear-gradient(135deg, #FCA5A5 0%, #F87171 100%);
+        }
+
+        .action-card.red .action-card-header::before {
+            background: radial-gradient(circle, rgba(220,38,38,0.15) 0%, transparent 70%);
+        }
+
+    .action-card.red .action-icon {
+        background: rgba(220,38,38,0.15);
+        color: #FCA5A5;
+    }
+
+    .action-card.red:hover {
+        border-color: #DC2626;
+        box-shadow: 0 6px 24px rgba(220,38,38,0.25);
+    }
+
+    .action-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .action-card-title {
+        position: relative;
+        z-index: 1;
+    }
+
+        .action-card-title h5 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 14px;
+            margin: 0 0 2px;
+        }
+
+        .action-card-title small {
+            color: rgba(255,255,255,0.55);
+            font-size: 11px;
+        }
+
+    .action-card-body {
+        padding: 20px 22px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    .action-card.blue .action-card-body {
+        background: linear-gradient(160deg, #fff 60%, #EFF6FF 100%);
+    }
+
+    .action-card.red .action-card-body {
+        background: linear-gradient(160deg, #fff 60%, #FEF2F2 100%);
+    }
+
+    .action-card-body p {
+        color: #6B7280;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 18px;
+    }
+
+    /* ── SETTINGS FORM ── */
+    .form-switch-cq .form-check-input {
+        width: 44px;
+        height: 24px;
+        border: 2px solid rgba(34,197,94,0.3);
+        cursor: pointer;
+        background-color: #E5E7EB;
+        transition: all 0.25s;
+    }
+
+        .form-switch-cq .form-check-input:checked {
+            background-color: var(--green);
+            border-color: var(--green);
+        }
+
+    .form-switch-cq .form-check-label {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 13px;
+        margin-left: 6px;
+        cursor: pointer;
+    }
+
+    .helper-text {
+        font-size: 12px;
+        color: #6B7280;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .helper-text i {
+            color: var(--green-dark);
+        }
+
+    /* ── TABLE ── */
+    .cq-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .cq-table thead tr {
+            background: var(--navy);
+        }
+
+        .cq-table thead th {
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 16px;
+            border: none;
+        }
+
+            .cq-table thead th:first-child {
+                border-radius: 0;
+            }
+
+        .cq-table tbody tr {
+            border-bottom: 1px solid rgba(34,197,94,0.08);
+            transition: background 0.15s;
+        }
+
+            .cq-table tbody tr:hover {
+                background: var(--green-pale);
+            }
+
+            .cq-table tbody tr:last-child {
+                border-bottom: none;
+            }
+
+        .cq-table tbody td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: var(--navy);
+            vertical-align: middle;
+        }
+
+    .cq-checkbox {
+        width: 17px;
+        height: 17px;
+        border: 2px solid rgba(34,197,94,0.4);
+        border-radius: 5px;
+        cursor: pointer;
+        accent-color: var(--green);
+    }
+
+    /* ── STATUS BADGES ── */
+    .badge-cq {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .badge-serving {
+        background: rgba(245,158,11,0.12);
+        color: #D97706;
+        border: 1px solid rgba(245,158,11,0.3);
+    }
+
+    .badge-pending {
+        background: rgba(59,130,246,0.12);
+        color: #2563EB;
+        border: 1px solid rgba(59,130,246,0.3);
+    }
+
+    .badge-default {
+        background: rgba(107,114,128,0.12);
+        color: #6B7280;
+        border: 1px solid #D1D5DB;
+    }
+
+    .badge-number {
+        background: var(--navy);
+        color: var(--green-light);
+        border: none;
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    /* position text */
+    .pos-next {
+        color: var(--green-dark);
+        font-weight: 800;
+        font-size: 13px;
+    }
+
+    .pos-close {
+        color: #D97706;
+        font-weight: 700;
+        font-size: 13px;
+    }
+
+    .pos-normal {
+        color: #6B7280;
+        font-size: 13px;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #D1D5DB;
+            display: block;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h5 {
+            color: #9CA3AF;
+            font-weight: 700;
+            margin: 0;
+        }
+
+    /* ── NO QUEUE SELECTED ── */
+    .no-queue-box {
+        background: #EFF6FF;
+        border: 2px solid #BFDBFE;
+        border-left: 5px solid #3B82F6;
+        border-radius: 12px;
+        padding: 16px 20px;
+        color: #1E3A5F;
+        font-size: 13.5px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .no-queue-box i {
+            color: #3B82F6;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+    /* ── BUTTONS ── */
+    .btn-cq {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.25s;
+        width: 100%;
+    }
+
+    .btn-cq-green {
+        background: var(--green-gradient);
+        color: var(--white);
+        box-shadow: var(--shadow-green);
+    }
+
+        .btn-cq-green:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(34,197,94,0.4);
+        }
+
+    .btn-cq-blue {
+        background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+        color: var(--white);
+        box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+    }
+
+        .btn-cq-blue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(37,99,235,0.4);
+        }
+
+    .btn-cq-red {
+        background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+        color: var(--white);
+        box-shadow: 0 4px 14px rgba(220,38,38,0.3);
+    }
+
+        .btn-cq-red:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(220,38,38,0.4);
+        }
+
+    .btn-cq-secondary {
+        background: var(--white);
+        color: var(--navy-mid);
+        border: 2px solid #D1D5DB !important;
+        box-shadow: none;
+    }
+
+        .btn-cq-secondary:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF !important;
+            color: var(--navy);
+            transform: translateY(-2px);
+        }
+
+    /* ── MODALS ── */
+    .modal-cq .modal-content {
+        border: 2px solid var(--border);
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .modal-cq .modal-header {
+        background: var(--navy-gradient);
+        border: none;
+        padding: 22px 28px;
+        position: relative;
+    }
+
+        .modal-cq .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--green-gradient);
+        }
+
+        .modal-cq .modal-header h5 {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 16px;
+            margin: 0;
+        }
+
+            .modal-cq .modal-header h5 i {
+                color: var(--green-light);
+            }
+
+    /* Blue modal */
+    .modal-cq.blue-modal .modal-header {
+        background: linear-gradient(135deg, #1E3A5F 0%, #1E40AF 100%);
+    }
+
+        .modal-cq.blue-modal .modal-header::after {
+            background: linear-gradient(135deg, #93C5FD 0%, #3B82F6 100%);
+        }
+
+        .modal-cq.blue-modal .modal-header h5 i {
+            color: #93C5FD;
+        }
+
+    .modal-cq.blue-modal .modal-body {
+        background: linear-gradient(160deg, #fff 60%, #EFF6FF 100%);
+    }
+
+    .modal-cq.blue-modal .modal-footer {
+        background: #EFF6FF;
+    }
+
+    /* Red modal */
+    .modal-cq.red-modal .modal-content {
+        border-color: #FCA5A5;
+    }
+
+    .modal-cq.red-modal .modal-header {
+        background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+    }
+
+        .modal-cq.red-modal .modal-header::after {
+            background: linear-gradient(135deg, #FCA5A5 0%, #F87171 100%);
+        }
+
+        .modal-cq.red-modal .modal-header h5 i {
+            color: #FCA5A5;
+        }
+
+    .modal-cq.red-modal .modal-body {
+        background: linear-gradient(160deg, #fff 60%, #FEF2F2 100%);
+    }
+
+    .modal-cq.red-modal .modal-footer {
+        background: #FEF2F2;
+    }
+
+    .modal-cq .modal-body {
+        padding: 28px;
+        background: linear-gradient(160deg, #fff 60%, var(--green-pale) 100%);
+    }
+
+    .modal-cq .modal-footer {
+        border: none;
+        padding: 16px 28px 24px;
+        background: var(--green-pale);
+        gap: 10px;
+        justify-content: center;
+    }
+
+    /* modal info box */
+    .modal-info-box {
+        border-radius: 12px;
+        padding: 13px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+        .modal-info-box.blue {
+            background: #EFF6FF;
+            border: 2px solid #BFDBFE;
+            border-left: 5px solid #3B82F6;
+            color: #1E3A5F;
+        }
+
+            .modal-info-box.blue i {
+                color: #3B82F6;
+            }
+
+        .modal-info-box.amber {
+            background: #FFFBEB;
+            border: 2px solid #F59E0B;
+            border-left: 5px solid #D97706;
+            color: #78350F;
+        }
+
+            .modal-info-box.amber i {
+                color: #D97706;
+            }
+
+    /* input-group for select inside modal */
+    .input-group-cq {
+        display: flex;
+        border: 2px solid rgba(34,197,94,0.3);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.25s;
+    }
+
+        .input-group-cq:focus-within {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+        }
+
+        .input-group-cq input,
+        .input-group-cq textarea,
+        .input-group-cq select {
+            border: none;
+            padding: 13px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--navy);
+            background: var(--white);
+            flex: 1;
+            outline: none;
+            min-width: 0;
+            width: 100%;
+            resize: vertical;
+        }
+
+    /* ── TOAST ── */
+    .cq-toast {
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-size: 13.5px;
+        font-weight: 600;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 320px;
+        max-width: 480px;
+        animation: slideInRight 0.4s ease-out;
+        position: fixed;
+        z-index: 9999;
+    }
+
+        .cq-toast.success {
+            background: var(--green-pale);
+            border: 2px solid rgba(34,197,94,0.3);
+            border-left: 5px solid var(--green);
+            color: var(--navy);
+        }
+
+        .cq-toast.warning {
+            background: #FFFBEB;
+            border: 2px solid #F59E0B;
+            border-left: 5px solid #D97706;
+            color: #78350F;
+        }
+
+        .cq-toast.error {
+            background: #FEE2E2;
+            border: 2px solid #EF4444;
+            border-left: 5px solid #DC2626;
+            color: #7F1D1D;
+        }
+
+        .cq-toast .btn-close {
+            margin-left: auto;
+            opacity: 0.5;
+        }
+
+            .cq-toast .btn-close:hover {
+                opacity: 1;
+            }
+
+    @@keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .notif-page-header {
+            padding: 20px;
+            border-radius: 16px;
+        }
+
+            .notif-page-header h2 {
+                font-size: 17px;
+            }
+
+        .cq-card {
+            border-radius: 16px;
+        }
+
+        .cq-card-header {
+            padding: 16px 20px;
+        }
+
+        .cq-card-body {
+            padding: 20px 18px;
+        }
+
+        .queue-selector-wrap {
+            padding: 18px 20px;
+            border-radius: 16px;
+        }
+
+        .action-card {
+            border-radius: 16px;
+        }
+
+        .action-card-header {
+            padding: 16px 18px;
+        }
+
+        .action-card-body {
+            padding: 16px 18px;
+        }
+    }
+</style>
+
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="notif-page-header">
+        <h2><i class="bi bi-bell-fill"></i> Notification Management</h2>
+        <p>Send automated and manual notifications to students in queue</p>
+    </div>
+
+    <!-- Queue Selector -->
+    <div class="queue-selector-wrap">
+        <div class="row align-items-end">
+            <div class="col-md-6">
+                <label class="form-label-cq"><i class="bi bi-list-ul"></i> Select Queue</label>
+                <select class="form-select-cq" id="queueSelector" onchange="changeQueue()">
+                    <option value="">-- Select a Queue --</option>
+                    @if (ViewBag.Queues != null)
+                    {
+                        foreach (var queue in ViewBag.Queues)
+                        {
+                            <option value="@queue.QueueID" selected="@(queue.QueueID == ViewBag.SelectedQueueId)">
+                                @queue.QueueName @(queue.IsActive ? "(Active)" : "")
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.SelectedQueueId > 0)
+    {
+        <!-- Action Cards -->
+        <div class="row g-3 mb-4">
+
+            <!-- Auto Notifications -->
+            <div class="col-md-4">
+                <div class="action-card green">
+                    <div class="action-card-header">
+                        <div class="action-icon"><i class="bi bi-bell-fill"></i></div>
+                        <div class="action-card-title">
+                            <h5>Auto Notifications</h5>
+                            <small>Based on queue position</small>
+                        </div>
+                    </div>
+                    <div class="action-card-body">
+                        <p>Automatically notify students when they're 20, 10, or 3 positions away from being served.</p>
+                        <button class="btn-cq btn-cq-green" onclick="triggerAutoNotifications()">
+                            <i class="bi bi-send-fill"></i> Trigger Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Broadcast -->
+            <div class="col-md-4">
+                <div class="action-card blue">
+                    <div class="action-card-header">
+                        <div class="action-icon"><i class="bi bi-broadcast"></i></div>
+                        <div class="action-card-title">
+                            <h5>Broadcast</h5>
+                            <small>Send to all students</small>
+                        </div>
+                    </div>
+                    <div class="action-card-body">
+                        <p>Send a message to all students currently in this queue at once.</p>
+                        <button class="btn-cq btn-cq-blue" onclick="openBroadcastModal()">
+                            <i class="bi bi-megaphone-fill"></i> Broadcast Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Alert -->
+            <div class="col-md-4">
+                <div class="action-card red">
+                    <div class="action-card-header">
+                        <div class="action-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                        <div class="action-card-title">
+                            <h5>Emergency Alert</h5>
+                            <small>For urgent situations</small>
+                        </div>
+                    </div>
+                    <div class="action-card-body">
+                        <p>Send urgent notifications to selected students in the queue below.</p>
+                        <button class="btn-cq btn-cq-red" onclick="openEmergencyModal()">
+                            <i class="bi bi-exclamation-circle-fill"></i> Send Alert
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auto Notification Settings -->
+        <div class="cq-card">
+            <div class="cq-card-header">
+                <h5><i class="bi bi-gear-fill"></i> Automatic Notification Settings</h5>
+            </div>
+            <div class="cq-card-body">
+                <form id="notificationSettingsForm">
+                    <div class="row g-4 align-items-start">
+                        <div class="col-md-3 d-flex align-items-center pt-2">
+                            <div class="form-check form-switch form-switch-cq">
+                                <input class="form-check-input" type="checkbox" id="enableAutoNotifications" checked />
+                                <label class="form-check-label" for="enableAutoNotifications">Enable Auto Notifications</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-cq"><i class="bi bi-1-circle-fill"></i> First Notification</label>
+                            <input type="number" class="form-control-cq" id="notifyAt20" value="20" min="1" />
+                            <p class="helper-text"><i class="bi bi-info-circle-fill"></i> People ahead (first alert)</p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-cq"><i class="bi bi-2-circle-fill"></i> Second Notification</label>
+                            <input type="number" class="form-control-cq" id="notifyAt10" value="10" min="1" />
+                            <p class="helper-text"><i class="bi bi-info-circle-fill"></i> Getting closer</p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-cq"><i class="bi bi-3-circle-fill"></i> Final Notification</label>
+                            <input type="number" class="form-control-cq" id="notifyAt3" value="3" min="1" />
+                            <p class="helper-text"><i class="bi bi-info-circle-fill"></i> Almost your turn</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="button" class="btn-cq btn-cq-green" style="width:auto; padding: 12px 24px;" onclick="saveNotificationSettings()">
+                            <i class="bi bi-save-fill"></i> Save Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Students Table -->
+        <div class="cq-card">
+            <div class="cq-card-header">
+                <h5><i class="bi bi-people-fill"></i> Students in Queue (@Model.Count())</h5>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h5>No students in queue</h5>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="cq-table">
+                        <thead>
+                            <tr>
+                                <th style="width:50px;">
+                                    <input type="checkbox" class="cq-checkbox" id="selectAll" onchange="toggleSelectAll()" />
+                                </th>
+                                <th>Queue #</th>
+                                <th>Student Name</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Position</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var servingNumber = Model.Where(s => s.Status == "Serving").OrderBy(s => s.QueueNumber).FirstOrDefault()?.QueueNumber ?? 0;
+                            }
+                            @foreach (var student in Model.OrderBy(s => s.QueueNumber))
+                            {
+                                var positionsAhead = servingNumber > 0 ? student.QueueNumber - servingNumber - 1 : 0;
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="cq-checkbox student-checkbox" value="@student.QueueStudentID" />
+                                    </td>
+                                    <td>
+                                        <span class="badge-cq badge-number">#@student.QueueNumber</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="@(string.IsNullOrEmpty(student.Student.ProfilePhoto) ? "/Images/ProfilePic.jfif" : student.Student.ProfilePhoto)"
+                                                 class="rounded-circle"
+                                                 style="width:36px; height:36px; object-fit:cover; border: 2px solid var(--border);"
+                                                 onerror="this.src='/Images/ProfilePic.jfif'" />
+                                            <strong>@student.Student.FirstName @student.Student.LastName</strong>
+                                        </div>
+                                    </td>
+                                    <td style="color:#6B7280; font-size:13px;">@student.Student.Email</td>
+                                    <td>
+                                        @if (student.Status == "Serving")
+                                        {
+                                            <span class="badge-cq badge-serving"><i class="bi bi-circle-fill" style="font-size:7px;"></i> Serving</span>
+                                        }
+                                        else if (student.Status == "Pending")
+                                        {
+                                            <span class="badge-cq badge-pending"><i class="bi bi-clock-fill" style="font-size:10px;"></i> Pending</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-cq badge-default">@student.Status</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (student.Status == "Pending" && servingNumber > 0)
+                                        {
+                                            if (positionsAhead <= 0)
+                                            {
+                                                <span class="pos-next"><i class="bi bi-arrow-right-circle-fill me-1"></i>Next in line!</span>
+                                            }
+                                            else if (positionsAhead <= 3)
+                                            {
+                                                <span class="pos-close">@positionsAhead ahead</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="pos-normal">@positionsAhead ahead</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="pos-normal">—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="no-queue-box">
+            <i class="bi bi-info-circle-fill"></i>
+            Please select a queue above to manage its notifications.
+        </div>
+    }
+</div>
+
+<!-- Broadcast Modal -->
+<div class="modal fade modal-cq blue-modal" id="broadcastModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-megaphone-fill me-2"></i>Broadcast Notification</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="broadcastForm">
+                    <div class="mb-4">
+                        <label class="form-label-cq"><i class="bi bi-tag-fill"></i> Notification Type</label>
+                        <select class="form-select-cq" id="broadcastType">
+                            <option value="info">Info (Blue)</option>
+                            <option value="success">Success (Green)</option>
+                            <option value="warning">Warning (Yellow)</option>
+                            <option value="error">Error (Red)</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label-cq"><i class="bi bi-fonts"></i> Title</label>
+                        <input type="text" class="form-control-cq" id="broadcastTitle" placeholder="e.g., Queue Update" required />
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label-cq"><i class="bi bi-card-text"></i> Message</label>
+                        <textarea class="form-control-cq" id="broadcastMessage" rows="4" placeholder="Enter your message..." required></textarea>
+                    </div>
+                    <div class="modal-info-box blue">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span>This will be sent to all students currently in the queue.</span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cq btn-cq-secondary" style="width:auto; padding:12px 22px;" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancel
+                </button>
+                <button type="button" class="btn-cq btn-cq-blue" style="width:auto; padding:12px 22px;" id="sendBroadcastBtn" onclick="sendBroadcast()">
+                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    <i class="bi bi-send-fill"></i> Send Broadcast
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Emergency Modal -->
+<div class="modal fade modal-cq red-modal" id="emergencyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Emergency Notification</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="emergencyForm">
+                    <div class="mb-4">
+                        <label class="form-label-cq"><i class="bi bi-tag-fill"></i> Notification Type</label>
+                        <select class="form-select-cq" id="emergencyType">
+                            <option value="error">Urgent (Red)</option>
+                            <option value="warning">Warning (Yellow)</option>
+                            <option value="info">Info (Blue)</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label-cq"><i class="bi bi-fonts"></i> Title</label>
+                        <input type="text" class="form-control-cq" id="emergencyTitle" placeholder="e.g., Emergency Closure" required />
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label-cq"><i class="bi bi-card-text"></i> Message</label>
+                        <textarea class="form-control-cq" id="emergencyMessage" rows="4" placeholder="Enter urgent message..." required></textarea>
+                    </div>
+                    <div class="modal-info-box amber">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span>This will be sent to selected students only. Please select students from the table first.</span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cq btn-cq-secondary" style="width:auto; padding:12px 22px;" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancel
+                </button>
+                <button type="button" class="btn-cq btn-cq-red" style="width:auto; padding:12px 22px;" id="sendEmergencyBtn" onclick="sendEmergency()">
+                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    <i class="bi bi-exclamation-circle-fill"></i> Send Alert
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        const queueId = @ViewBag.SelectedQueueId;
+        let broadcastModal, emergencyModal;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            broadcastModal = new bootstrap.Modal(document.getElementById('broadcastModal'));
+            emergencyModal = new bootstrap.Modal(document.getElementById('emergencyModal'));
+        });
+
+        function getAntiForgeryToken() {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!token) { console.error('Anti-forgery token not found!'); return null; }
+            return token.value;
+        }
+
+        function openBroadcastModal() { broadcastModal.show(); }
+
+        function openEmergencyModal() {
+            if (!getSelectedStudents()) { showToast('Please select at least one student first', 'warning'); return; }
+            emergencyModal.show();
+        }
+
+        function changeQueue() {
+            const id = document.getElementById('queueSelector').value;
+            if (id) window.location.href = `/Admin/Notifications?queueId=${id}`;
+        }
+
+        function toggleSelectAll() {
+            const checked = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = checked);
+        }
+
+        function getSelectedStudents() {
+            const boxes = document.querySelectorAll('.student-checkbox:checked');
+            return Array.from(boxes).map(cb => cb.value).join(',') || null;
+        }
+
+        async function triggerAutoNotifications() {
+            if (!queueId) { showToast('Please select a queue first', 'error'); return; }
+            if (!confirm('This will send position-based notifications to all eligible students. Continue?')) return;
+            const token = getAntiForgeryToken();
+            if (!token) { showToast('Security token missing. Please refresh the page.', 'error'); return; }
+            try {
+                const fd = new FormData();
+                fd.append('__RequestVerificationToken', token);
+                const res = await fetch(`/Admin/TriggerPositionNotifications?queueId=${queueId}`, { method: 'POST', body: fd });
+                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+                const data = await res.json();
+                showToast(data.message, data.success ? 'success' : 'error');
+            } catch (err) { showToast('Failed: ' + err.message, 'error'); }
+        }
+
+        async function sendBroadcast() {
+            const title = document.getElementById('broadcastTitle').value.trim();
+            const message = document.getElementById('broadcastMessage').value.trim();
+            const type = document.getElementById('broadcastType').value;
+            const btn = document.getElementById('sendBroadcastBtn');
+            const spinner = btn.querySelector('.spinner-border');
+            if (!title || !message) { showToast('Please fill in all fields', 'error'); return; }
+            const token = getAntiForgeryToken();
+            if (!token) { showToast('Security token missing.', 'error'); return; }
+            btn.disabled = true; spinner.classList.remove('d-none');
+            try {
+                const fd = new FormData();
+                fd.append('__RequestVerificationToken', token);
+                fd.append('queueId', queueId); fd.append('title', title);
+                fd.append('message', message); fd.append('notificationType', type);
+                const res = await fetch('/Admin/SendBroadcastNotification', { method: 'POST', body: fd });
+                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+                const data = await res.json();
+                if (data.success) { showToast(data.message, 'success'); broadcastModal.hide(); document.getElementById('broadcastForm').reset(); }
+                else showToast(data.message || 'Failed to send broadcast', 'error');
+            } catch (err) { showToast('Failed: ' + err.message, 'error'); }
+            finally { btn.disabled = false; spinner.classList.add('d-none'); }
+        }
+
+        async function sendEmergency() {
+            const title = document.getElementById('emergencyTitle').value.trim();
+            const message = document.getElementById('emergencyMessage').value.trim();
+            const type = document.getElementById('emergencyType').value;
+            const studentIds = getSelectedStudents();
+            const btn = document.getElementById('sendEmergencyBtn');
+            const spinner = btn.querySelector('.spinner-border');
+            if (!title || !message) { showToast('Please fill in all fields', 'error'); return; }
+            if (!studentIds) { showToast('Please select at least one student', 'error'); return; }
+            const token = getAntiForgeryToken();
+            if (!token) { showToast('Security token missing.', 'error'); return; }
+            btn.disabled = true; spinner.classList.remove('d-none');
+            try {
+                const fd = new FormData();
+                fd.append('__RequestVerificationToken', token); fd.append('queueId', queueId);
+                fd.append('studentIds', studentIds); fd.append('title', title);
+                fd.append('message', message); fd.append('notificationType', type);
+                const res = await fetch('/Admin/SendManualNotification', { method: 'POST', body: fd });
+                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success'); emergencyModal.hide();
+                    document.getElementById('emergencyForm').reset();
+                    document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
+                    document.getElementById('selectAll').checked = false;
+                } else showToast(data.message || 'Failed', 'error');
+            } catch (err) { showToast('Failed: ' + err.message, 'error'); }
+            finally { btn.disabled = false; spinner.classList.add('d-none'); }
+        }
+
+        async function saveNotificationSettings() {
+            const token = getAntiForgeryToken();
+            if (!token) { showToast('Security token missing.', 'error'); return; }
+            try {
+                const fd = new FormData();
+                fd.append('__RequestVerificationToken', token); fd.append('queueId', queueId);
+                fd.append('enableAutoNotifications', document.getElementById('enableAutoNotifications').checked);
+                fd.append('notifyAt20', document.getElementById('notifyAt20').value);
+                fd.append('notifyAt10', document.getElementById('notifyAt10').value);
+                fd.append('notifyAt3',  document.getElementById('notifyAt3').value);
+                const res = await fetch('/Admin/UpdateNotificationSettings', { method: 'POST', body: fd });
+                if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+                const data = await res.json();
+                showToast(data.success ? (data.message || 'Settings saved!') : (data.message || 'Failed'), data.success ? 'success' : 'error');
+            } catch (err) { showToast('Failed: ' + err.message, 'error'); }
+        }
+
+        // ── TOAST ──
+        let toastTop = 80;
+        function showToast(message, type = 'success') {
+            const id = 'toast-' + Date.now();
+            const icons = { success: 'bi-check-circle-fill', warning: 'bi-exclamation-triangle-fill', error: 'bi-x-circle-fill' };
+            const el = document.createElement('div');
+            el.id = id;
+            el.className = `cq-toast ${type}`;
+            el.style.cssText = `top: ${toastTop}px; right: 20px;`;
+            el.innerHTML = `<i class="bi ${icons[type] || icons.success}"></i><span>${message}</span><button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>`;
+            document.body.appendChild(el);
+            toastTop += 70;
+            setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.4s'; setTimeout(() => { el.remove(); toastTop = Math.max(80, toastTop - 70); }, 400); }, 5000);
+        }
+
+        // ── SignalR ──
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificationHub")
+            .configureLogging(signalR.LogLevel.Warning)
+            .build();
+
+        connection.start().catch(err => console.error('SignalR error:', err));
+        connection.onclose(() => setTimeout(() => connection.start(), 5000));
+    </script>
+}
