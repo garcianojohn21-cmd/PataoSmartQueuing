@@ -1,5 +1,20 @@
-﻿.vs/
-bin/
-obj/
+﻿# Visual Studio
+.vs/
 *.user
 *.suo
+
+# Build folders
+bin/
+obj/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# NuGet packages (optional)
+packages/
+
+# Logs
+*.log
